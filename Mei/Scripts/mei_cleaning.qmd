@@ -1,0 +1,109 @@
+---
+title: "Mei Opihi Cleaning"
+author: "Mei Iwamoto"
+format: html
+editor: visual
+---
+
+## Cleaning 2024 Opihi Data - Mei
+
+```{r}
+#load libraries
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+```
+
+```{r}
+#import opihi 2024 quadrat and metadata data, master file 
+metadata_2024 <- read.csv(here("Mei","Data","opihi_2024_metadata.csv"))
+quadrat_2024 <- read.csv(here("Mei","Data","opihi_2024_quadrat.csv"))
+master <- read.csv(here("Mei","Data","mei_master.csv"))
+```
+
+### Cleaning data
+
+```{r}
+#before joining metadata to survey data, have to clean data so everything matches
+quadrat_2024 <- quadrat_2024 |> 
+  mutate(
+    Date=mdy(Date), 
+    Location=recode(Location, "ʻEwa"="Ewa", "`Ewa"="Ewa", "Leʻahi"="Leahi", "Lēʻahi"="Leahi", "Mamala Bay"="Mamala")) #removed Hawaiian diacriticals (for now, will re-edit to correct Hawaiian names for figures, etc) 
+  
+  
+
+#clean metadata
+metadata_2024 <- metadata_2024 |> 
+  mutate(
+    Date=mdy(Date),
+    Location=recode(Location, "ʻEwa"="Ewa", "`Ewa"="Ewa", "Le'ahi"="Leahi", "Lē'ahi"="Leahi", "Mamala Bay"="Mamala", "Ewa Beach"="Ewa", "Kalealoa"="Kalaeloa"))
+  
+```
+
+### Using Gemini for code
+
+```{r}
+#I used Google Gemini to generate code to help join my metadata and quadrat datasets together. I did not provide any of the actual data to Gemini, only the column names shared by both datasets
+opihi_2024 <- left_join(quadrat_2024, metadata_2024, by = c("Date", "Location")) |>
+  clean_names() |> 
+  rename(
+    transect_number = x_t
+  ) |> 
+  write.csv(here("Mei","Data","opihi_2024.csv"))
+```
+
+```{r}
+master <- master |> 
+  mutate(
+    Date=mdy(Date),
+    Location=recode(Location, "Kahalu'u Bay "="Kahaluʻu Bay", "Ewa Beach"="Ewa"),
+    School=recode(School, "OPIHI Coordinator"="OPIHI", "OPIHI  "="OPIHI", "Kilauea. "="Kilauea School", "Kilauea"="Kilauea School", "Farrington High school"="Farrington High School", "University of Hawaii at Manoa" = "UH Manoa", "Hongwanji MIssion School"="Hongwanji Mission School", "Highlands Intermediate  "= "Highlands Intermediate School", "Hilo Union School"="Hilo Union Elementary", "Hawaii Technology Academy PCS"="Hawaii Technology Academy","Kilauea  "= "Kilauea School")
+  ) |> 
+  clean_names()
+  
+```
+
+### Gemini Round 2
+
+```{r}
+#I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets together. I did not provide any of the actual data to Gemini, only the column names. Specifically, I asked Gemini to identify any columns (namely for the different species counts) that may have spelling differences but refer to the same species/genus. I did ask Gemini to preserve any individual species instead of combining together into genus. 
+
+#add link to google doc that saved Gemini output 
+
+#ai-generated code below, fyi I havenʻt run it yet! I wanted to still double check that all the things it suggested were correct 
+
+# 3. Clean typos, name formats, and metadata in df2 without losing specific species
+#df2_standardized <- df2 %>%
+  #rename(
+    # --- Metadata Column Standardizations ---
+    stop_time = end_time,
+    num_of_t = x_t,
+    num_of_quad_t = x_quad_t,
+    pt_spacing = dist_between_t_pts_for_q,
+    transect_length = longest_t_m,
+    
+    # --- Typo Fixes ---
+    bornetella_sphaerica = bornatella_sphaerica,
+    gracilaria_salicornia = gracilaria_salicronia,
+    hermit_crab = hermet_crab,
+    symploca_hydnoides = symploca_hypnoides,
+    dictyopteris_spp = dichtyopterous,
+    ceramium_sp = cerramium_sp,
+    sphacelaria_spp = sphaecelaria_sp,
+    
+    # --- Common Name / Prefix Standardizations (Matching df1 Naming Scheme) ---
+    dendropoma_gregaria = snail_dendropoma_gregarium,
+    haminoea_cymbalum = haminoea_cymbalum_green_snail,
+    pennaria_disticha = pennaria_disticha_christmas_tree_hydroid,
+    siphonaria_normalis = snail_siphonaria_normalis,
+    actinopyga_varians = cucumber_actinopyga,
+    holothuria_spp = cucumber_holothuria,
+    sponge_spp = sponge,
+    articulated_corallines = articulated_coralline,
+    pterocladiella_spp = pterocladiella,
+    portieria_hornemannii = portieria
+  )
+```
+
+### Research Question: Teacher/team effects: Does sampling completeness or consistency vary by teacher/team? Are some teams "better"? If so, how? Visualize information by different teams 
