@@ -139,7 +139,6 @@ Attaching package: 'janitor'</code></pre>
     chisq.test, fisher.test</code></pre>
 </div>
 </div>
-<p>2023 Opihi</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#bring in file </span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>opihi_file_in <span class="ot">&lt;-</span> (<span class="st">"~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/OPIHI2023-p1-p2.xlsx"</span>)</span>
@@ -2665,7 +2664,7 @@ date (1): date
 <span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, site, date, method, transect, quadrat, organism_substrate)</span>
 <span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_master_all,<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi_master.csv"</span>), <span class="at">na =</span><span class="st">""</span>)</span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_master_all,<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi_master_combine.csv"</span>), <span class="at">na =</span><span class="st">""</span>)</span>
 <span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a><span class="co">#check the combination</span></span>
 <span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a>opihi_combine <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_master.csv"</span>))   <span class="co"># use the file name you saved</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

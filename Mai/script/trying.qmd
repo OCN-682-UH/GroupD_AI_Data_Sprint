@@ -17,7 +17,6 @@ library(janitor)
 ```
 
 
-2023 Opihi
 ```{r}
 #bring in file 
 opihi_file_in <- ("~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/OPIHI2023-p1-p2.xlsx")
@@ -477,7 +476,7 @@ opihi_master_all <- bind_rows(opihi_23_y, opihi_67_y, opihi_16_y) |>
   arrange(year, site, date, method, transect, quadrat, organism_substrate)
 
 
-write_csv(opihi_master_all,here("Mai","data","opihi_master.csv"), na ="")
+write_csv(opihi_master_all,here("Mai","data","opihi_master_combine.csv"), na ="")
 
 #check the combination
 opihi_combine <- read_csv(here("Mai", "data", "opihi_master.csv"))   # use the file name you saved
