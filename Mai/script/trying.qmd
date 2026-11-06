@@ -17,10 +17,13 @@ library(janitor)
 ```
 
 
-
+2023 Opihi
 ```{r}
-opihi_file_in <- ("~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/Mai/data/OPIHI2023-p1-p2.xlsx")
-opihi_file_out <- here("opihi", "data","opihi23_data.xlsx")
+#bring in file 
+opihi_file_in <- ("~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/OPIHI2023-p1-p2.xlsx")
+opihi_file_out <- here("Mai", "data","opihi23_data.xlsx")
+
+#read excel 
 excel_sheets(opihi_file_in)
 
 ```
@@ -45,7 +48,7 @@ sh_t2 <- "TRANSECT PT INTERCEPT (P2)"
 sh_q1 <- "QUADRAT PT INTERCEPT (P1)"
 sh_q2 <- "QUADRAT PT INTERCEPT (P2)"
  
-# ---------- 1. RAW DATA ONLY ----------
+# Raw Data
 # Transect sheets: header on row 4, 7 points on rows 5-11, columns A:I.
 # Everything right of column I is compiled/summary data, so it is skipped.
 read_transect <- function(sheet) {
@@ -86,6 +89,7 @@ Name
 
 # Transect sheets: NAME in row 3 (C:I), group codes in row 4.
 # Quadrat sheets:  NAME / CHECKER #1 / CHECKER #2 in rows 2-4 (B:H), group codes in row 5.
+#function to read transect names
 read_names_transect <- function(sheet) {
   nm <- read_excel(opihi_file_in, sheet = sheet, range = "C3:I4", col_names = FALSE, col_types = "text")
   tibble(Method = "Transect",
@@ -93,6 +97,8 @@ read_names_transect <- function(sheet) {
          Recorder = as.character(unlist(nm[1, ])),
          Checker_1 = NA_character_, Checker_2 = NA_character_)
 }
+
+#function to read the quadrat names 
 read_names_quadrat <- function(sheet) {
   nm <- read_excel(opihi_file_in, sheet = sheet, range = "B2:H5", col_names = FALSE, col_types = "text")
   tibble(Method = "Quadrat",
@@ -101,6 +107,8 @@ read_names_quadrat <- function(sheet) {
          Checker_1 = as.character(unlist(nm[2, ])),
          Checker_2 = as.character(unlist(nm[3, ])))
 }
+
+#table names of transect and quadrats
 names_tbl <- bind_rows(
   read_names_transect(sh_t1),
   read_names_transect(sh_t2),
@@ -124,27 +132,28 @@ clean_map <- c(
   "sargassum polyphyllum" = "Sargassum polyphyllum",
   "saragassum polyphylum" = "Sargassum polyphyllum",
   "sargassum aquifolium" = "Sargassum aquifolium",
-  "sr aquifolium" = "Sargassum aquifolium",          # assumed: Sr = Sargassum
+  "sr aquifolium" = "Sargassum aquifolium",  # assumed: Sr = Sargassum
   "turbinaria ornata" = "Turbinaria ornata",
   "turbinania ornata" = "Turbinaria ornata",
   "neomeris" = "Neomeris spp.", "neomeris spp." = "Neomeris spp.",
   "bornatella sphaerica" = "Bornetella sphaerica",
   "bornatella spaerica" = "Bornetella sphaerica",
   "byropsis pennata" = "Bryopsis pennata",
-  "caiclmus laevimanus" = "Calcinus laevimanus",    # assumed typo (hermit crab)
+  "caiclmus laevimanus" = "Calcinus laevimanus", # assumed typo (hermit crab)
   "halimeda discoidea" = "Halimeda discoidea",
   "halimeda discodia" = "Halimeda discoidea",
   "avrainvilea sp." = "Avrainvillea sp.",
   "unknown snail" = "Unknown snail",
   "unknown fish" = "Unknown fish",
-  "y" = "Unidentified"                              # stray entry, not guessed
+  "y" = "Unidentified"  # stray entry, not guessed
 )
-substrates <- c("Rock", "Sand")
+
+substrates <- c("Rock","Sand")
  
 clean_label <- function(x) {
   key <- str_to_lower(str_squish(x))
   out <- unname(clean_map[key])
-  ifelse(is.na(out), str_squish(x), out)            # unmapped labels are just trimmed
+  ifelse(is.na(out), str_squish(x), out)# unmapped labels are just trimmed
 }
  
 stacked <- stacked %>%
@@ -152,31 +161,6 @@ stacked <- stacked %>%
          Type  = if_else(Label %in% substrates, "Substrate", "Organism"))
 
 ```
-
-```{r}
-read_names_transect <- function(sheet) {
-  nm <- read_excel(opihi_file_in, sheet = sheet, range = "C3:I4", col_names = FALSE, col_types = "text")
-  tibble(Method = "Transect",
-         Group = as.character(unlist(nm[2, ])),
-         Recorder = as.character(unlist(nm[1, ])),
-         Checker_1 = NA_character_, Checker_2 = NA_character_)
-}
-read_names_quadrat <- function(sheet) {
-  nm <- read_excel(opihi_file_in, sheet = sheet, range = "B2:H5", col_names = FALSE, col_types = "text")
-  tibble(Method = "Quadrat",
-         Group = as.character(unlist(nm[4, ])),
-         Recorder = as.character(unlist(nm[1, ])),
-         Checker_1 = as.character(unlist(nm[2, ])),
-         Checker_2 = as.character(unlist(nm[3, ])))
-}
-names_tbl <- bind_rows(
-  read_names_transect("TRANSECT PT INTERCEPT (P1)"),
-  read_names_transect("TRANSECT PT INTERCEPT (P2)"),
-  read_names_quadrat("QUADRAT PT INTERCEPT (P1)"),
-  read_names_quadrat("QUADRAT PT INTERCEPT (P2)")
-) %>% mutate(across(c(Recorder, Checker_1, Checker_2), str_squish))
-```
-
 
 ```{r}
 # Quadrat rows that collapse to the same label are added together
@@ -201,7 +185,7 @@ opihi_long <- bind_rows(
 opihi_long <- janitor::clean_names(opihi_long)
 
 glimpse(opihi_long)
-write_csv(opihi_long, here("Mai", "data", "opihi_master_long.csv"), na = "")
+write_csv(opihi_long, here("Mai", "data", "opihi_23_long.csv"), na = "")
 ```
 
 ```{r}
@@ -227,9 +211,9 @@ write_csv(opihi_long, here("Mai", "data", "opihi_label_map.csv"), na = "")
 
 
 ```{r}
-#Insert files 
+#Insert 2006 - 2007 files
 
-file_0607 <- here("Mai", "data", "OPIHI data 2006 and 2007.xlsx")
+file_0607 <- here("/Users/macbookpro/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/OPIHI data 2006 and 2007.xlsx")
 
 file_csv  <- here("Mai", "data", "opihi_long_2006_2007.csv")
  
@@ -330,11 +314,11 @@ write_csv(opihi_0607,here("Mai","data","opihi_long_2006_2007.csv"), na = "")
 ```
 
 
-
+2016 files 
 ```{r}
 #Insert files 
 
-opihi_16_file <- here("Mai", "data", "opihi_16_data.xlsx")      
+opihi_16_file <- here("/Users/macbookpro/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/opihi_16_data.xlsx")      
 opihi_16_file_out  <- here("Mai", "data", "opihi_long_2016.csv")
 stopifnot(file.exists(opihi_16_file))
  
@@ -437,7 +421,7 @@ Combined
 ```{r}
 #Get the csv files
 
-opihi_23 <- read_csv(here("Mai","data","opihi_master_long.csv"))
+opihi_23 <- read_csv(here("Mai","data","opihi_23_long.csv"))
 opihi_67 <- read_csv(here("Mai","data","opihi_long_2006_2007.csv"))
 opihi_16 <- read_csv(here("Mai","data","opihi16.csv"))
 
