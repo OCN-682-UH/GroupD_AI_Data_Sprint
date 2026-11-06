@@ -1,0 +1,3139 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>OPIHI</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="trying_files/libs/clipboard/clipboard.min.js"></script>
+<script src="trying_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="trying_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="trying_files/libs/quarto-html/popper.min.js"></script>
+<script src="trying_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="trying_files/libs/quarto-html/anchor.min.js"></script>
+<link href="trying_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="trying_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="trying_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="trying_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="trying_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">OPIHI</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="opihi" class="level1">
+<h1>2023 OPIHI</h1>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/macbookpro/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'janitor'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    chisq.test, fisher.test</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>opihi_file_in <span class="ot">&lt;-</span> (<span class="st">"~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/Mai/data/OPIHI2023-p1-p2.xlsx"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>opihi_file_out <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"opihi"</span>, <span class="st">"data"</span>,<span class="st">"opihi23_data.xlsx"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">excel_sheets</span>(opihi_file_in)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "GROUP DATA"                 "TRANSECT PT INTERCEPT (P1)"
+[3] "TRANSECT PT INTERCEPT (P2)" "P1 &amp; P2 TRANSECT"          
+[5] "QUADRAT PT INTERCEPT (P1)"  "QUADRAT PT INTERCEPT (P2)" </code></pre>
+</div>
+</div>
+<p>Raw Data</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (named tab_names, not "sheets": openxlsx has its own sheets() function, which causes clashes)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tab_names <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">excel_sheets</span>(opihi_file_in))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tab_names)   <span class="co"># the tab names R actually sees</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "GROUP DATA"                 "TRANSECT PT INTERCEPT (P1)"
+[3] "TRANSECT PT INTERCEPT (P2)" "P1 &amp; P2 TRANSECT"          
+[5] "QUADRAT PT INTERCEPT (P1)"  "QUADRAT PT INTERCEPT (P2)" </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>find_sheet <span class="ot">&lt;-</span> <span class="cf">function</span>(kind, p) {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  up  <span class="ot">&lt;-</span> <span class="fu">str_to_upper</span>(tab_names)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  hit <span class="ot">&lt;-</span> tab_names[<span class="fu">str_detect</span>(up, <span class="fu">paste0</span>(<span class="st">"^"</span>, kind)) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(up, p)]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(hit) <span class="sc">!=</span> <span class="dv">1</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"Expected exactly 1 '"</span>, kind, <span class="st">" ... "</span>, p, <span class="st">"' tab, found "</span>, <span class="fu">length</span>(hit),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>         <span class="st">". Tabs in file: "</span>, <span class="fu">paste</span>(tab_names, <span class="at">collapse =</span> <span class="st">" | "</span>))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  hit</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>sh_t1 <span class="ot">&lt;-</span> <span class="st">"TRANSECT PT INTERCEPT (P1)"</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>sh_t2 <span class="ot">&lt;-</span> <span class="st">"TRANSECT PT INTERCEPT (P2)"</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>sh_q1 <span class="ot">&lt;-</span> <span class="st">"QUADRAT PT INTERCEPT (P1)"</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>sh_q2 <span class="ot">&lt;-</span> <span class="st">"QUADRAT PT INTERCEPT (P2)"</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- 1. RAW DATA ONLY ----------</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Transect sheets: header on row 4, 7 points on rows 5-11, columns A:I.</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Everything right of column I is compiled/summary data, so it is skipped.</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>read_transect <span class="ot">&lt;-</span> <span class="cf">function</span>(sheet) {</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_excel</span>(opihi_file_in, <span class="at">sheet =</span> sheet, <span class="at">range =</span> <span class="st">"A4:I11"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Point =</span> <span class="dv">1</span>, <span class="at">Location_m =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(Point, Location_m), <span class="at">names_to =</span> <span class="st">"Group"</span>, <span class="at">values_to =</span> <span class="st">"Original"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Original)) <span class="sc">|&gt;</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Original =</span> <span class="fu">as.character</span>(Original),</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">Method =</span> <span class="st">"Transect"</span>, <span class="at">Site =</span> <span class="fu">str_sub</span>(Group, <span class="dv">1</span>, <span class="dv">2</span>), <span class="at">Points =</span> <span class="dv">1</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Quadrat sheets: header on row 5, organisms start row 6, columns A:H.</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop at the "TOTAL Points" row; the TOTALS column (I) and % columns (J:K) are never read.</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>read_quadrat <span class="ot">&lt;-</span> <span class="cf">function</span>(sheet) {</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(opihi_file_in, <span class="at">sheet =</span> sheet, <span class="at">range =</span> <span class="st">"A5:H40"</span>) <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">Original =</span> <span class="dv">1</span>)</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>  stop_at <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">str_detect</span>(df<span class="sc">$</span>Original, <span class="st">"TOTAL Points"</span>))[<span class="dv">1</span>]</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>  df[<span class="fu">seq_len</span>(stop_at <span class="sc">-</span> <span class="dv">1</span>), ] <span class="sc">|&gt;</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Original)) <span class="sc">|&gt;</span>                      <span class="co"># drop empty template rows</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span>Original, <span class="at">names_to =</span> <span class="st">"Group"</span>, <span class="at">values_to =</span> <span class="st">"Points"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Points =</span> <span class="fu">replace_na</span>(<span class="fu">as.numeric</span>(Points), <span class="dv">0</span>))<span class="sc">|&gt;</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Points <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span>                            <span class="co"># blank = 0 points</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Method =</span> <span class="st">"Quadrat"</span>, <span class="at">Site =</span> <span class="fu">str_sub</span>(Group, <span class="dv">1</span>, <span class="dv">2</span>), <span class="at">Location_m =</span> <span class="cn">NA_real_</span>)</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a><span class="co"># 'GROUP DATA' is an empty template and 'P1 &amp; P2 TRANSECT' is all formulas,</span></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a><span class="co"># so neither has raw data.</span></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>stacked <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_transect</span>(sh_t1),</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_transect</span>(sh_t2),</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_quadrat</span>(sh_q1),</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_quadrat</span>(sh_q2)</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Name</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transect sheets: NAME in row 3 (C:I), group codes in row 4.</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Quadrat sheets:  NAME / CHECKER #1 / CHECKER #2 in rows 2-4 (B:H), group codes in row 5.</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>read_names_transect <span class="ot">&lt;-</span> <span class="cf">function</span>(sheet) {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  nm <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(opihi_file_in, <span class="at">sheet =</span> sheet, <span class="at">range =</span> <span class="st">"C3:I4"</span>, <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">Method =</span> <span class="st">"Transect"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">Group =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">2</span>, ])),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">Recorder =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">1</span>, ])),</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">Checker_1 =</span> <span class="cn">NA_character_</span>, <span class="at">Checker_2 =</span> <span class="cn">NA_character_</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>read_names_quadrat <span class="ot">&lt;-</span> <span class="cf">function</span>(sheet) {</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  nm <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(opihi_file_in, <span class="at">sheet =</span> sheet, <span class="at">range =</span> <span class="st">"B2:H5"</span>, <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">Method =</span> <span class="st">"Quadrat"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">Group =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">4</span>, ])),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">Recorder =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">1</span>, ])),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">Checker_1 =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">2</span>, ])),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">Checker_2 =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">3</span>, ])))</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>names_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_transect</span>(sh_t1),</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_transect</span>(sh_t2),</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_quadrat</span>(sh_q1),</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_quadrat</span>(sh_q2)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(Recorder, Checker_1, Checker_2), str_squish))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+New names:
+New names:
+New names:
+• `` -&gt; `...1`
+• `` -&gt; `...2`
+• `` -&gt; `...3`
+• `` -&gt; `...4`
+• `` -&gt; `...5`
+• `` -&gt; `...6`
+• `` -&gt; `...7`</code></pre>
+</div>
+</div>
+<p>Clean Labels</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lookup key = trimmed, lower-case original. Edit this map to change any decision.</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>clean_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"rock"</span> <span class="ot">=</span> <span class="st">"Rock"</span>, <span class="st">"sand"</span> <span class="ot">=</span> <span class="st">"Sand"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"turf algae"</span> <span class="ot">=</span> <span class="st">"Turf algae"</span>, <span class="st">"turf"</span> <span class="ot">=</span> <span class="st">"Turf algae"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"padina spp"</span> <span class="ot">=</span> <span class="st">"Padina spp."</span>, <span class="st">"padina spp."</span> <span class="ot">=</span> <span class="st">"Padina spp."</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"acanthophora spicifera"</span> <span class="ot">=</span> <span class="st">"Acanthophora spicifera"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"dendropoma gregarium"</span> <span class="ot">=</span> <span class="st">"Dendropoma gregarium"</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"sargassum polyphylum"</span> <span class="ot">=</span> <span class="st">"Sargassum polyphyllum"</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"sargassum polyphyllum"</span> <span class="ot">=</span> <span class="st">"Sargassum polyphyllum"</span>,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"saragassum polyphylum"</span> <span class="ot">=</span> <span class="st">"Sargassum polyphyllum"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"sargassum aquifolium"</span> <span class="ot">=</span> <span class="st">"Sargassum aquifolium"</span>,</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"sr aquifolium"</span> <span class="ot">=</span> <span class="st">"Sargassum aquifolium"</span>,          <span class="co"># assumed: Sr = Sargassum</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"turbinaria ornata"</span> <span class="ot">=</span> <span class="st">"Turbinaria ornata"</span>,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"turbinania ornata"</span> <span class="ot">=</span> <span class="st">"Turbinaria ornata"</span>,</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"neomeris"</span> <span class="ot">=</span> <span class="st">"Neomeris spp."</span>, <span class="st">"neomeris spp."</span> <span class="ot">=</span> <span class="st">"Neomeris spp."</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"bornatella sphaerica"</span> <span class="ot">=</span> <span class="st">"Bornetella sphaerica"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"bornatella spaerica"</span> <span class="ot">=</span> <span class="st">"Bornetella sphaerica"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"byropsis pennata"</span> <span class="ot">=</span> <span class="st">"Bryopsis pennata"</span>,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"caiclmus laevimanus"</span> <span class="ot">=</span> <span class="st">"Calcinus laevimanus"</span>,    <span class="co"># assumed typo (hermit crab)</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"halimeda discoidea"</span> <span class="ot">=</span> <span class="st">"Halimeda discoidea"</span>,</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"halimeda discodia"</span> <span class="ot">=</span> <span class="st">"Halimeda discoidea"</span>,</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"avrainvilea sp."</span> <span class="ot">=</span> <span class="st">"Avrainvillea sp."</span>,</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"unknown snail"</span> <span class="ot">=</span> <span class="st">"Unknown snail"</span>,</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"unknown fish"</span> <span class="ot">=</span> <span class="st">"Unknown fish"</span>,</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">"y"</span> <span class="ot">=</span> <span class="st">"Unidentified"</span>                              <span class="co"># stray entry, not guessed</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>substrates <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Rock"</span>, <span class="st">"Sand"</span>)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>clean_label <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  key <span class="ot">&lt;-</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(x))</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">unname</span>(clean_map[key])</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(<span class="fu">is.na</span>(out), <span class="fu">str_squish</span>(x), out)            <span class="co"># unmapped labels are just trimmed</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>stacked <span class="ot">&lt;-</span> stacked <span class="sc">%&gt;%</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Label =</span> <span class="fu">clean_label</span>(Original),</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type  =</span> <span class="fu">if_else</span>(Label <span class="sc">%in%</span> substrates, <span class="st">"Substrate"</span>, <span class="st">"Organism"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>read_names_transect <span class="ot">&lt;-</span> <span class="cf">function</span>(sheet) {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  nm <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(opihi_file_in, <span class="at">sheet =</span> sheet, <span class="at">range =</span> <span class="st">"C3:I4"</span>, <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">Method =</span> <span class="st">"Transect"</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">Group =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">2</span>, ])),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Recorder =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">1</span>, ])),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">Checker_1 =</span> <span class="cn">NA_character_</span>, <span class="at">Checker_2 =</span> <span class="cn">NA_character_</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>read_names_quadrat <span class="ot">&lt;-</span> <span class="cf">function</span>(sheet) {</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  nm <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(opihi_file_in, <span class="at">sheet =</span> sheet, <span class="at">range =</span> <span class="st">"B2:H5"</span>, <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">Method =</span> <span class="st">"Quadrat"</span>,</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">Group =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">4</span>, ])),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">Recorder =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">1</span>, ])),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">Checker_1 =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">2</span>, ])),</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">Checker_2 =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(nm[<span class="dv">3</span>, ])))</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>names_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_transect</span>(<span class="st">"TRANSECT PT INTERCEPT (P1)"</span>),</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_transect</span>(<span class="st">"TRANSECT PT INTERCEPT (P2)"</span>),</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_quadrat</span>(<span class="st">"QUADRAT PT INTERCEPT (P1)"</span>),</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_names_quadrat</span>(<span class="st">"QUADRAT PT INTERCEPT (P2)"</span>)</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(Recorder, Checker_1, Checker_2), str_squish))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+New names:
+New names:
+New names:
+• `` -&gt; `...1`
+• `` -&gt; `...2`
+• `` -&gt; `...3`
+• `` -&gt; `...4`
+• `` -&gt; `...5`
+• `` -&gt; `...6`
+• `` -&gt; `...7`</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quadrat rows that collapse to the same label are added together</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (e.g. "Sargassum aquifolium" + "Sr aquifolium").</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>opihi_long <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  stacked <span class="sc">|&gt;</span><span class="fu">filter</span>(Method <span class="sc">==</span> <span class="st">"Transect"</span>),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  stacked <span class="sc">|&gt;</span> <span class="fu">filter</span>(Method <span class="sc">==</span> <span class="st">"Quadrat"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(Method, Site, Group, Label, Type) <span class="sc">|&gt;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">Points =</span> <span class="fu">sum</span>(Points),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">Original =</span> <span class="fu">paste</span>(<span class="fu">unique</span>(Original), <span class="at">collapse =</span> <span class="st">"; "</span>),</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">Location_m =</span> <span class="cn">NA_real_</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(names_tbl, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Method"</span>, <span class="st">"Group"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Method, Site, Group, Location_m, Label) <span class="sc">|&gt;</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">site =</span> <span class="st">"Diamond Head"</span>, <span class="at">school =</span> <span class="st">"X high school"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(school, school, site, <span class="at">method =</span> Method, <span class="at">p1_or_p2 =</span> Site, </span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">group =</span> Group,</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">recorder =</span> Recorder, <span class="at">checker_1 =</span> Checker_1, <span class="at">checker_2 =</span> Checker_2,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">transect_points =</span> Location_m, <span class="at">organism_substrate =</span> Label,</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> Type, <span class="at">points =</span> Points, <span class="at">organism_label =</span> Original)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>opihi_long <span class="ot">&lt;-</span> janitor<span class="sc">::</span><span class="fu">clean_names</span>(opihi_long)</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(opihi_long)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 221
+Columns: 13
+$ school             &lt;chr&gt; "X high school", "X high school", "X high school", …
+$ site               &lt;chr&gt; "Diamond Head", "Diamond Head", "Diamond Head", "Di…
+$ method             &lt;chr&gt; "Quadrat", "Quadrat", "Quadrat", "Quadrat", "Quadra…
+$ p1_or_p2           &lt;chr&gt; "P1", "P1", "P1", "P1", "P1", "P1", "P1", "P1", "P1…
+$ group              &lt;chr&gt; "P1G1", "P1G1", "P1G1", "P1G1", "P1G1", "P1G1", "P1…
+$ recorder           &lt;chr&gt; "Miley", "Miley", "Miley", "Miley", "Miley", "Miley…
+$ checker_1          &lt;chr&gt; "Natalia", "Natalia", "Natalia", "Natalia", "Natali…
+$ checker_2          &lt;chr&gt; "Lexie", "Lexie", "Lexie", "Lexie", "Lexie", "Lexie…
+$ transect_points    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ organism_substrate &lt;chr&gt; "Bornetella sphaerica", "Padina spp.", "Rock", "San…
+$ type               &lt;chr&gt; "Organism", "Organism", "Substrate", "Substrate", "…
+$ points             &lt;dbl&gt; 47, 26, 31, 25, 13, 10, 23, 1, 1, 1, 15, 57, 55, 5,…
+$ organism_label     &lt;chr&gt; "Bornatella sphaerica", "Padina spp.", "rock", "san…</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_long, <span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_master_long.csv"</span>), <span class="at">na =</span> <span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># label map - documents everything</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>notes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Sr aquifolium"</span> <span class="ot">=</span> <span class="st">"Assumed 'Sr' = Sargassum."</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Caiclmus laevimanus"</span> <span class="ot">=</span> <span class="st">"Assumed typo of Calcinus laevimanus (hermit crab)."</span>,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Bornatella sphaerica"</span> <span class="ot">=</span> <span class="st">"Genus spelled Bornetella."</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Bornatella spaerica"</span> <span class="ot">=</span> <span class="st">"Genus spelled Bornetella; species typo."</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"y"</span> <span class="ot">=</span> <span class="st">"Stray entry in P2 transect (P2G3, 6 m). Left as Unidentified."</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Turf"</span> <span class="ot">=</span> <span class="st">"Assumed Turf algae."</span>,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Neomeris"</span> <span class="ot">=</span> <span class="st">"Merged with Neomeris spp."</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>opihi_label_map <span class="ot">&lt;-</span> stacked <span class="sc">|&gt;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(Original, Label) <span class="sc">|&gt;</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Changed =</span> <span class="fu">if_else</span>(Original <span class="sc">!=</span> Label, <span class="st">"Yes"</span>, <span class="st">""</span>),</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">Note =</span> <span class="fu">unname</span>(notes[<span class="fu">str_squish</span>(Original)]),</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">Note =</span> <span class="fu">replace_na</span>(Note, <span class="st">""</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Label, Original)<span class="sc">|&gt;</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">original =</span> Original, <span class="at">cleaned_label =</span> <span class="st">`</span><span class="at">Label</span><span class="st">`</span>, <span class="at">changed =</span> Changed, <span class="at">note =</span> Note)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_long, <span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_label_map.csv"</span>), <span class="at">na =</span> <span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Insert files </span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>file_0607 <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"OPIHI data 2006 and 2007.xlsx"</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>file_csv  <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_long_2006_2007.csv"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># read data as a text</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(file_0607, </span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">sheet =</span> <span class="dv">1</span>, </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">col_names =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">col_types =</span> <span class="st">"text"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+• `` -&gt; `...1`
+• `` -&gt; `...2`
+• `` -&gt; `...3`
+• `` -&gt; `...4`
+• `` -&gt; `...5`
+• `` -&gt; `...6`
+• `` -&gt; `...7`
+• `` -&gt; `...8`
+• `` -&gt; `...9`
+• `` -&gt; `...10`
+• `` -&gt; `...11`
+• `` -&gt; `...12`
+• `` -&gt; `...13`
+• `` -&gt; `...14`
+• `` -&gt; `...15`
+• `` -&gt; `...16`
+• `` -&gt; `...17`
+• `` -&gt; `...18`
+• `` -&gt; `...19`
+• `` -&gt; `...20`
+• `` -&gt; `...21`
+• `` -&gt; `...22`
+• `` -&gt; `...23`
+• `` -&gt; `...24`
+• `` -&gt; `...25`
+• `` -&gt; `...26`
+• `` -&gt; `...27`
+• `` -&gt; `...28`
+• `` -&gt; `...29`
+• `` -&gt; `...30`
+• `` -&gt; `...31`
+• `` -&gt; `...32`
+• `` -&gt; `...33`
+• `` -&gt; `...34`
+• `` -&gt; `...35`
+• `` -&gt; `...36`
+• `` -&gt; `...37`
+• `` -&gt; `...38`
+• `` -&gt; `...39`
+• `` -&gt; `...40`
+• `` -&gt; `...41`
+• `` -&gt; `...42`
+• `` -&gt; `...43`
+• `` -&gt; `...44`
+• `` -&gt; `...45`
+• `` -&gt; `...46`
+• `` -&gt; `...47`
+• `` -&gt; `...48`
+• `` -&gt; `...49`
+• `` -&gt; `...50`
+• `` -&gt; `...51`
+• `` -&gt; `...52`
+• `` -&gt; `...53`
+• `` -&gt; `...54`
+• `` -&gt; `...55`
+• `` -&gt; `...56`
+• `` -&gt; `...57`
+• `` -&gt; `...58`
+• `` -&gt; `...59`
+• `` -&gt; `...60`
+• `` -&gt; `...61`
+• `` -&gt; `...62`
+• `` -&gt; `...63`
+• `` -&gt; `...64`
+• `` -&gt; `...65`
+• `` -&gt; `...66`
+• `` -&gt; `...67`
+• `` -&gt; `...68`
+• `` -&gt; `...69`
+• `` -&gt; `...70`
+• `` -&gt; `...71`
+• `` -&gt; `...72`
+• `` -&gt; `...73`
+• `` -&gt; `...74`
+• `` -&gt; `...75`
+• `` -&gt; `...76`
+• `` -&gt; `...77`
+• `` -&gt; `...78`
+• `` -&gt; `...79`
+• `` -&gt; `...80`
+• `` -&gt; `...81`
+• `` -&gt; `...82`
+• `` -&gt; `...83`
+• `` -&gt; `...84`
+• `` -&gt; `...85`
+• `` -&gt; `...86`
+• `` -&gt; `...87`
+• `` -&gt; `...88`
+• `` -&gt; `...89`
+• `` -&gt; `...90`
+• `` -&gt; `...91`
+• `` -&gt; `...92`
+• `` -&gt; `...93`
+• `` -&gt; `...94`
+• `` -&gt; `...95`
+• `` -&gt; `...96`
+• `` -&gt; `...97`
+• `` -&gt; `...98`
+• `` -&gt; `...99`
+• `` -&gt; `...100`
+• `` -&gt; `...101`
+• `` -&gt; `...102`
+• `` -&gt; `...103`
+• `` -&gt; `...104`
+• `` -&gt; `...105`
+• `` -&gt; `...106`
+• `` -&gt; `...107`
+• `` -&gt; `...108`
+• `` -&gt; `...109`
+• `` -&gt; `...110`
+• `` -&gt; `...111`
+• `` -&gt; `...112`
+• `` -&gt; `...113`
+• `` -&gt; `...114`
+• `` -&gt; `...115`
+• `` -&gt; `...116`
+• `` -&gt; `...117`
+• `` -&gt; `...118`
+• `` -&gt; `...119`
+• `` -&gt; `...120`
+• `` -&gt; `...121`
+• `` -&gt; `...122`
+• `` -&gt; `...123`
+• `` -&gt; `...124`
+• `` -&gt; `...125`
+• `` -&gt; `...126`
+• `` -&gt; `...127`
+• `` -&gt; `...128`
+• `` -&gt; `...129`
+• `` -&gt; `...130`
+• `` -&gt; `...131`
+• `` -&gt; `...132`
+• `` -&gt; `...133`
+• `` -&gt; `...134`
+• `` -&gt; `...135`
+• `` -&gt; `...136`
+• `` -&gt; `...137`
+• `` -&gt; `...138`
+• `` -&gt; `...139`
+• `` -&gt; `...140`
+• `` -&gt; `...141`
+• `` -&gt; `...142`
+• `` -&gt; `...143`
+• `` -&gt; `...144`
+• `` -&gt; `...145`
+• `` -&gt; `...146`
+• `` -&gt; `...147`
+• `` -&gt; `...148`
+• `` -&gt; `...149`
+• `` -&gt; `...150`
+• `` -&gt; `...151`
+• `` -&gt; `...152`
+• `` -&gt; `...153`
+• `` -&gt; `...154`
+• `` -&gt; `...155`
+• `` -&gt; `...156`
+• `` -&gt; `...157`
+• `` -&gt; `...158`
+• `` -&gt; `...159`
+• `` -&gt; `...160`
+• `` -&gt; `...161`
+• `` -&gt; `...162`
+• `` -&gt; `...163`
+• `` -&gt; `...164`
+• `` -&gt; `...165`
+• `` -&gt; `...166`
+• `` -&gt; `...167`
+• `` -&gt; `...168`
+• `` -&gt; `...169`
+• `` -&gt; `...170`
+• `` -&gt; `...171`
+• `` -&gt; `...172`
+• `` -&gt; `...173`
+• `` -&gt; `...174`
+• `` -&gt; `...175`
+• `` -&gt; `...176`
+• `` -&gt; `...177`
+• `` -&gt; `...178`
+• `` -&gt; `...179`
+• `` -&gt; `...180`
+• `` -&gt; `...181`
+• `` -&gt; `...182`
+• `` -&gt; `...183`
+• `` -&gt; `...184`
+• `` -&gt; `...185`
+• `` -&gt; `...186`
+• `` -&gt; `...187`
+• `` -&gt; `...188`
+• `` -&gt; `...189`
+• `` -&gt; `...190`
+• `` -&gt; `...191`
+• `` -&gt; `...192`
+• `` -&gt; `...193`
+• `` -&gt; `...194`
+• `` -&gt; `...195`
+• `` -&gt; `...196`
+• `` -&gt; `...197`
+• `` -&gt; `...198`
+• `` -&gt; `...199`
+• `` -&gt; `...200`
+• `` -&gt; `...201`
+• `` -&gt; `...202`
+• `` -&gt; `...203`
+• `` -&gt; `...204`
+• `` -&gt; `...205`
+• `` -&gt; `...206`
+• `` -&gt; `...207`
+• `` -&gt; `...208`
+• `` -&gt; `...209`
+• `` -&gt; `...210`
+• `` -&gt; `...211`
+• `` -&gt; `...212`
+• `` -&gt; `...213`
+• `` -&gt; `...214`
+• `` -&gt; `...215`
+• `` -&gt; `...216`
+• `` -&gt; `...217`
+• `` -&gt; `...218`
+• `` -&gt; `...219`
+• `` -&gt; `...220`
+• `` -&gt; `...221`
+• `` -&gt; `...222`
+• `` -&gt; `...223`
+• `` -&gt; `...224`
+• `` -&gt; `...225`
+• `` -&gt; `...226`
+• `` -&gt; `...227`
+• `` -&gt; `...228`
+• `` -&gt; `...229`
+• `` -&gt; `...230`
+• `` -&gt; `...231`
+• `` -&gt; `...232`
+• `` -&gt; `...233`
+• `` -&gt; `...234`
+• `` -&gt; `...235`
+• `` -&gt; `...236`
+• `` -&gt; `...237`
+• `` -&gt; `...238`
+• `` -&gt; `...239`
+• `` -&gt; `...240`
+• `` -&gt; `...241`
+• `` -&gt; `...242`
+• `` -&gt; `...243`
+• `` -&gt; `...244`
+• `` -&gt; `...245`
+• `` -&gt; `...246`
+• `` -&gt; `...247`
+• `` -&gt; `...248`
+• `` -&gt; `...249`
+• `` -&gt; `...250`
+• `` -&gt; `...251`
+• `` -&gt; `...252`
+• `` -&gt; `...253`
+• `` -&gt; `...254`
+• `` -&gt; `...255`
+• `` -&gt; `...256`
+• `` -&gt; `...257`
+• `` -&gt; `...258`
+• `` -&gt; `...259`
+• `` -&gt; `...260`
+• `` -&gt; `...261`
+• `` -&gt; `...262`
+• `` -&gt; `...263`
+• `` -&gt; `...264`
+• `` -&gt; `...265`
+• `` -&gt; `...266`
+• `` -&gt; `...267`
+• `` -&gt; `...268`
+• `` -&gt; `...269`
+• `` -&gt; `...270`
+• `` -&gt; `...271`
+• `` -&gt; `...272`
+• `` -&gt; `...273`
+• `` -&gt; `...274`
+• `` -&gt; `...275`
+• `` -&gt; `...276`
+• `` -&gt; `...277`
+• `` -&gt; `...278`
+• `` -&gt; `...279`
+• `` -&gt; `...280`
+• `` -&gt; `...281`
+• `` -&gt; `...282`
+• `` -&gt; `...283`
+• `` -&gt; `...284`
+• `` -&gt; `...285`
+• `` -&gt; `...286`
+• `` -&gt; `...287`
+• `` -&gt; `...288`
+• `` -&gt; `...289`
+• `` -&gt; `...290`
+• `` -&gt; `...291`
+• `` -&gt; `...292`
+• `` -&gt; `...293`
+• `` -&gt; `...294`
+• `` -&gt; `...295`
+• `` -&gt; `...296`
+• `` -&gt; `...297`
+• `` -&gt; `...298`
+• `` -&gt; `...299`
+• `` -&gt; `...300`
+• `` -&gt; `...301`
+• `` -&gt; `...302`
+• `` -&gt; `...303`
+• `` -&gt; `...304`
+• `` -&gt; `...305`
+• `` -&gt; `...306`
+• `` -&gt; `...307`
+• `` -&gt; `...308`
+• `` -&gt; `...309`
+• `` -&gt; `...310`
+• `` -&gt; `...311`
+• `` -&gt; `...312`
+• `` -&gt; `...313`
+• `` -&gt; `...314`
+• `` -&gt; `...315`
+• `` -&gt; `...316`
+• `` -&gt; `...317`
+• `` -&gt; `...318`
+• `` -&gt; `...319`
+• `` -&gt; `...320`
+• `` -&gt; `...321`
+• `` -&gt; `...322`
+• `` -&gt; `...323`
+• `` -&gt; `...324`
+• `` -&gt; `...325`
+• `` -&gt; `...326`
+• `` -&gt; `...327`
+• `` -&gt; `...328`
+• `` -&gt; `...329`
+• `` -&gt; `...330`
+• `` -&gt; `...331`
+• `` -&gt; `...332`
+• `` -&gt; `...333`
+• `` -&gt; `...334`
+• `` -&gt; `...335`
+• `` -&gt; `...336`
+• `` -&gt; `...337`
+• `` -&gt; `...338`
+• `` -&gt; `...339`
+• `` -&gt; `...340`
+• `` -&gt; `...341`
+• `` -&gt; `...342`
+• `` -&gt; `...343`
+• `` -&gt; `...344`
+• `` -&gt; `...345`
+• `` -&gt; `...346`
+• `` -&gt; `...347`
+• `` -&gt; `...348`
+• `` -&gt; `...349`
+• `` -&gt; `...350`
+• `` -&gt; `...351`
+• `` -&gt; `...352`
+• `` -&gt; `...353`
+• `` -&gt; `...354`
+• `` -&gt; `...355`
+• `` -&gt; `...356`
+• `` -&gt; `...357`
+• `` -&gt; `...358`
+• `` -&gt; `...359`
+• `` -&gt; `...360`
+• `` -&gt; `...361`
+• `` -&gt; `...362`
+• `` -&gt; `...363`
+• `` -&gt; `...364`
+• `` -&gt; `...365`
+• `` -&gt; `...366`
+• `` -&gt; `...367`
+• `` -&gt; `...368`
+• `` -&gt; `...369`
+• `` -&gt; `...370`
+• `` -&gt; `...371`
+• `` -&gt; `...372`
+• `` -&gt; `...373`
+• `` -&gt; `...374`
+• `` -&gt; `...375`
+• `` -&gt; `...376`
+• `` -&gt; `...377`
+• `` -&gt; `...378`
+• `` -&gt; `...379`
+• `` -&gt; `...380`
+• `` -&gt; `...381`
+• `` -&gt; `...382`
+• `` -&gt; `...383`
+• `` -&gt; `...384`
+• `` -&gt; `...385`
+• `` -&gt; `...386`
+• `` -&gt; `...387`
+• `` -&gt; `...388`
+• `` -&gt; `...389`
+• `` -&gt; `...390`
+• `` -&gt; `...391`
+• `` -&gt; `...392`
+• `` -&gt; `...393`
+• `` -&gt; `...394`
+• `` -&gt; `...395`
+• `` -&gt; `...396`
+• `` -&gt; `...397`
+• `` -&gt; `...398`
+• `` -&gt; `...399`
+• `` -&gt; `...400`
+• `` -&gt; `...401`
+• `` -&gt; `...402`
+• `` -&gt; `...403`
+• `` -&gt; `...404`
+• `` -&gt; `...405`
+• `` -&gt; `...406`
+• `` -&gt; `...407`
+• `` -&gt; `...408`
+• `` -&gt; `...409`
+• `` -&gt; `...410`
+• `` -&gt; `...411`
+• `` -&gt; `...412`
+• `` -&gt; `...413`
+• `` -&gt; `...414`
+• `` -&gt; `...415`
+• `` -&gt; `...416`
+• `` -&gt; `...417`
+• `` -&gt; `...418`
+• `` -&gt; `...419`
+• `` -&gt; `...420`
+• `` -&gt; `...421`
+• `` -&gt; `...422`
+• `` -&gt; `...423`
+• `` -&gt; `...424`
+• `` -&gt; `...425`
+• `` -&gt; `...426`
+• `` -&gt; `...427`
+• `` -&gt; `...428`
+• `` -&gt; `...429`
+• `` -&gt; `...430`
+• `` -&gt; `...431`
+• `` -&gt; `...432`
+• `` -&gt; `...433`
+• `` -&gt; `...434`
+• `` -&gt; `...435`
+• `` -&gt; `...436`
+• `` -&gt; `...437`
+• `` -&gt; `...438`
+• `` -&gt; `...439`
+• `` -&gt; `...440`
+• `` -&gt; `...441`
+• `` -&gt; `...442`
+• `` -&gt; `...443`
+• `` -&gt; `...444`
+• `` -&gt; `...445`
+• `` -&gt; `...446`
+• `` -&gt; `...447`
+• `` -&gt; `...448`
+• `` -&gt; `...449`
+• `` -&gt; `...450`
+• `` -&gt; `...451`
+• `` -&gt; `...452`
+• `` -&gt; `...453`
+• `` -&gt; `...454`
+• `` -&gt; `...455`
+• `` -&gt; `...456`
+• `` -&gt; `...457`
+• `` -&gt; `...458`
+• `` -&gt; `...459`
+• `` -&gt; `...460`
+• `` -&gt; `...461`
+• `` -&gt; `...462`
+• `` -&gt; `...463`
+• `` -&gt; `...464`
+• `` -&gt; `...465`
+• `` -&gt; `...466`
+• `` -&gt; `...467`
+• `` -&gt; `...468`
+• `` -&gt; `...469`
+• `` -&gt; `...470`
+• `` -&gt; `...471`
+• `` -&gt; `...472`
+• `` -&gt; `...473`
+• `` -&gt; `...474`
+• `` -&gt; `...475`
+• `` -&gt; `...476`
+• `` -&gt; `...477`
+• `` -&gt; `...478`
+• `` -&gt; `...479`
+• `` -&gt; `...480`
+• `` -&gt; `...481`
+• `` -&gt; `...482`
+• `` -&gt; `...483`
+• `` -&gt; `...484`
+• `` -&gt; `...485`
+• `` -&gt; `...486`
+• `` -&gt; `...487`
+• `` -&gt; `...488`
+• `` -&gt; `...489`
+• `` -&gt; `...490`
+• `` -&gt; `...491`
+• `` -&gt; `...492`
+• `` -&gt; `...493`
+• `` -&gt; `...494`
+• `` -&gt; `...495`
+• `` -&gt; `...496`
+• `` -&gt; `...497`
+• `` -&gt; `...498`
+• `` -&gt; `...499`
+• `` -&gt; `...500`
+• `` -&gt; `...501`
+• `` -&gt; `...502`
+• `` -&gt; `...503`
+• `` -&gt; `...504`
+• `` -&gt; `...505`
+• `` -&gt; `...506`
+• `` -&gt; `...507`
+• `` -&gt; `...508`
+• `` -&gt; `...509`
+• `` -&gt; `...510`
+• `` -&gt; `...511`
+• `` -&gt; `...512`
+• `` -&gt; `...513`
+• `` -&gt; `...514`
+• `` -&gt; `...515`
+• `` -&gt; `...516`
+• `` -&gt; `...517`
+• `` -&gt; `...518`
+• `` -&gt; `...519`
+• `` -&gt; `...520`
+• `` -&gt; `...521`
+• `` -&gt; `...522`
+• `` -&gt; `...523`
+• `` -&gt; `...524`
+• `` -&gt; `...525`
+• `` -&gt; `...526`
+• `` -&gt; `...527`
+• `` -&gt; `...528`
+• `` -&gt; `...529`
+• `` -&gt; `...530`
+• `` -&gt; `...531`
+• `` -&gt; `...532`
+• `` -&gt; `...533`
+• `` -&gt; `...534`
+• `` -&gt; `...535`
+• `` -&gt; `...536`
+• `` -&gt; `...537`
+• `` -&gt; `...538`
+• `` -&gt; `...539`
+• `` -&gt; `...540`
+• `` -&gt; `...541`
+• `` -&gt; `...542`
+• `` -&gt; `...543`
+• `` -&gt; `...544`
+• `` -&gt; `...545`
+• `` -&gt; `...546`
+• `` -&gt; `...547`
+• `` -&gt; `...548`
+• `` -&gt; `...549`
+• `` -&gt; `...550`
+• `` -&gt; `...551`
+• `` -&gt; `...552`
+• `` -&gt; `...553`
+• `` -&gt; `...554`
+• `` -&gt; `...555`
+• `` -&gt; `...556`
+• `` -&gt; `...557`
+• `` -&gt; `...558`
+• `` -&gt; `...559`
+• `` -&gt; `...560`
+• `` -&gt; `...561`
+• `` -&gt; `...562`
+• `` -&gt; `...563`
+• `` -&gt; `...564`
+• `` -&gt; `...565`
+• `` -&gt; `...566`
+• `` -&gt; `...567`
+• `` -&gt; `...568`
+• `` -&gt; `...569`
+• `` -&gt; `...570`
+• `` -&gt; `...571`
+• `` -&gt; `...572`
+• `` -&gt; `...573`
+• `` -&gt; `...574`
+• `` -&gt; `...575`
+• `` -&gt; `...576`
+• `` -&gt; `...577`
+• `` -&gt; `...578`
+• `` -&gt; `...579`
+• `` -&gt; `...580`
+• `` -&gt; `...581`
+• `` -&gt; `...582`
+• `` -&gt; `...583`
+• `` -&gt; `...584`
+• `` -&gt; `...585`
+• `` -&gt; `...586`
+• `` -&gt; `...587`
+• `` -&gt; `...588`
+• `` -&gt; `...589`
+• `` -&gt; `...590`
+• `` -&gt; `...591`
+• `` -&gt; `...592`
+• `` -&gt; `...593`
+• `` -&gt; `...594`
+• `` -&gt; `...595`
+• `` -&gt; `...596`
+• `` -&gt; `...597`
+• `` -&gt; `...598`
+• `` -&gt; `...599`
+• `` -&gt; `...600`
+• `` -&gt; `...601`
+• `` -&gt; `...602`
+• `` -&gt; `...603`
+• `` -&gt; `...604`
+• `` -&gt; `...605`
+• `` -&gt; `...606`
+• `` -&gt; `...607`
+• `` -&gt; `...608`
+• `` -&gt; `...609`
+• `` -&gt; `...610`
+• `` -&gt; `...611`
+• `` -&gt; `...612`
+• `` -&gt; `...613`
+• `` -&gt; `...614`
+• `` -&gt; `...615`
+• `` -&gt; `...616`
+• `` -&gt; `...617`
+• `` -&gt; `...618`
+• `` -&gt; `...619`
+• `` -&gt; `...620`
+• `` -&gt; `...621`
+• `` -&gt; `...622`
+• `` -&gt; `...623`
+• `` -&gt; `...624`
+• `` -&gt; `...625`
+• `` -&gt; `...626`
+• `` -&gt; `...627`
+• `` -&gt; `...628`
+• `` -&gt; `...629`
+• `` -&gt; `...630`
+• `` -&gt; `...631`
+• `` -&gt; `...632`
+• `` -&gt; `...633`
+• `` -&gt; `...634`
+• `` -&gt; `...635`
+• `` -&gt; `...636`
+• `` -&gt; `...637`
+• `` -&gt; `...638`
+• `` -&gt; `...639`
+• `` -&gt; `...640`
+• `` -&gt; `...641`
+• `` -&gt; `...642`
+• `` -&gt; `...643`
+• `` -&gt; `...644`
+• `` -&gt; `...645`
+• `` -&gt; `...646`
+• `` -&gt; `...647`
+• `` -&gt; `...648`
+• `` -&gt; `...649`
+• `` -&gt; `...650`
+• `` -&gt; `...651`
+• `` -&gt; `...652`
+• `` -&gt; `...653`
+• `` -&gt; `...654`
+• `` -&gt; `...655`
+• `` -&gt; `...656`
+• `` -&gt; `...657`
+• `` -&gt; `...658`
+• `` -&gt; `...659`
+• `` -&gt; `...660`
+• `` -&gt; `...661`
+• `` -&gt; `...662`
+• `` -&gt; `...663`
+• `` -&gt; `...664`
+• `` -&gt; `...665`
+• `` -&gt; `...666`
+• `` -&gt; `...667`
+• `` -&gt; `...668`
+• `` -&gt; `...669`
+• `` -&gt; `...670`
+• `` -&gt; `...671`
+• `` -&gt; `...672`
+• `` -&gt; `...673`
+• `` -&gt; `...674`
+• `` -&gt; `...675`
+• `` -&gt; `...676`
+• `` -&gt; `...677`
+• `` -&gt; `...678`
+• `` -&gt; `...679`
+• `` -&gt; `...680`
+• `` -&gt; `...681`
+• `` -&gt; `...682`
+• `` -&gt; `...683`
+• `` -&gt; `...684`
+• `` -&gt; `...685`
+• `` -&gt; `...686`
+• `` -&gt; `...687`
+• `` -&gt; `...688`
+• `` -&gt; `...689`
+• `` -&gt; `...690`
+• `` -&gt; `...691`
+• `` -&gt; `...692`
+• `` -&gt; `...693`
+• `` -&gt; `...694`
+• `` -&gt; `...695`
+• `` -&gt; `...696`
+• `` -&gt; `...697`
+• `` -&gt; `...698`
+• `` -&gt; `...699`
+• `` -&gt; `...700`
+• `` -&gt; `...701`
+• `` -&gt; `...702`
+• `` -&gt; `...703`
+• `` -&gt; `...704`
+• `` -&gt; `...705`
+• `` -&gt; `...706`
+• `` -&gt; `...707`
+• `` -&gt; `...708`
+• `` -&gt; `...709`
+• `` -&gt; `...710`
+• `` -&gt; `...711`
+• `` -&gt; `...712`
+• `` -&gt; `...713`
+• `` -&gt; `...714`
+• `` -&gt; `...715`
+• `` -&gt; `...716`
+• `` -&gt; `...717`
+• `` -&gt; `...718`
+• `` -&gt; `...719`
+• `` -&gt; `...720`
+• `` -&gt; `...721`
+• `` -&gt; `...722`
+• `` -&gt; `...723`
+• `` -&gt; `...724`
+• `` -&gt; `...725`
+• `` -&gt; `...726`
+• `` -&gt; `...727`
+• `` -&gt; `...728`
+• `` -&gt; `...729`
+• `` -&gt; `...730`
+• `` -&gt; `...731`
+• `` -&gt; `...732`
+• `` -&gt; `...733`
+• `` -&gt; `...734`
+• `` -&gt; `...735`
+• `` -&gt; `...736`
+• `` -&gt; `...737`
+• `` -&gt; `...738`
+• `` -&gt; `...739`
+• `` -&gt; `...740`
+• `` -&gt; `...741`
+• `` -&gt; `...742`
+• `` -&gt; `...743`
+• `` -&gt; `...744`
+• `` -&gt; `...745`
+• `` -&gt; `...746`
+• `` -&gt; `...747`</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(raw)  <span class="co"># rows x columns, everything is character</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Each survey is a block of columns that starts where row 1 says "Date".</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># In every block:  rows 1-11 = info (date, location, lat, long, school) in the column after the label</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#row 13 = quadrat headers ("transect-1 quadrat-1 at point 1.00")</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#rows 14-60 = organism names (first column of block) and counts</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">#rows 61+  = TOTALS section (skipped: not raw data)</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>starts <span class="ot">&lt;-</span> <span class="fu">which</span>(m[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>ends   <span class="ot">&lt;-</span> <span class="fu">c</span>(starts[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, <span class="fu">ncol</span>(m))</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co"># helpers</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>to_date <span class="ot">&lt;-</span> <span class="cf">function</span>(x) { <span class="co"># Excel dates arrive as serial numbers when read as text</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(x))</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(d)) <span class="fu">as.Date</span>(d, <span class="at">origin =</span> <span class="st">"1899-12-30"</span>) <span class="cf">else</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(x, <span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>read_block <span class="ot">&lt;-</span> <span class="cf">function</span>(c0, c1) {</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  info_col <span class="ot">&lt;-</span> c0 <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> (c0 <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>c1</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> cols[<span class="sc">!</span><span class="fu">is.na</span>(m[<span class="dv">13</span>, cols])]                                   <span class="co"># only columns with a quadrat header</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  rows <span class="ot">&lt;-</span> <span class="dv">14</span><span class="sc">:</span><span class="dv">60</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  rows <span class="ot">&lt;-</span> rows[<span class="sc">!</span><span class="fu">is.na</span>(m[rows, c0]) <span class="sc">&amp;</span> m[rows, c0] <span class="sc">!=</span> <span class="st">""</span>]               <span class="co"># only rows with an organism name</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>  body <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(m[rows, cols, <span class="at">drop =</span> <span class="cn">FALSE</span>], <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(body) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"c"</span>, <span class="fu">seq_along</span>(cols))</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  body<span class="sc">$</span>original_labels <span class="ot">&lt;-</span> m[rows, c0]</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>  header <span class="ot">&lt;-</span> m[<span class="dv">13</span>, cols]</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>  body <span class="sc">|&gt;</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span>original_labels, <span class="at">names_to =</span> <span class="st">"col"</span>, </span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_to =</span> <span class="st">"points"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">points =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(points))) <span class="sc">|&gt;</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(points), points <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span>   <span class="co"># blank = not observed</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">header =</span> header[<span class="fu">as.integer</span>(<span class="fu">str_remove</span>(col, <span class="st">"^c"</span>))],</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>           <span class="at">date      =</span> <span class="fu">to_date</span>(m[<span class="dv">1</span>, info_col]),</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>           <span class="at">site      =</span> m[<span class="dv">8</span>, info_col],</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>           <span class="at">latitude  =</span> <span class="fu">as.numeric</span>(m[<span class="dv">9</span>, info_col]),</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">longitude =</span> <span class="fu">as.numeric</span>(m[<span class="dv">10</span>, info_col]),</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>           <span class="at">school    =</span> m[<span class="dv">11</span>, info_col],</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>           <span class="at">number_of_transect_lines =</span> <span class="fu">as.numeric</span>(m[<span class="dv">4</span>, info_col]),</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>           <span class="at">length_of_transect_lines =</span> <span class="fu">as.numeric</span>(m[<span class="dv">5</span>, info_col]),</span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">point_spacing            =</span> m[<span class="dv">6</span>, info_col],</span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>           <span class="at">number_of_quadrats_per_transect =</span> <span class="fu">as.numeric</span>(m[<span class="dv">7</span>, info_col]),</span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>           <span class="at">transect  =</span> <span class="fu">as.integer</span>(<span class="fu">str_match</span>(header, <span class="st">"transect-(</span><span class="sc">\\</span><span class="st">d+)"</span>)[, <span class="dv">2</span>]),</span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>           <span class="at">quadrat   =</span> <span class="fu">as.integer</span>(<span class="fu">str_match</span>(header, <span class="st">"quadrat-(</span><span class="sc">\\</span><span class="st">d+)"</span>)[, <span class="dv">2</span>]),</span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">transect_points =</span> <span class="fu">as.numeric</span>(<span class="fu">str_match</span>(header, <span class="st">"point ([0-9.]+)"</span>)[, <span class="dv">2</span>]))</span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a><span class="co"># stack</span></span>
+<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>stacked <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">Map</span>(read_block, starts, ends))</span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a><span class="co"># clean labels - (same names as the 2023 cleanup where they match) </span></span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>clean_map <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>  <span class="st">"turf spp"</span>            <span class="ot">=</span> <span class="st">"Turf algae"</span>,          <span class="co"># assumed: Turf spp = turf algae</span></span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>  <span class="st">"padina spp"</span>          <span class="ot">=</span> <span class="st">"Padina spp."</span>,</span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>  <span class="st">"neomeris spp"</span>        <span class="ot">=</span> <span class="st">"Neomeris spp."</span>,</span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>  <span class="st">"dendropoma gregaria"</span> <span class="ot">=</span> <span class="st">"Dendropoma gregarium"</span></span>
+<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>substrates <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Rock"</span>, <span class="st">"Sand"</span>)</span>
+<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a>clean_label <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb26-62"><a href="#cb26-62" aria-hidden="true" tabindex="-1"></a>  key <span class="ot">&lt;-</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(x))</span>
+<span id="cb26-63"><a href="#cb26-63" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">unname</span>(clean_map[key])</span>
+<span id="cb26-64"><a href="#cb26-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(<span class="fu">is.na</span>(out), <span class="fu">str_squish</span>(x), out)</span>
+<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-66"><a href="#cb26-66" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb26-67"><a href="#cb26-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-68"><a href="#cb26-68" aria-hidden="true" tabindex="-1"></a>opihi_0607 <span class="ot">&lt;-</span> stacked <span class="sc">|&gt;</span></span>
+<span id="cb26-69"><a href="#cb26-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">organism_substrate =</span> <span class="fu">clean_label</span>(original_labels),</span>
+<span id="cb26-70"><a href="#cb26-70" aria-hidden="true" tabindex="-1"></a>         <span class="at">type   =</span> <span class="fu">if_else</span>(organism_substrate <span class="sc">%in%</span> substrates, </span>
+<span id="cb26-71"><a href="#cb26-71" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"Substrate"</span>, <span class="st">"Organism"</span>),</span>
+<span id="cb26-72"><a href="#cb26-72" aria-hidden="true" tabindex="-1"></a>         <span class="at">method =</span> <span class="st">"Quadrat"</span>,</span>
+<span id="cb26-73"><a href="#cb26-73" aria-hidden="true" tabindex="-1"></a>         <span class="at">p1_or_p2 =</span> <span class="cn">NA_character_</span>, </span>
+<span id="cb26-74"><a href="#cb26-74" aria-hidden="true" tabindex="-1"></a>         <span class="at">group =</span> <span class="cn">NA_character_</span>,<span class="co"># not in this dataset</span></span>
+<span id="cb26-75"><a href="#cb26-75" aria-hidden="true" tabindex="-1"></a>         <span class="at">recorder =</span> <span class="cn">NA_character_</span>, <span class="at">checker_1 =</span> <span class="cn">NA_character_</span>, </span>
+<span id="cb26-76"><a href="#cb26-76" aria-hidden="true" tabindex="-1"></a>         <span class="at">checker_2 =</span> <span class="cn">NA_character_</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-77"><a href="#cb26-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(date, site, transect, quadrat, organism_substrate) <span class="sc">|&gt;</span></span>
+<span id="cb26-78"><a href="#cb26-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(school, site, method, p1_or_p2, group, </span>
+<span id="cb26-79"><a href="#cb26-79" aria-hidden="true" tabindex="-1"></a>         recorder, checker_1, checker_2,</span>
+<span id="cb26-80"><a href="#cb26-80" aria-hidden="true" tabindex="-1"></a>         transect_points, organism_substrate, type, points, original_labels,</span>
+<span id="cb26-81"><a href="#cb26-81" aria-hidden="true" tabindex="-1"></a>         date, latitude, longitude,</span>
+<span id="cb26-82"><a href="#cb26-82" aria-hidden="true" tabindex="-1"></a>         number_of_transect_lines, length_of_transect_lines, point_spacing,</span>
+<span id="cb26-83"><a href="#cb26-83" aria-hidden="true" tabindex="-1"></a>         number_of_quadrats_per_transect, transect, quadrat)</span>
+<span id="cb26-84"><a href="#cb26-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-85"><a href="#cb26-85" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_0607,<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi_long_2006_2007.csv"</span>), <span class="at">na =</span> <span class="st">""</span>)</span>
+<span id="cb26-86"><a href="#cb26-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-87"><a href="#cb26-87" aria-hidden="true" tabindex="-1"></a><span class="co"># To filter to one site later:  opihi_0607 |&gt; filter(site == "Diamond Head")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Insert files </span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>opihi_16_file <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_16_data.xlsx"</span>)      </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>opihi_16_file_out  <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_long_2016.csv"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">file.exists</span>(opihi_16_file))</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Read Sheet as Text </span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># rows x columns, everything is character</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">read_excel</span>(opihi_16_file, </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">sheet =</span> <span class="dv">1</span>, <span class="at">col_names =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">col_types =</span> <span class="st">"text"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+• `` -&gt; `...1`
+• `` -&gt; `...2`
+• `` -&gt; `...3`
+• `` -&gt; `...4`
+• `` -&gt; `...5`
+• `` -&gt; `...6`
+• `` -&gt; `...7`
+• `` -&gt; `...8`
+• `` -&gt; `...9`
+• `` -&gt; `...10`
+• `` -&gt; `...11`
+• `` -&gt; `...12`
+• `` -&gt; `...13`
+• `` -&gt; `...14`
+• `` -&gt; `...15`
+• `` -&gt; `...16`
+• `` -&gt; `...17`
+• `` -&gt; `...18`
+• `` -&gt; `...19`
+• `` -&gt; `...20`
+• `` -&gt; `...21`
+• `` -&gt; `...22`
+• `` -&gt; `...23`
+• `` -&gt; `...24`
+• `` -&gt; `...25`
+• `` -&gt; `...26`
+• `` -&gt; `...27`
+• `` -&gt; `...28`
+• `` -&gt; `...29`
+• `` -&gt; `...30`
+• `` -&gt; `...31`
+• `` -&gt; `...32`
+• `` -&gt; `...33`
+• `` -&gt; `...34`
+• `` -&gt; `...35`
+• `` -&gt; `...36`
+• `` -&gt; `...37`
+• `` -&gt; `...38`
+• `` -&gt; `...39`
+• `` -&gt; `...40`
+• `` -&gt; `...41`
+• `` -&gt; `...42`
+• `` -&gt; `...43`
+• `` -&gt; `...44`
+• `` -&gt; `...45`
+• `` -&gt; `...46`
+• `` -&gt; `...47`
+• `` -&gt; `...48`
+• `` -&gt; `...49`
+• `` -&gt; `...50`
+• `` -&gt; `...51`
+• `` -&gt; `...52`
+• `` -&gt; `...53`
+• `` -&gt; `...54`
+• `` -&gt; `...55`
+• `` -&gt; `...56`
+• `` -&gt; `...57`
+• `` -&gt; `...58`
+• `` -&gt; `...59`
+• `` -&gt; `...60`
+• `` -&gt; `...61`
+• `` -&gt; `...62`
+• `` -&gt; `...63`
+• `` -&gt; `...64`
+• `` -&gt; `...65`
+• `` -&gt; `...66`
+• `` -&gt; `...67`
+• `` -&gt; `...68`
+• `` -&gt; `...69`
+• `` -&gt; `...70`
+• `` -&gt; `...71`
+• `` -&gt; `...72`
+• `` -&gt; `...73`
+• `` -&gt; `...74`
+• `` -&gt; `...75`
+• `` -&gt; `...76`
+• `` -&gt; `...77`
+• `` -&gt; `...78`
+• `` -&gt; `...79`
+• `` -&gt; `...80`
+• `` -&gt; `...81`
+• `` -&gt; `...82`
+• `` -&gt; `...83`
+• `` -&gt; `...84`
+• `` -&gt; `...85`
+• `` -&gt; `...86`
+• `` -&gt; `...87`
+• `` -&gt; `...88`
+• `` -&gt; `...89`
+• `` -&gt; `...90`
+• `` -&gt; `...91`
+• `` -&gt; `...92`
+• `` -&gt; `...93`
+• `` -&gt; `...94`
+• `` -&gt; `...95`
+• `` -&gt; `...96`
+• `` -&gt; `...97`
+• `` -&gt; `...98`
+• `` -&gt; `...99`
+• `` -&gt; `...100`
+• `` -&gt; `...101`
+• `` -&gt; `...102`
+• `` -&gt; `...103`
+• `` -&gt; `...104`
+• `` -&gt; `...105`
+• `` -&gt; `...106`
+• `` -&gt; `...107`
+• `` -&gt; `...108`
+• `` -&gt; `...109`
+• `` -&gt; `...110`
+• `` -&gt; `...111`
+• `` -&gt; `...112`
+• `` -&gt; `...113`
+• `` -&gt; `...114`
+• `` -&gt; `...115`
+• `` -&gt; `...116`
+• `` -&gt; `...117`
+• `` -&gt; `...118`
+• `` -&gt; `...119`
+• `` -&gt; `...120`
+• `` -&gt; `...121`
+• `` -&gt; `...122`
+• `` -&gt; `...123`
+• `` -&gt; `...124`
+• `` -&gt; `...125`
+• `` -&gt; `...126`
+• `` -&gt; `...127`
+• `` -&gt; `...128`
+• `` -&gt; `...129`
+• `` -&gt; `...130`
+• `` -&gt; `...131`
+• `` -&gt; `...132`
+• `` -&gt; `...133`
+• `` -&gt; `...134`
+• `` -&gt; `...135`
+• `` -&gt; `...136`
+• `` -&gt; `...137`
+• `` -&gt; `...138`
+• `` -&gt; `...139`
+• `` -&gt; `...140`
+• `` -&gt; `...141`
+• `` -&gt; `...142`
+• `` -&gt; `...143`
+• `` -&gt; `...144`
+• `` -&gt; `...145`
+• `` -&gt; `...146`
+• `` -&gt; `...147`
+• `` -&gt; `...148`
+• `` -&gt; `...149`
+• `` -&gt; `...150`
+• `` -&gt; `...151`
+• `` -&gt; `...152`
+• `` -&gt; `...153`
+• `` -&gt; `...154`
+• `` -&gt; `...155`
+• `` -&gt; `...156`
+• `` -&gt; `...157`
+• `` -&gt; `...158`
+• `` -&gt; `...159`
+• `` -&gt; `...160`
+• `` -&gt; `...161`
+• `` -&gt; `...162`
+• `` -&gt; `...163`
+• `` -&gt; `...164`
+• `` -&gt; `...165`
+• `` -&gt; `...166`
+• `` -&gt; `...167`
+• `` -&gt; `...168`
+• `` -&gt; `...169`
+• `` -&gt; `...170`
+• `` -&gt; `...171`
+• `` -&gt; `...172`
+• `` -&gt; `...173`
+• `` -&gt; `...174`
+• `` -&gt; `...175`
+• `` -&gt; `...176`
+• `` -&gt; `...177`
+• `` -&gt; `...178`
+• `` -&gt; `...179`
+• `` -&gt; `...180`
+• `` -&gt; `...181`
+• `` -&gt; `...182`
+• `` -&gt; `...183`
+• `` -&gt; `...184`
+• `` -&gt; `...185`
+• `` -&gt; `...186`
+• `` -&gt; `...187`
+• `` -&gt; `...188`
+• `` -&gt; `...189`
+• `` -&gt; `...190`
+• `` -&gt; `...191`
+• `` -&gt; `...192`
+• `` -&gt; `...193`
+• `` -&gt; `...194`
+• `` -&gt; `...195`
+• `` -&gt; `...196`
+• `` -&gt; `...197`
+• `` -&gt; `...198`
+• `` -&gt; `...199`
+• `` -&gt; `...200`
+• `` -&gt; `...201`
+• `` -&gt; `...202`
+• `` -&gt; `...203`
+• `` -&gt; `...204`
+• `` -&gt; `...205`
+• `` -&gt; `...206`
+• `` -&gt; `...207`
+• `` -&gt; `...208`
+• `` -&gt; `...209`
+• `` -&gt; `...210`
+• `` -&gt; `...211`
+• `` -&gt; `...212`
+• `` -&gt; `...213`
+• `` -&gt; `...214`
+• `` -&gt; `...215`
+• `` -&gt; `...216`
+• `` -&gt; `...217`
+• `` -&gt; `...218`
+• `` -&gt; `...219`
+• `` -&gt; `...220`
+• `` -&gt; `...221`
+• `` -&gt; `...222`
+• `` -&gt; `...223`
+• `` -&gt; `...224`
+• `` -&gt; `...225`
+• `` -&gt; `...226`
+• `` -&gt; `...227`
+• `` -&gt; `...228`
+• `` -&gt; `...229`
+• `` -&gt; `...230`
+• `` -&gt; `...231`
+• `` -&gt; `...232`
+• `` -&gt; `...233`
+• `` -&gt; `...234`
+• `` -&gt; `...235`
+• `` -&gt; `...236`
+• `` -&gt; `...237`
+• `` -&gt; `...238`
+• `` -&gt; `...239`
+• `` -&gt; `...240`
+• `` -&gt; `...241`
+• `` -&gt; `...242`
+• `` -&gt; `...243`
+• `` -&gt; `...244`
+• `` -&gt; `...245`
+• `` -&gt; `...246`
+• `` -&gt; `...247`
+• `` -&gt; `...248`
+• `` -&gt; `...249`
+• `` -&gt; `...250`
+• `` -&gt; `...251`
+• `` -&gt; `...252`
+• `` -&gt; `...253`
+• `` -&gt; `...254`
+• `` -&gt; `...255`
+• `` -&gt; `...256`
+• `` -&gt; `...257`
+• `` -&gt; `...258`
+• `` -&gt; `...259`
+• `` -&gt; `...260`
+• `` -&gt; `...261`
+• `` -&gt; `...262`
+• `` -&gt; `...263`
+• `` -&gt; `...264`
+• `` -&gt; `...265`
+• `` -&gt; `...266`
+• `` -&gt; `...267`
+• `` -&gt; `...268`
+• `` -&gt; `...269`
+• `` -&gt; `...270`
+• `` -&gt; `...271`
+• `` -&gt; `...272`
+• `` -&gt; `...273`
+• `` -&gt; `...274`
+• `` -&gt; `...275`
+• `` -&gt; `...276`
+• `` -&gt; `...277`
+• `` -&gt; `...278`
+• `` -&gt; `...279`
+• `` -&gt; `...280`
+• `` -&gt; `...281`
+• `` -&gt; `...282`
+• `` -&gt; `...283`
+• `` -&gt; `...284`
+• `` -&gt; `...285`
+• `` -&gt; `...286`
+• `` -&gt; `...287`
+• `` -&gt; `...288`
+• `` -&gt; `...289`
+• `` -&gt; `...290`
+• `` -&gt; `...291`
+• `` -&gt; `...292`
+• `` -&gt; `...293`
+• `` -&gt; `...294`
+• `` -&gt; `...295`
+• `` -&gt; `...296`
+• `` -&gt; `...297`
+• `` -&gt; `...298`
+• `` -&gt; `...299`
+• `` -&gt; `...300`
+• `` -&gt; `...301`
+• `` -&gt; `...302`
+• `` -&gt; `...303`
+• `` -&gt; `...304`
+• `` -&gt; `...305`
+• `` -&gt; `...306`
+• `` -&gt; `...307`
+• `` -&gt; `...308`
+• `` -&gt; `...309`
+• `` -&gt; `...310`
+• `` -&gt; `...311`
+• `` -&gt; `...312`
+• `` -&gt; `...313`
+• `` -&gt; `...314`
+• `` -&gt; `...315`
+• `` -&gt; `...316`
+• `` -&gt; `...317`
+• `` -&gt; `...318`
+• `` -&gt; `...319`
+• `` -&gt; `...320`
+• `` -&gt; `...321`
+• `` -&gt; `...322`
+• `` -&gt; `...323`
+• `` -&gt; `...324`
+• `` -&gt; `...325`
+• `` -&gt; `...326`
+• `` -&gt; `...327`
+• `` -&gt; `...328`
+• `` -&gt; `...329`
+• `` -&gt; `...330`
+• `` -&gt; `...331`
+• `` -&gt; `...332`
+• `` -&gt; `...333`
+• `` -&gt; `...334`
+• `` -&gt; `...335`
+• `` -&gt; `...336`
+• `` -&gt; `...337`
+• `` -&gt; `...338`
+• `` -&gt; `...339`
+• `` -&gt; `...340`
+• `` -&gt; `...341`
+• `` -&gt; `...342`
+• `` -&gt; `...343`
+• `` -&gt; `...344`
+• `` -&gt; `...345`
+• `` -&gt; `...346`
+• `` -&gt; `...347`
+• `` -&gt; `...348`
+• `` -&gt; `...349`
+• `` -&gt; `...350`
+• `` -&gt; `...351`
+• `` -&gt; `...352`
+• `` -&gt; `...353`
+• `` -&gt; `...354`
+• `` -&gt; `...355`
+• `` -&gt; `...356`
+• `` -&gt; `...357`
+• `` -&gt; `...358`
+• `` -&gt; `...359`
+• `` -&gt; `...360`
+• `` -&gt; `...361`
+• `` -&gt; `...362`
+• `` -&gt; `...363`
+• `` -&gt; `...364`
+• `` -&gt; `...365`
+• `` -&gt; `...366`
+• `` -&gt; `...367`
+• `` -&gt; `...368`
+• `` -&gt; `...369`
+• `` -&gt; `...370`
+• `` -&gt; `...371`
+• `` -&gt; `...372`
+• `` -&gt; `...373`
+• `` -&gt; `...374`
+• `` -&gt; `...375`
+• `` -&gt; `...376`
+• `` -&gt; `...377`
+• `` -&gt; `...378`
+• `` -&gt; `...379`
+• `` -&gt; `...380`
+• `` -&gt; `...381`
+• `` -&gt; `...382`
+• `` -&gt; `...383`
+• `` -&gt; `...384`
+• `` -&gt; `...385`
+• `` -&gt; `...386`
+• `` -&gt; `...387`
+• `` -&gt; `...388`
+• `` -&gt; `...389`
+• `` -&gt; `...390`
+• `` -&gt; `...391`
+• `` -&gt; `...392`
+• `` -&gt; `...393`
+• `` -&gt; `...394`
+• `` -&gt; `...395`
+• `` -&gt; `...396`
+• `` -&gt; `...397`
+• `` -&gt; `...398`
+• `` -&gt; `...399`
+• `` -&gt; `...400`
+• `` -&gt; `...401`
+• `` -&gt; `...402`
+• `` -&gt; `...403`
+• `` -&gt; `...404`
+• `` -&gt; `...405`
+• `` -&gt; `...406`
+• `` -&gt; `...407`
+• `` -&gt; `...408`
+• `` -&gt; `...409`
+• `` -&gt; `...410`
+• `` -&gt; `...411`
+• `` -&gt; `...412`
+• `` -&gt; `...413`
+• `` -&gt; `...414`
+• `` -&gt; `...415`
+• `` -&gt; `...416`
+• `` -&gt; `...417`
+• `` -&gt; `...418`
+• `` -&gt; `...419`
+• `` -&gt; `...420`
+• `` -&gt; `...421`
+• `` -&gt; `...422`
+• `` -&gt; `...423`
+• `` -&gt; `...424`
+• `` -&gt; `...425`
+• `` -&gt; `...426`
+• `` -&gt; `...427`
+• `` -&gt; `...428`
+• `` -&gt; `...429`
+• `` -&gt; `...430`
+• `` -&gt; `...431`
+• `` -&gt; `...432`
+• `` -&gt; `...433`
+• `` -&gt; `...434`
+• `` -&gt; `...435`
+• `` -&gt; `...436`
+• `` -&gt; `...437`
+• `` -&gt; `...438`
+• `` -&gt; `...439`
+• `` -&gt; `...440`
+• `` -&gt; `...441`
+• `` -&gt; `...442`
+• `` -&gt; `...443`
+• `` -&gt; `...444`
+• `` -&gt; `...445`
+• `` -&gt; `...446`
+• `` -&gt; `...447`
+• `` -&gt; `...448`
+• `` -&gt; `...449`
+• `` -&gt; `...450`
+• `` -&gt; `...451`
+• `` -&gt; `...452`
+• `` -&gt; `...453`
+• `` -&gt; `...454`
+• `` -&gt; `...455`
+• `` -&gt; `...456`
+• `` -&gt; `...457`
+• `` -&gt; `...458`
+• `` -&gt; `...459`
+• `` -&gt; `...460`
+• `` -&gt; `...461`
+• `` -&gt; `...462`
+• `` -&gt; `...463`
+• `` -&gt; `...464`
+• `` -&gt; `...465`
+• `` -&gt; `...466`
+• `` -&gt; `...467`
+• `` -&gt; `...468`
+• `` -&gt; `...469`
+• `` -&gt; `...470`
+• `` -&gt; `...471`
+• `` -&gt; `...472`
+• `` -&gt; `...473`
+• `` -&gt; `...474`
+• `` -&gt; `...475`
+• `` -&gt; `...476`
+• `` -&gt; `...477`
+• `` -&gt; `...478`
+• `` -&gt; `...479`
+• `` -&gt; `...480`
+• `` -&gt; `...481`
+• `` -&gt; `...482`
+• `` -&gt; `...483`
+• `` -&gt; `...484`
+• `` -&gt; `...485`
+• `` -&gt; `...486`
+• `` -&gt; `...487`
+• `` -&gt; `...488`
+• `` -&gt; `...489`
+• `` -&gt; `...490`
+• `` -&gt; `...491`
+• `` -&gt; `...492`
+• `` -&gt; `...493`
+• `` -&gt; `...494`
+• `` -&gt; `...495`
+• `` -&gt; `...496`
+• `` -&gt; `...497`
+• `` -&gt; `...498`
+• `` -&gt; `...499`
+• `` -&gt; `...500`
+• `` -&gt; `...501`
+• `` -&gt; `...502`
+• `` -&gt; `...503`
+• `` -&gt; `...504`
+• `` -&gt; `...505`
+• `` -&gt; `...506`
+• `` -&gt; `...507`
+• `` -&gt; `...508`
+• `` -&gt; `...509`
+• `` -&gt; `...510`
+• `` -&gt; `...511`
+• `` -&gt; `...512`
+• `` -&gt; `...513`
+• `` -&gt; `...514`
+• `` -&gt; `...515`
+• `` -&gt; `...516`
+• `` -&gt; `...517`
+• `` -&gt; `...518`
+• `` -&gt; `...519`
+• `` -&gt; `...520`
+• `` -&gt; `...521`
+• `` -&gt; `...522`
+• `` -&gt; `...523`
+• `` -&gt; `...524`
+• `` -&gt; `...525`
+• `` -&gt; `...526`
+• `` -&gt; `...527`
+• `` -&gt; `...528`
+• `` -&gt; `...529`
+• `` -&gt; `...530`
+• `` -&gt; `...531`
+• `` -&gt; `...532`
+• `` -&gt; `...533`
+• `` -&gt; `...534`
+• `` -&gt; `...535`
+• `` -&gt; `...536`
+• `` -&gt; `...537`
+• `` -&gt; `...538`
+• `` -&gt; `...539`
+• `` -&gt; `...540`
+• `` -&gt; `...541`
+• `` -&gt; `...542`
+• `` -&gt; `...543`
+• `` -&gt; `...544`
+• `` -&gt; `...545`
+• `` -&gt; `...546`
+• `` -&gt; `...547`
+• `` -&gt; `...548`
+• `` -&gt; `...549`
+• `` -&gt; `...550`
+• `` -&gt; `...551`
+• `` -&gt; `...552`
+• `` -&gt; `...553`
+• `` -&gt; `...554`
+• `` -&gt; `...555`
+• `` -&gt; `...556`
+• `` -&gt; `...557`
+• `` -&gt; `...558`
+• `` -&gt; `...559`
+• `` -&gt; `...560`
+• `` -&gt; `...561`
+• `` -&gt; `...562`
+• `` -&gt; `...563`
+• `` -&gt; `...564`
+• `` -&gt; `...565`
+• `` -&gt; `...566`
+• `` -&gt; `...567`
+• `` -&gt; `...568`
+• `` -&gt; `...569`
+• `` -&gt; `...570`
+• `` -&gt; `...571`
+• `` -&gt; `...572`
+• `` -&gt; `...573`
+• `` -&gt; `...574`
+• `` -&gt; `...575`
+• `` -&gt; `...576`
+• `` -&gt; `...577`
+• `` -&gt; `...578`
+• `` -&gt; `...579`
+• `` -&gt; `...580`
+• `` -&gt; `...581`
+• `` -&gt; `...582`
+• `` -&gt; `...583`
+• `` -&gt; `...584`
+• `` -&gt; `...585`
+• `` -&gt; `...586`
+• `` -&gt; `...587`
+• `` -&gt; `...588`
+• `` -&gt; `...589`
+• `` -&gt; `...590`
+• `` -&gt; `...591`
+• `` -&gt; `...592`
+• `` -&gt; `...593`
+• `` -&gt; `...594`
+• `` -&gt; `...595`
+• `` -&gt; `...596`
+• `` -&gt; `...597`
+• `` -&gt; `...598`
+• `` -&gt; `...599`
+• `` -&gt; `...600`
+• `` -&gt; `...601`
+• `` -&gt; `...602`
+• `` -&gt; `...603`
+• `` -&gt; `...604`
+• `` -&gt; `...605`
+• `` -&gt; `...606`
+• `` -&gt; `...607`
+• `` -&gt; `...608`
+• `` -&gt; `...609`
+• `` -&gt; `...610`
+• `` -&gt; `...611`
+• `` -&gt; `...612`
+• `` -&gt; `...613`
+• `` -&gt; `...614`
+• `` -&gt; `...615`
+• `` -&gt; `...616`
+• `` -&gt; `...617`
+• `` -&gt; `...618`
+• `` -&gt; `...619`
+• `` -&gt; `...620`
+• `` -&gt; `...621`
+• `` -&gt; `...622`
+• `` -&gt; `...623`
+• `` -&gt; `...624`
+• `` -&gt; `...625`
+• `` -&gt; `...626`
+• `` -&gt; `...627`
+• `` -&gt; `...628`
+• `` -&gt; `...629`
+• `` -&gt; `...630`
+• `` -&gt; `...631`
+• `` -&gt; `...632`
+• `` -&gt; `...633`
+• `` -&gt; `...634`
+• `` -&gt; `...635`
+• `` -&gt; `...636`
+• `` -&gt; `...637`
+• `` -&gt; `...638`
+• `` -&gt; `...639`
+• `` -&gt; `...640`
+• `` -&gt; `...641`
+• `` -&gt; `...642`
+• `` -&gt; `...643`
+• `` -&gt; `...644`
+• `` -&gt; `...645`
+• `` -&gt; `...646`
+• `` -&gt; `...647`
+• `` -&gt; `...648`
+• `` -&gt; `...649`
+• `` -&gt; `...650`
+• `` -&gt; `...651`
+• `` -&gt; `...652`
+• `` -&gt; `...653`
+• `` -&gt; `...654`
+• `` -&gt; `...655`
+• `` -&gt; `...656`
+• `` -&gt; `...657`
+• `` -&gt; `...658`
+• `` -&gt; `...659`
+• `` -&gt; `...660`
+• `` -&gt; `...661`
+• `` -&gt; `...662`
+• `` -&gt; `...663`
+• `` -&gt; `...664`
+• `` -&gt; `...665`
+• `` -&gt; `...666`
+• `` -&gt; `...667`
+• `` -&gt; `...668`
+• `` -&gt; `...669`
+• `` -&gt; `...670`
+• `` -&gt; `...671`
+• `` -&gt; `...672`
+• `` -&gt; `...673`
+• `` -&gt; `...674`
+• `` -&gt; `...675`
+• `` -&gt; `...676`
+• `` -&gt; `...677`
+• `` -&gt; `...678`
+• `` -&gt; `...679`
+• `` -&gt; `...680`
+• `` -&gt; `...681`
+• `` -&gt; `...682`
+• `` -&gt; `...683`
+• `` -&gt; `...684`
+• `` -&gt; `...685`
+• `` -&gt; `...686`
+• `` -&gt; `...687`
+• `` -&gt; `...688`
+• `` -&gt; `...689`
+• `` -&gt; `...690`
+• `` -&gt; `...691`
+• `` -&gt; `...692`
+• `` -&gt; `...693`
+• `` -&gt; `...694`
+• `` -&gt; `...695`
+• `` -&gt; `...696`
+• `` -&gt; `...697`
+• `` -&gt; `...698`
+• `` -&gt; `...699`
+• `` -&gt; `...700`
+• `` -&gt; `...701`
+• `` -&gt; `...702`
+• `` -&gt; `...703`
+• `` -&gt; `...704`
+• `` -&gt; `...705`
+• `` -&gt; `...706`
+• `` -&gt; `...707`
+• `` -&gt; `...708`
+• `` -&gt; `...709`
+• `` -&gt; `...710`
+• `` -&gt; `...711`
+• `` -&gt; `...712`
+• `` -&gt; `...713`
+• `` -&gt; `...714`
+• `` -&gt; `...715`
+• `` -&gt; `...716`
+• `` -&gt; `...717`
+• `` -&gt; `...718`
+• `` -&gt; `...719`
+• `` -&gt; `...720`
+• `` -&gt; `...721`
+• `` -&gt; `...722`
+• `` -&gt; `...723`
+• `` -&gt; `...724`
+• `` -&gt; `...725`
+• `` -&gt; `...726`
+• `` -&gt; `...727`
+• `` -&gt; `...728`
+• `` -&gt; `...729`
+• `` -&gt; `...730`
+• `` -&gt; `...731`
+• `` -&gt; `...732`
+• `` -&gt; `...733`
+• `` -&gt; `...734`
+• `` -&gt; `...735`
+• `` -&gt; `...736`
+• `` -&gt; `...737`
+• `` -&gt; `...738`
+• `` -&gt; `...739`
+• `` -&gt; `...740`
+• `` -&gt; `...741`
+• `` -&gt; `...742`
+• `` -&gt; `...743`
+• `` -&gt; `...744`
+• `` -&gt; `...745`
+• `` -&gt; `...746`
+• `` -&gt; `...747`
+• `` -&gt; `...748`
+• `` -&gt; `...749`
+• `` -&gt; `...750`
+• `` -&gt; `...751`
+• `` -&gt; `...752`
+• `` -&gt; `...753`
+• `` -&gt; `...754`
+• `` -&gt; `...755`
+• `` -&gt; `...756`
+• `` -&gt; `...757`
+• `` -&gt; `...758`
+• `` -&gt; `...759`
+• `` -&gt; `...760`
+• `` -&gt; `...761`
+• `` -&gt; `...762`
+• `` -&gt; `...763`
+• `` -&gt; `...764`
+• `` -&gt; `...765`
+• `` -&gt; `...766`
+• `` -&gt; `...767`
+• `` -&gt; `...768`
+• `` -&gt; `...769`
+• `` -&gt; `...770`
+• `` -&gt; `...771`
+• `` -&gt; `...772`
+• `` -&gt; `...773`
+• `` -&gt; `...774`
+• `` -&gt; `...775`
+• `` -&gt; `...776`
+• `` -&gt; `...777`
+• `` -&gt; `...778`
+• `` -&gt; `...779`
+• `` -&gt; `...780`
+• `` -&gt; `...781`
+• `` -&gt; `...782`
+• `` -&gt; `...783`
+• `` -&gt; `...784`
+• `` -&gt; `...785`
+• `` -&gt; `...786`
+• `` -&gt; `...787`
+• `` -&gt; `...788`
+• `` -&gt; `...789`
+• `` -&gt; `...790`
+• `` -&gt; `...791`
+• `` -&gt; `...792`
+• `` -&gt; `...793`
+• `` -&gt; `...794`
+• `` -&gt; `...795`
+• `` -&gt; `...796`
+• `` -&gt; `...797`
+• `` -&gt; `...798`
+• `` -&gt; `...799`
+• `` -&gt; `...800`
+• `` -&gt; `...801`
+• `` -&gt; `...802`
+• `` -&gt; `...803`
+• `` -&gt; `...804`
+• `` -&gt; `...805`
+• `` -&gt; `...806`
+• `` -&gt; `...807`
+• `` -&gt; `...808`
+• `` -&gt; `...809`
+• `` -&gt; `...810`
+• `` -&gt; `...811`
+• `` -&gt; `...812`
+• `` -&gt; `...813`
+• `` -&gt; `...814`
+• `` -&gt; `...815`
+• `` -&gt; `...816`
+• `` -&gt; `...817`
+• `` -&gt; `...818`
+• `` -&gt; `...819`
+• `` -&gt; `...820`
+• `` -&gt; `...821`
+• `` -&gt; `...822`
+• `` -&gt; `...823`
+• `` -&gt; `...824`
+• `` -&gt; `...825`
+• `` -&gt; `...826`
+• `` -&gt; `...827`
+• `` -&gt; `...828`
+• `` -&gt; `...829`
+• `` -&gt; `...830`
+• `` -&gt; `...831`
+• `` -&gt; `...832`
+• `` -&gt; `...833`
+• `` -&gt; `...834`
+• `` -&gt; `...835`
+• `` -&gt; `...836`
+• `` -&gt; `...837`
+• `` -&gt; `...838`
+• `` -&gt; `...839`
+• `` -&gt; `...840`
+• `` -&gt; `...841`
+• `` -&gt; `...842`
+• `` -&gt; `...843`
+• `` -&gt; `...844`
+• `` -&gt; `...845`
+• `` -&gt; `...846`
+• `` -&gt; `...847`
+• `` -&gt; `...848`
+• `` -&gt; `...849`
+• `` -&gt; `...850`
+• `` -&gt; `...851`
+• `` -&gt; `...852`
+• `` -&gt; `...853`
+• `` -&gt; `...854`
+• `` -&gt; `...855`
+• `` -&gt; `...856`
+• `` -&gt; `...857`
+• `` -&gt; `...858`
+• `` -&gt; `...859`
+• `` -&gt; `...860`
+• `` -&gt; `...861`
+• `` -&gt; `...862`
+• `` -&gt; `...863`
+• `` -&gt; `...864`
+• `` -&gt; `...865`
+• `` -&gt; `...866`
+• `` -&gt; `...867`
+• `` -&gt; `...868`
+• `` -&gt; `...869`
+• `` -&gt; `...870`
+• `` -&gt; `...871`
+• `` -&gt; `...872`
+• `` -&gt; `...873`
+• `` -&gt; `...874`
+• `` -&gt; `...875`
+• `` -&gt; `...876`
+• `` -&gt; `...877`
+• `` -&gt; `...878`
+• `` -&gt; `...879`
+• `` -&gt; `...880`
+• `` -&gt; `...881`
+• `` -&gt; `...882`
+• `` -&gt; `...883`
+• `` -&gt; `...884`
+• `` -&gt; `...885`
+• `` -&gt; `...886`
+• `` -&gt; `...887`
+• `` -&gt; `...888`
+• `` -&gt; `...889`
+• `` -&gt; `...890`
+• `` -&gt; `...891`
+• `` -&gt; `...892`
+• `` -&gt; `...893`
+• `` -&gt; `...894`
+• `` -&gt; `...895`
+• `` -&gt; `...896`
+• `` -&gt; `...897`
+• `` -&gt; `...898`
+• `` -&gt; `...899`
+• `` -&gt; `...900`
+• `` -&gt; `...901`
+• `` -&gt; `...902`
+• `` -&gt; `...903`
+• `` -&gt; `...904`
+• `` -&gt; `...905`
+• `` -&gt; `...906`
+• `` -&gt; `...907`
+• `` -&gt; `...908`
+• `` -&gt; `...909`
+• `` -&gt; `...910`
+• `` -&gt; `...911`
+• `` -&gt; `...912`
+• `` -&gt; `...913`
+• `` -&gt; `...914`
+• `` -&gt; `...915`
+• `` -&gt; `...916`
+• `` -&gt; `...917`
+• `` -&gt; `...918`
+• `` -&gt; `...919`
+• `` -&gt; `...920`
+• `` -&gt; `...921`
+• `` -&gt; `...922`
+• `` -&gt; `...923`
+• `` -&gt; `...924`
+• `` -&gt; `...925`
+• `` -&gt; `...926`
+• `` -&gt; `...927`
+• `` -&gt; `...928`
+• `` -&gt; `...929`
+• `` -&gt; `...930`
+• `` -&gt; `...931`
+• `` -&gt; `...932`
+• `` -&gt; `...933`
+• `` -&gt; `...934`
+• `` -&gt; `...935`
+• `` -&gt; `...936`
+• `` -&gt; `...937`
+• `` -&gt; `...938`
+• `` -&gt; `...939`
+• `` -&gt; `...940`
+• `` -&gt; `...941`
+• `` -&gt; `...942`
+• `` -&gt; `...943`
+• `` -&gt; `...944`
+• `` -&gt; `...945`
+• `` -&gt; `...946`
+• `` -&gt; `...947`
+• `` -&gt; `...948`
+• `` -&gt; `...949`
+• `` -&gt; `...950`
+• `` -&gt; `...951`
+• `` -&gt; `...952`
+• `` -&gt; `...953`
+• `` -&gt; `...954`
+• `` -&gt; `...955`
+• `` -&gt; `...956`
+• `` -&gt; `...957`
+• `` -&gt; `...958`
+• `` -&gt; `...959`
+• `` -&gt; `...960`
+• `` -&gt; `...961`
+• `` -&gt; `...962`
+• `` -&gt; `...963`
+• `` -&gt; `...964`
+• `` -&gt; `...965`
+• `` -&gt; `...966`
+• `` -&gt; `...967`
+• `` -&gt; `...968`
+• `` -&gt; `...969`
+• `` -&gt; `...970`
+• `` -&gt; `...971`
+• `` -&gt; `...972`
+• `` -&gt; `...973`
+• `` -&gt; `...974`
+• `` -&gt; `...975`
+• `` -&gt; `...976`
+• `` -&gt; `...977`
+• `` -&gt; `...978`
+• `` -&gt; `...979`
+• `` -&gt; `...980`
+• `` -&gt; `...981`
+• `` -&gt; `...982`
+• `` -&gt; `...983`
+• `` -&gt; `...984`
+• `` -&gt; `...985`
+• `` -&gt; `...986`
+• `` -&gt; `...987`
+• `` -&gt; `...988`
+• `` -&gt; `...989`
+• `` -&gt; `...990`
+• `` -&gt; `...991`
+• `` -&gt; `...992`
+• `` -&gt; `...993`
+• `` -&gt; `...994`
+• `` -&gt; `...995`
+• `` -&gt; `...996`
+• `` -&gt; `...997`
+• `` -&gt; `...998`
+• `` -&gt; `...999`
+• `` -&gt; `...1000`
+• `` -&gt; `...1001`
+• `` -&gt; `...1002`
+• `` -&gt; `...1003`
+• `` -&gt; `...1004`
+• `` -&gt; `...1005`
+• `` -&gt; `...1006`
+• `` -&gt; `...1007`
+• `` -&gt; `...1008`
+• `` -&gt; `...1009`
+• `` -&gt; `...1010`
+• `` -&gt; `...1011`
+• `` -&gt; `...1012`
+• `` -&gt; `...1013`
+• `` -&gt; `...1014`
+• `` -&gt; `...1015`
+• `` -&gt; `...1016`
+• `` -&gt; `...1017`
+• `` -&gt; `...1018`
+• `` -&gt; `...1019`
+• `` -&gt; `...1020`
+• `` -&gt; `...1021`
+• `` -&gt; `...1022`
+• `` -&gt; `...1023`
+• `` -&gt; `...1024`
+• `` -&gt; `...1025`
+• `` -&gt; `...1026`
+• `` -&gt; `...1027`
+• `` -&gt; `...1028`
+• `` -&gt; `...1029`
+• `` -&gt; `...1030`
+• `` -&gt; `...1031`
+• `` -&gt; `...1032`
+• `` -&gt; `...1033`
+• `` -&gt; `...1034`
+• `` -&gt; `...1035`
+• `` -&gt; `...1036`
+• `` -&gt; `...1037`
+• `` -&gt; `...1038`
+• `` -&gt; `...1039`
+• `` -&gt; `...1040`
+• `` -&gt; `...1041`
+• `` -&gt; `...1042`
+• `` -&gt; `...1043`
+• `` -&gt; `...1044`
+• `` -&gt; `...1045`
+• `` -&gt; `...1046`
+• `` -&gt; `...1047`
+• `` -&gt; `...1048`
+• `` -&gt; `...1049`
+• `` -&gt; `...1050`
+• `` -&gt; `...1051`
+• `` -&gt; `...1052`
+• `` -&gt; `...1053`
+• `` -&gt; `...1054`
+• `` -&gt; `...1055`
+• `` -&gt; `...1056`
+• `` -&gt; `...1057`
+• `` -&gt; `...1058`
+• `` -&gt; `...1059`
+• `` -&gt; `...1060`
+• `` -&gt; `...1061`
+• `` -&gt; `...1062`
+• `` -&gt; `...1063`
+• `` -&gt; `...1064`
+• `` -&gt; `...1065`
+• `` -&gt; `...1066`
+• `` -&gt; `...1067`
+• `` -&gt; `...1068`
+• `` -&gt; `...1069`
+• `` -&gt; `...1070`
+• `` -&gt; `...1071`
+• `` -&gt; `...1072`
+• `` -&gt; `...1073`
+• `` -&gt; `...1074`
+• `` -&gt; `...1075`
+• `` -&gt; `...1076`
+• `` -&gt; `...1077`
+• `` -&gt; `...1078`
+• `` -&gt; `...1079`
+• `` -&gt; `...1080`
+• `` -&gt; `...1081`
+• `` -&gt; `...1082`
+• `` -&gt; `...1083`
+• `` -&gt; `...1084`
+• `` -&gt; `...1085`
+• `` -&gt; `...1086`
+• `` -&gt; `...1087`
+• `` -&gt; `...1088`
+• `` -&gt; `...1089`
+• `` -&gt; `...1090`
+• `` -&gt; `...1091`
+• `` -&gt; `...1092`
+• `` -&gt; `...1093`
+• `` -&gt; `...1094`
+• `` -&gt; `...1095`
+• `` -&gt; `...1096`
+• `` -&gt; `...1097`
+• `` -&gt; `...1098`
+• `` -&gt; `...1099`
+• `` -&gt; `...1100`
+• `` -&gt; `...1101`
+• `` -&gt; `...1102`
+• `` -&gt; `...1103`
+• `` -&gt; `...1104`
+• `` -&gt; `...1105`
+• `` -&gt; `...1106`
+• `` -&gt; `...1107`
+• `` -&gt; `...1108`
+• `` -&gt; `...1109`
+• `` -&gt; `...1110`
+• `` -&gt; `...1111`
+• `` -&gt; `...1112`
+• `` -&gt; `...1113`
+• `` -&gt; `...1114`
+• `` -&gt; `...1115`
+• `` -&gt; `...1116`
+• `` -&gt; `...1117`
+• `` -&gt; `...1118`
+• `` -&gt; `...1119`
+• `` -&gt; `...1120`
+• `` -&gt; `...1121`
+• `` -&gt; `...1122`
+• `` -&gt; `...1123`
+• `` -&gt; `...1124`
+• `` -&gt; `...1125`
+• `` -&gt; `...1126`
+• `` -&gt; `...1127`
+• `` -&gt; `...1128`
+• `` -&gt; `...1129`
+• `` -&gt; `...1130`
+• `` -&gt; `...1131`
+• `` -&gt; `...1132`
+• `` -&gt; `...1133`
+• `` -&gt; `...1134`
+• `` -&gt; `...1135`
+• `` -&gt; `...1136`
+• `` -&gt; `...1137`
+• `` -&gt; `...1138`
+• `` -&gt; `...1139`
+• `` -&gt; `...1140`
+• `` -&gt; `...1141`
+• `` -&gt; `...1142`
+• `` -&gt; `...1143`
+• `` -&gt; `...1144`
+• `` -&gt; `...1145`
+• `` -&gt; `...1146`
+• `` -&gt; `...1147`
+• `` -&gt; `...1148`
+• `` -&gt; `...1149`
+• `` -&gt; `...1150`
+• `` -&gt; `...1151`
+• `` -&gt; `...1152`
+• `` -&gt; `...1153`
+• `` -&gt; `...1154`
+• `` -&gt; `...1155`
+• `` -&gt; `...1156`
+• `` -&gt; `...1157`
+• `` -&gt; `...1158`
+• `` -&gt; `...1159`
+• `` -&gt; `...1160`
+• `` -&gt; `...1161`
+• `` -&gt; `...1162`
+• `` -&gt; `...1163`
+• `` -&gt; `...1164`
+• `` -&gt; `...1165`
+• `` -&gt; `...1166`
+• `` -&gt; `...1167`
+• `` -&gt; `...1168`
+• `` -&gt; `...1169`
+• `` -&gt; `...1170`
+• `` -&gt; `...1171`
+• `` -&gt; `...1172`
+• `` -&gt; `...1173`
+• `` -&gt; `...1174`
+• `` -&gt; `...1175`
+• `` -&gt; `...1176`
+• `` -&gt; `...1177`
+• `` -&gt; `...1178`
+• `` -&gt; `...1179`
+• `` -&gt; `...1180`
+• `` -&gt; `...1181`
+• `` -&gt; `...1182`
+• `` -&gt; `...1183`
+• `` -&gt; `...1184`
+• `` -&gt; `...1185`
+• `` -&gt; `...1186`
+• `` -&gt; `...1187`
+• `` -&gt; `...1188`
+• `` -&gt; `...1189`
+• `` -&gt; `...1190`
+• `` -&gt; `...1191`
+• `` -&gt; `...1192`
+• `` -&gt; `...1193`
+• `` -&gt; `...1194`
+• `` -&gt; `...1195`
+• `` -&gt; `...1196`
+• `` -&gt; `...1197`
+• `` -&gt; `...1198`
+• `` -&gt; `...1199`
+• `` -&gt; `...1200`
+• `` -&gt; `...1201`
+• `` -&gt; `...1202`
+• `` -&gt; `...1203`
+• `` -&gt; `...1204`
+• `` -&gt; `...1205`
+• `` -&gt; `...1206`
+• `` -&gt; `...1207`
+• `` -&gt; `...1208`
+• `` -&gt; `...1209`
+• `` -&gt; `...1210`
+• `` -&gt; `...1211`
+• `` -&gt; `...1212`
+• `` -&gt; `...1213`
+• `` -&gt; `...1214`
+• `` -&gt; `...1215`
+• `` -&gt; `...1216`
+• `` -&gt; `...1217`
+• `` -&gt; `...1218`
+• `` -&gt; `...1219`
+• `` -&gt; `...1220`
+• `` -&gt; `...1221`
+• `` -&gt; `...1222`
+• `` -&gt; `...1223`
+• `` -&gt; `...1224`
+• `` -&gt; `...1225`
+• `` -&gt; `...1226`
+• `` -&gt; `...1227`
+• `` -&gt; `...1228`
+• `` -&gt; `...1229`
+• `` -&gt; `...1230`
+• `` -&gt; `...1231`
+• `` -&gt; `...1232`
+• `` -&gt; `...1233`
+• `` -&gt; `...1234`
+• `` -&gt; `...1235`
+• `` -&gt; `...1236`
+• `` -&gt; `...1237`
+• `` -&gt; `...1238`
+• `` -&gt; `...1239`
+• `` -&gt; `...1240`
+• `` -&gt; `...1241`
+• `` -&gt; `...1242`</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Each survey is a block of columns that starts where row 1 says "Date".</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>starts <span class="ot">&lt;-</span> <span class="fu">which</span>(m[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>ends   <span class="ot">&lt;-</span> <span class="fu">c</span>(starts[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, <span class="fu">ncol</span>(m))</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(starts) <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"No 'Date' cell found in row 1 - wrong file or sheet? </span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="st">       First cells read: "</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>       <span class="fu">paste</span>(<span class="fu">head</span>(m[<span class="dv">1</span>, ], <span class="dv">3</span>), <span class="at">collapse =</span> <span class="st">" | "</span>))</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#Helpers</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>clean_map <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"turf spp"</span> <span class="ot">=</span> <span class="st">"Turf algae"</span>, </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>               <span class="st">"padina spp"</span> <span class="ot">=</span> <span class="st">"Padina spp."</span>,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>               <span class="st">"neomeris spp"</span> <span class="ot">=</span> <span class="st">"Neomeris spp."</span>, </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>               <span class="st">"dendropoma gregaria"</span> <span class="ot">=</span> <span class="st">"Dendropoma gregarium"</span>)</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>clean_label <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">unname</span>(clean_map[<span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(x))])</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(<span class="fu">is.na</span>(out), <span class="fu">str_squish</span>(x), out)</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>to_date <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {<span class="co"># Excel dates arrive as serial numbers when read as text</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(x))</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(d)) <span class="fu">as.Date</span>(d, <span class="at">origin =</span> <span class="st">"1899-12-30"</span>) <span class="cf">else</span> <span class="fu">as.Date</span>(<span class="fu">substr</span>(x, <span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Excel serial -&gt; date)</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="co">#Read one survey block</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>read_block <span class="ot">&lt;-</span> <span class="cf">function</span>(c0, c1) {</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>  info <span class="ot">&lt;-</span> c0 <span class="sc">+</span> <span class="dv">1</span>             <span class="co"># info values sit in the column after the label</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> (c0 <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>c1</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> cols[<span class="sc">!</span><span class="fu">is.na</span>(m[<span class="dv">13</span>, cols])]  <span class="co"># columns with a quadrat header (row 13)</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>  totals_row <span class="ot">&lt;-</span> <span class="fu">which</span>(m[, c0] <span class="sc">==</span> <span class="st">"TOTALS:"</span>)[<span class="dv">1</span>] <span class="co"># TOTALS section = not raw data</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>  rows <span class="ot">&lt;-</span> <span class="dv">14</span><span class="sc">:</span>(totals_row <span class="sc">-</span> <span class="dv">2</span>) <span class="co"># organism rows end 2 rows above TOTALS</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>  rows <span class="ot">&lt;-</span> rows[<span class="sc">!</span><span class="fu">is.na</span>(m[rows, c0]) <span class="sc">&amp;</span> m[rows, c0] <span class="sc">!=</span> <span class="st">""</span>]</span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(cols) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">length</span>(rows) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>) <span class="co"># empty survey (e.g. Kahana Bay)</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>  body <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(m[rows, cols, <span class="at">drop =</span> <span class="cn">FALSE</span>], <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(body) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"c"</span>, <span class="fu">seq_along</span>(cols))</span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>  body<span class="sc">$</span>original_labels <span class="ot">&lt;-</span> m[rows, c0]</span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  header <span class="ot">&lt;-</span> m[<span class="dv">13</span>, cols]</span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>  body <span class="sc">|&gt;</span></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span>original_labels, <span class="at">names_to =</span> <span class="st">"col"</span>, </span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_to =</span> <span class="st">"points"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">points =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(points))) <span class="sc">|&gt;</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(points), points <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span>   <span class="co"># blank = not observed</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">header =</span> header[<span class="fu">as.integer</span>(<span class="fu">str_remove</span>(col, <span class="st">"^c"</span>))],</span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>           <span class="at">date      =</span> <span class="fu">to_date</span>(m[<span class="dv">1</span>, info]),</span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>           <span class="at">site      =</span> m[<span class="dv">8</span>, info],</span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>           <span class="at">latitude  =</span> <span class="fu">as.numeric</span>(m[<span class="dv">9</span>, info]),</span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>           <span class="at">longitude =</span> <span class="fu">as.numeric</span>(m[<span class="dv">10</span>, info]),</span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>           <span class="at">school    =</span> <span class="fu">str_squish</span>(m[<span class="dv">11</span>, info]),</span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>           <span class="at">number_of_transect_lines        =</span> <span class="fu">as.numeric</span>(m[<span class="dv">4</span>, info]),</span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>           <span class="at">length_of_transect_lines        =</span> <span class="fu">as.numeric</span>(m[<span class="dv">5</span>, info]),</span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>           <span class="at">point_spacing                   =</span> m[<span class="dv">6</span>, info],</span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a>           <span class="at">number_of_quadrats_per_transect =</span> <span class="fu">as.numeric</span>(m[<span class="dv">7</span>, info]),</span>
+<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>           <span class="at">transect =</span> <span class="fu">as.integer</span>(<span class="fu">str_match</span>(header, <span class="st">"transect-(</span><span class="sc">\\</span><span class="st">d+)"</span>)[, <span class="dv">2</span>]),</span>
+<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>           <span class="at">quadrat =</span> <span class="fu">as.integer</span>(<span class="fu">str_match</span>(header, <span class="st">"quadrat-(</span><span class="sc">\\</span><span class="st">d+)"</span>)[, <span class="dv">2</span>]),</span>
+<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>           <span class="at">transect_points =</span> as.numeric</span>
+<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>           (<span class="fu">str_match</span>(header,<span class="st">"point ([0-9.]+)"</span>)[, <span class="dv">2</span>]))</span>
+<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a>blocks <span class="ot">&lt;-</span> <span class="fu">Map</span>(read_block, starts, ends)</span>
+<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">vapply</span>(blocks, is.null, <span class="fu">logical</span>(<span class="dv">1</span>))))</span>
+<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"Every survey block came back empty ("</span>, <span class="fu">length</span>(starts), <span class="st">" blocks found)."</span>)</span>
+<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Stack + opihi format</span></span>
+<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a>opihi_2016 <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(blocks) <span class="sc">|&gt;</span></span>
+<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">organism_substrate =</span> <span class="fu">clean_label</span>(original_labels),</span>
+<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a>         <span class="at">type     =</span> <span class="fu">if_else</span>(organism_substrate <span class="sc">%in%</span> </span>
+<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">c</span>(<span class="st">"Rock"</span>, <span class="st">"Sand"</span>), <span class="st">"Substrate"</span>, <span class="st">"Organism"</span>),</span>
+<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a>         <span class="at">method   =</span> <span class="st">"Quadrat"</span>,</span>
+<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a>         <span class="at">p1_or_p2 =</span> <span class="cn">NA_character_</span>, <span class="at">group =</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a>         <span class="co"># not in this dataset</span></span>
+<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a>         <span class="at">recorder =</span> <span class="cn">NA_character_</span>, <span class="at">checker_1 =</span> <span class="cn">NA_character_</span>, </span>
+<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a>         <span class="at">checker_2 =</span> <span class="cn">NA_character_</span>) <span class="sc">|&gt;</span></span>
+<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(date, site, transect, quadrat, organism_substrate) <span class="sc">|&gt;</span></span>
+<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(school, site, method, p1_or_p2, group,</span>
+<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a>         recorder, checker_1, checker_2,</span>
+<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a>         transect_points, organism_substrate, type, points, original_labels,</span>
+<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a>         date, latitude, longitude,</span>
+<span id="cb29-82"><a href="#cb29-82" aria-hidden="true" tabindex="-1"></a>         number_of_transect_lines, length_of_transect_lines, point_spacing,</span>
+<span id="cb29-83"><a href="#cb29-83" aria-hidden="true" tabindex="-1"></a>         number_of_quadrats_per_transect, transect, quadrat)</span>
+<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_2016, <span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi16.csv"</span>), <span class="at">na =</span> <span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Combined</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Get the csv files</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>opihi_23 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi_master_long.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 221 Columns: 13
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (11): school, site, method, p1_or_p2, group, recorder, checker_1, checke...
+dbl  (2): transect_points, points
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>opihi_67 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi_long_2006_2007.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 2206 Columns: 22
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (7): school, site, method, organism_substrate, type, original_labels, p...
+dbl  (9): transect_points, points, latitude, longitude, number_of_transect_l...
+lgl  (5): p1_or_p2, group, recorder, checker_1, checker_2
+date (1): date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>opihi_16 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi16.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 3007 Columns: 22
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (7): school, site, method, organism_substrate, type, original_labels, p...
+dbl  (9): transect_points, points, latitude, longitude, number_of_transect_l...
+lgl  (5): p1_or_p2, group, recorder, checker_1, checker_2
+date (1): date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Year Function - no data format in 2023 so directly creating a 2023 year column </span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>year_from_date <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">as.integer</span>(<span class="fu">format</span>(<span class="fu">as.Date</span>(d), <span class="st">"%Y"</span>))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>opihi_23_y <span class="ot">&lt;-</span> opihi_23 <span class="sc">|&gt;</span> </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="dv">2023</span>L)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>opihi_67_y <span class="ot">&lt;-</span> opihi_67 <span class="sc">|&gt;</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year_from_date</span>(date))</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>opihi_16_y <span class="ot">&lt;-</span> opihi_16 <span class="sc">|&gt;</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.integer</span>(<span class="fu">format</span>(<span class="fu">as.Date</span>(date), <span class="st">"%Y"</span>)))</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(opihi_16_y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "school"                          "site"                           
+ [3] "method"                          "p1_or_p2"                       
+ [5] "group"                           "recorder"                       
+ [7] "checker_1"                       "checker_2"                      
+ [9] "transect_points"                 "organism_substrate"             
+[11] "type"                            "points"                         
+[13] "original_labels"                 "date"                           
+[15] "latitude"                        "longitude"                      
+[17] "number_of_transect_lines"        "length_of_transect_lines"       
+[19] "point_spacing"                   "number_of_quadrats_per_transect"
+[21] "transect"                        "quadrat"                        
+[23] "year"                           </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(opihi_16_y, year)    <span class="co"># should show 2016 and 3007</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+   year     n
+  &lt;int&gt; &lt;int&gt;
+1  2016  3007</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#stack columns </span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Columns are the same in all three; date, latitude, longitude, the four transect-design</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fields, transect and quadrat are blank for the 2023 rows.</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>col_order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"school"</span>, <span class="st">"site"</span>, <span class="st">"method"</span>, <span class="st">"p1_or_p2"</span>, </span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">"group"</span>, <span class="st">"recorder"</span>, <span class="st">"checker_1"</span>, <span class="st">"checker_2"</span>,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>               <span class="st">"transect_points"</span>, <span class="st">"organism_substrate"</span>, </span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>               <span class="st">"type"</span>, <span class="st">"points"</span>, <span class="st">"original_labels"</span>,</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>               <span class="st">"date"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>,</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>               <span class="st">"number_of_transect_lines"</span>, </span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>               <span class="st">"length_of_transect_lines"</span>, <span class="st">"point_spacing"</span>,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>               <span class="st">"number_of_quadrats_per_transect"</span>, <span class="st">"transect"</span>, </span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>               <span class="st">"quadrat"</span>, <span class="st">"year"</span>)</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>opihi_master_all <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(opihi_23_y, opihi_67_y, opihi_16_y) <span class="sc">|&gt;</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(date),</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">school =</span> <span class="fu">recode</span>(school, <span class="st">"OPIHI"</span> <span class="ot">=</span> <span class="st">"OPIHI Coordinator"</span>, </span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Kilauea"</span> <span class="ot">=</span> <span class="st">"Kilauea School"</span>),</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">organism_substrate =</span> <span class="fu">if_else</span>(str_detect</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>                                      (organism_substrate, <span class="st">"^Sargassum"</span>),</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">"Sargassum spp"</span>, organism_substrate)) <span class="sc">|&gt;</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(col_order)) <span class="sc">|&gt;</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add points where two Sargassum names now share the same group/quadrat</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(points, original_labels))) <span class="sc">|&gt;</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">points =</span> <span class="fu">sum</span>(points),</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>            <span class="at">original_labels =</span> <span class="fu">paste</span>(<span class="fu">unique</span>(original_labels), </span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">collapse =</span> <span class="st">"; "</span>),</span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(col_order)) <span class="sc">|&gt;</span></span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, site, date, method, transect, quadrat, organism_substrate)</span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(opihi_master_all,<span class="fu">here</span>(<span class="st">"Mai"</span>,<span class="st">"data"</span>,<span class="st">"opihi_master.csv"</span>), <span class="at">na =</span><span class="st">""</span>)</span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a><span class="co">#check the combination</span></span>
+<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>opihi_combine <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mai"</span>, <span class="st">"data"</span>, <span class="st">"opihi_master.csv"</span>))   <span class="co"># use the file name you saved</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 5430 Columns: 23
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (10): school, site, method, p1_or_p2, group, recorder, organism_substra...
+dbl  (10): transect_points, points, latitude, longitude, number_of_transect_...
+lgl   (2): checker_1, checker_2
+date  (1): date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(opihi_combine, year)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+   year     n
+  &lt;dbl&gt; &lt;int&gt;
+1  2006   581
+2  2007  1625
+3  2016  3007
+4  2023   217</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(opihi_combine)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5430</code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
