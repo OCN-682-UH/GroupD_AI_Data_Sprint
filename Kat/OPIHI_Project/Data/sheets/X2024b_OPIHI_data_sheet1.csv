@@ -1,0 +1,16 @@
+"Date","Location","Team Leader","Team Members","Stressful Events?","Low Tide Time","Low Tide Height","# in field group","# T lines","Longest T (m)","Dist between T pts for Q","# Quad/T","Start time","End time","Weather","Rain events?","Wave Height","Wind speed","# Visitors","# fishing","# collecting","What collecting?","Notes"
+"2024-04-06 00:00:00","`Ewa","Addison","Biscut, Blue, Cassie","No","08:38:00",-0.16,4,4,20,2,11,"07:20:00","10:30:00","Partly cloudy","yes","1-3 ft","20mph","3.0",1,0,,
+"2024-04-07 00:00:00","`Ewa","Aadya","Patrick, Nate, Aadya, Ritu","No","09:15:00",-0.2,5,4,22,2,12,"08:12:00","09:30:00","Cloudy","No","7-10ft","19-24mph","4.0",2,0,"N/A",
+"2024-01-14 00:00:00","Ewa Beach","Jo","Biscuit, Ritu, Aadya","No","13:00:00",0.1,13,3,24,2,12,"13:06:00","14:05:00","Sunny","No","1-3 ft","4-7 mph","3.0",1,2,"Limu",
+"2024-02-10 00:00:00","Ewa Beach","Josue","Hikaru, Kirby, Josue, Elijah","No","11:30:00",-0.19,4,4,22,2,45576,"10:55:00","01:10:00","Sunny","No","1-3 ft","7-9 mph","5.0",0,0,,
+"2024-02-24 00:00:00","Kalaeloa","Patrick","Nate, Aadaya, Sophia","No","10:55:00",0.5,4,4,35,,,"09:43:00","11:55:00","Cloudy","No","5.0","20.0","45422.0",1,0,,
+"2024-03-02 00:00:00","Kalaeloa","Nate","Sophia, Nate, Aadya, Ritu","No","01:14:00",0.01,4,4,20,2,10,"12:00:00","01:35:00","Partly cloudy","No","1-3 ft","10-14 mph","8.0",2,0,,
+"2024-03-09 00:00:00","Kalaeloa","Ritu","Sophia, Nate, Aadya, Ritu","No","10:17:00",-0.03,4,4,20,2,10,"09:10:00","10:07:00","Partly cloudy","Yes","1-3ft","8-12mph","7.0",3,0,,"3 people fishing but using 7 lines"
+"2024-02-10 00:00:00","Kalealoa","Sophia","Sophia, Nate, Aadya, Ritu","No","11:38:00",0.4,5,4,20,2,10,"10:11:00","12:20:00","Partly sunny","Yes","4-6 ft","4-7 mph","12.0",6,0,,"Sharp rocks, strong waves"
+"2024-01-27 00:00:00","Le'ahi","Elijah","Hikaru, Kirby, Josue","Yes","12:17:00",0,4,4,13,2,45639,"11:00:00","01:05:00","Cloudy","Yes","4.6 ft","18 kts","4.0",0,2,"Fish",
+"2024-02-11 00:00:00","Lē'ahi","Kirby","Hikaru, Kirby, Josue, Elijah","No","12:01:00",-0.3,4,4,13,2,45576,"10:50:00","12:15:00","Sunny","No","4 ft","7-9 mph","45422.0",0,0,,
+"2024-02-24 00:00:00","Lē'ahi","Hikaru","Hikaru, Kirby, Josue, Elijah","No","10:55:00",-0.02,4,4,13,2,10,"10:10:00","11:45:00","Cloudy","Yes","7-10ft","17mph","13-20",2,7,"Geology data",
+"2024-02-25 00:00:00","Leahi","Josue","Hikaru, Kirby, Josue, Elijah","No","11:15:00",-0.04,4,4,13,2,10,"10:20:00","11:50:00","Partly cloudy","No","4-6 ft","13-18","15.0",4,,,
+"2024-02-10 00:00:00","Mamala Bay","Addison","Blue, Addison, Buscuit, Cassie","No","11:30:00",-0.2,4,4,40,5,8,"10:00:00","12:40:00","Sunny","No","1-3ft","14 mph","1.0",0,0,,
+"2024-02-24 00:00:00","Mamala Bay","Cassie","Addison, Biscuit, Blue, Cassie","No","10:55:00",,4,4,40,5,8,"09:35:00","11:30:00","Light rain","Yes","45294.0","45516.0","0.0",0,0,,
+"2024-02-25 00:00:00","Mamala Bay","Blue","Addison, Biscuit, Blue, Cassie","No","10:30:00",,4,4,40,5,8,"09:15:00","11:30:00","Light rain","Yes","45294.0","45389.0","45355.0",2,0,,

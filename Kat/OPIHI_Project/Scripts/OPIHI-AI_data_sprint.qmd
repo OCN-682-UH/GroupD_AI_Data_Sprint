@@ -1,0 +1,1742 @@
+---
+title: "OPIHI Project - AI Assisted Data Sprint"
+author: "Kat Viehl"
+format:
+  html:
+    embed-resources: true
+    code-fold: true
+    code-summary: "**Show code**"
+    theme:
+      light: solar
+execute:
+  warning: false
+  message: false
+page-layout: full
+---
+
+![](opihi_divider.png)
+
+-----------------------------------------------------------------
+
+All OPIHI datasets belong to: **Dr. Joanna Philippoff** - philippo@hawaii.edu
+
+Contents of this Quarto were written by: **Kat Viehl** - kviehl@hawaii.edu
+
+---
+
+Created on : 2026-10-21
+
+Last Updated on : 2026-11-02
+
+Note: AI was used for scripting assistance. 
+AI agents used: 
+
+ - Claude Sonnet 5.5 Medium 
+ 
+ - ChatGPT-5 Pro (My partner has a license, so those logs may include his account or name (David Webb) instead of mine)
+
+---
+
+Load libraries:
+
+```{r}
+
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(knitr)
+library(readxl)
+library(janitor)
+
+```
+
+---
+
+### Overview:
+
+This quarto document contains step-by-step notes about the data cleaning and processing conducted on the OPIHI datasets collected from 2004 - 2026.
+
+
+First, I will rename all the sheets to have the same format. Below I detail each of the old names and new names side by side in a table:
+
+
+```{r}
+
+# load in filenames table
+
+filenames_metadata <- read_csv(here("OPIHI_Project", "Data", "filenames_metadata.csv"))
+
+
+# show filename conversions in a table
+
+filenames_metadata |> 
+  kbl(col.names = c("Original Filename", "New Filename")) |> 
+  kable_material()
+
+```
+
+
+### Renaming Scripting:
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Renaming Text Files
+
+**Kat:**
+
+Write me a script that will rename files based on file names in a .csv in R
+
+**Claude:**
+
+I've written the script as `rename_files.R`. It assumes a CSV with two columns, `old_name` and `new_name`, with file extensions included in both.
+
+To use it, set `csv_path` and `file_dir` in the settings block at the top. If your column headers differ, change `old_col` and `new_col` to match.
+
+It defaults to a dry run, which prints the planned renames without touching anything. Once the preview looks right, set `dry_run <- FALSE` and run it again.
+
+It also checks a few things before renaming, so a bad CSV doesn't wreck your files:
+- Files listed in the CSV but missing from the folder are skipped with a warning.
+- Duplicate new names in the CSV stop the script.
+- New names that already exist in the folder are skipped, so nothing gets overwritten.
+
+If your CSV uses a different layout, such as a prefix or pattern instead of full new names, let me know and I'll adjust it.
+
+:::
+
+
+Based on the AI script provided, files were renamed below. Backups of the original files are kept in ~OPIHI_Project/Data/backups, and in a separate folder outside of this repository in an abundance of caution.
+
+
+File renaming script:
+
+```{r}
+
+###############################Code written by Claude, some sections edited to include the here() function:
+
+## ---------------------------------------------------------------
+## Rename files using a CSV of old and new names
+## ---------------------------------------------------------------
+## The CSV needs two columns (change the names in SETTINGS if yours differ):
+##
+##   old_name,new_name
+##   IMG_001.jpg,beach_sunrise.jpg
+##   IMG_002.jpg,beach_sunset.jpg
+##
+## Tip: include file extensions in both columns.
+## ---------------------------------------------------------------
+#
+## ---- SETTINGS -------------------------------------------------
+#csv_path    <- here("OPIHI_Project", "Data", "filenames_metadata.csv")      # path to your CSV
+#file_dir    <- here("OPIHI_Project", "Data")  # folder containing the files to rename
+#old_col     <- "original_filename"            # CSV column with current file names
+#new_col     <- "new_filename"            # CSV column with desired file names
+#dry_run     <- TRUE                  # TRUE = preview only, FALSE = actually rename (KAT NOTE: after running on FALSE #I set this to true to avoid rerunning it accidentally)
+## ---------------------------------------------------------------
+#
+## Read the CSV (everything as text so names like "001" don't lose zeros)
+#map <- read.csv(csv_path, stringsAsFactors = FALSE, colClasses = "character",
+#                strip.white = TRUE)
+#
+#if (!all(c(old_col, new_col) %in% names(map))) {
+#  stop("CSV must contain columns '", old_col, "' and '", new_col, "'. Found: ",
+#       paste(names(map), collapse = ", "))
+#}
+#
+## Drop blank rows
+#map <- map[nzchar(map[[old_col]]) & nzchar(map[[new_col]]), ]
+#
+#old_paths <- file.path(file_dir, map[[old_col]])
+#new_paths <- file.path(file_dir, map[[new_col]])
+#
+## ---- Safety checks --------------------------------------------
+#missing_old <- !file.exists(old_paths)
+#dup_new     <- duplicated(new_paths) | duplicated(new_paths, fromLast = TRUE)
+#clash       <- file.exists(new_paths) & old_paths != new_paths
+#
+#if (any(missing_old)) {
+#  warning("These files were not found and will be skipped:\n  ",
+#          paste(map[[old_col]][missing_old], collapse = "\n  "))
+#}
+#if (any(dup_new)) {
+#  stop("Duplicate new names in the CSV:\n  ",
+#       paste(unique(map[[new_col]][dup_new]), collapse = "\n  "))
+#}
+#if (any(clash)) {
+#  warning("These new names already exist in the folder and will be skipped ",
+#          "(to avoid overwriting):\n  ",
+#          paste(map[[new_col]][clash], collapse = "\n  "))
+#}
+#
+#ok <- !missing_old & !clash
+#
+## ---- Rename ---------------------------------------------------
+#if (dry_run) {
+#  message("DRY RUN - no files changed. Planned renames:")
+#  print(data.frame(from = map[[old_col]][ok], to = map[[new_col]][ok]),
+#        row.names = FALSE)
+#  message("\nSet dry_run <- FALSE to apply these changes.")
+#} else {
+#  result <- file.rename(old_paths[ok], new_paths[ok])
+#  message(sum(result), " of ", sum(ok), " files renamed successfully.")
+#  if (any(!result)) {
+#    warning("Failed to rename:\n  ",
+#            paste(map[[old_col]][ok][!result], collapse = "\n  "))
+#  }
+#}
+#
+
+## commented everything out to avoid running it again
+
+
+
+```
+
+All files renamed.
+
+My group has decided to split up the work by years, so I am only compiling the data from the following years: 
+
+ - 2004
+ 
+ - 2005
+ 
+ - 2008
+ 
+ - 2026
+ 
+I have manually moved all other years that my group members will be working on out of this folder and into a new folder named "otheryears" to avoid accidental cross-talk.
+
+---
+
+### Manual Data Cleaning
+
+When looking at the datasheets, I notice the following things:
+
+ - 2004, 2005, and 2008 are all the same format.
+ 
+ - 2008 says it may be mis-typed, so that needs to be noted in the spreadsheet.
+ 
+ - 2026 consists of three separate excel sheets with very different formats.
+ 
+There are a few sheets in one of the most recent year's documents (2026) that need to be deleted as they will not import correctly into R or contain data that lacks identifying information. These are detailed below:
+
+ 1. 2026b_OPIHI_data - removed sheets: "LIMU PRESSES", "QUADRAT PT INTERCEPT (EXAMPLE)", and "Sheet9". The first one was removed due to it being a photograph of limu pressings with no other data. The second is example data from another year. The third one (Sheet9) was removed as it contains temperature data with no associated location data to group with.
+
+ 
+### Manual Redaction (2004, 2005, 2008) and AI compilation
+
+I will be redacting names and other sensitive data from 2004a, 2005a, and 2008a before using AI to help compile it. I have changed coordinates, site names, and removed any identifying information.
+
+Now I will use AI to write me a script that will pull the information and join these three files together into the correct format.
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+Write me an R script that pulls all of the data from these files and puts it neatly into a new .csv file named "combined_data1.csv".
+
+
+**Claude:**
+
+I'll look at the files first so the script matches their actual structure.
+
+The sheets hold many survey blocks side by side. I'll look at one block in detail.
+
+The layout is clear now. I'll check whether R is available here so I can test the script.
+
+R isn't installed in my sandbox, so I can't run the script myself. I'll compute the expected row counts independently in Python so you can check your output against them.
+
+I've written the script, `combine_opihi_data.R`, but I couldn't run it because R isn't installed in my sandbox. I checked the workbook layouts and worked out the expected row counts in Python instead, so your first run is the real test.
+
+**How it works**
+- Each workbook holds several surveys side by side. A survey starts wherever row 1 says "Date", and there are 20 across your three files (3 in 2004, 16 in 2005, 1 in 2008).
+- For each survey it reads the metadata (date, times, location, lat/lon, school, transect info), then the quadrat labels and the organism counts.
+- It splits labels like `transect-1 quadrat-6 at point 6.50` into separate `transect`, `quadrat` and `point_m` columns.
+- It skips the "TOTALS:" section under each survey, since that can be recomputed from the raw counts.
+
+**Output:** a tidy CSV with one row per organism per quadrat. The columns are:
+- `source_file`, `sheet`
+- `date`, `start_time`, `stop_time`
+- `location`, `latitude`, `longitude`, `school`
+- `n_transect_lines`, `transect_line_length`
+- `point_spacing`, `point_spacing_m`, `quadrats_per_transect`
+- `transect`, `quadrat`, `point_m`
+- `organism`, `count`
+
+**To use it**
+1. Put the script in the same folder as the three `.xlsx` files (or change `data_dir` at the top).
+2. Run `install.packages(c("readxl", "dplyr", "purrr", "readr", "tibble"))` once.
+3. Run the script. It writes `combined_data1.csv` to your working directory.
+
+**Things to know**
+- **Blank cells:** by default only recorded counts are kept, which should give about 1,762 rows (247 + 1,299 + 216). Setting `drop_empty_cells <- FALSE` keeps every organism and quadrat combination, with blanks written as 0, for 9,806 rows. That assumes a blank means "not seen", so check that matches your protocol.
+- **Latitude and longitude:** the source files only store whole degrees (e.g. 21, -159), so the CSV does too.
+- **Transect length units:** the workbooks don't give them, so that column is just called `transect_line_length`.
+- **2008 sheet name:** the sheet is named "OPIHI data 2008 (might be mis-t…", which hints at a data-entry doubt. I used the data as-is.
+
+If your row count differs from the numbers above, tell me what you get and I'll track it down.
+
+
+:::
+
+
+```{r}
+# ------------------------------------------------------------------
+# combine_opihi_data.R
+#
+# Combines the OPIHI survey workbooks (2004a, 2005a, 2008a, ...) into one
+# tidy ("long") CSV: one row per organism x quadrat, with the survey
+# metadata (date, location, lat/lon, etc.) repeated on every row.
+#
+# Each workbook has several survey blocks laid out SIDE BY SIDE. A block
+# starts in the column where row 1 says "Date":
+#   rows 1-11 : metadata (label in the block's first column, value next to it)
+#   row  13   : "Organisms" + one label per quadrat
+#               ("transect-1 quadrat-1 at point 0.50")
+#   row  14+  : organism name + counts, until the first blank organism cell
+# Anything below that (the "TOTALS:" section) is ignored, because it can be
+# recomputed from the raw counts.
+#
+# Requires: readxl, dplyr, purrr, readr, tibble
+#   install.packages(c("readxl", "dplyr", "purrr", "readr", "tibble"))
+# ------------------------------------------------------------------
+
+library(readxl)
+library(dplyr)
+library(purrr)
+library(readr)
+library(tibble)
+
+# ---- Settings -----------------------------------------------------
+data_dir   <- here("OPIHI_Project", "Data", "2004_2005_2008_notredacted")  # folder containing the .xlsx files
+file_regex <- "_OPIHI_data\\.xlsx$"  # which files to combine
+out_file   <- here("OPIHI_Project", "Outputs", "combined_data1.csv")
+
+# Blank cells mean "organism not recorded in that quadrat".
+#   TRUE  = keep only recorded counts (smaller file)
+#   FALSE = keep every organism x quadrat combination, blanks written as 0
+drop_empty_cells <- TRUE
+# -------------------------------------------------------------------
+
+# Safely get one cell from the raw sheet (returns NA if empty/out of range)
+get_cell <- function(m, r, c) {
+  if (r > nrow(m) || c > ncol(m) || c < 1) return(NA)
+  v <- m[[c]][[r]]
+  if (is.null(v) || length(v) == 0) NA else v
+}
+
+fmt_date <- function(x) if (inherits(x, "POSIXt")) format(x, "%Y-%m-%d") else as.character(x)
+fmt_time <- function(x) if (inherits(x, "POSIXt")) format(x, "%H:%M")    else as.character(x)
+
+quadrat_pattern <- "^transect-([0-9]+) quadrat-([0-9]+) at point ([0-9.]+)$"
+
+# Parse one survey block (columns `start` to `end`) into a long tibble
+parse_block <- function(m, start, end, source_file, sheet_name) {
+
+  # --- metadata (rows 1-11), looked up by label so row order doesn't matter
+  meta_rows <- 1:11
+  meta <- map(meta_rows, ~ get_cell(m, .x, start + 1))
+  names(meta) <- map_chr(meta_rows, ~ as.character(get_cell(m, .x, start)))
+  num <- function(x) suppressWarnings(as.numeric(x))
+
+  # --- quadrat columns: those with a label in row 13
+  header_row <- 13
+  qcols   <- (start + 1):end
+  qlabels <- map_chr(qcols, ~ as.character(get_cell(m, header_row, .x)))
+  keep    <- !is.na(qlabels)
+  qcols   <- qcols[keep]
+  qlabels <- qlabels[keep]
+
+  # --- organism rows: from row 14 until the first blank organism name
+  r <- header_row + 1
+  org_rows <- integer(0)
+  while (r <= nrow(m) && !is.na(get_cell(m, r, start))) {
+    org_rows <- c(org_rows, r)
+    r <- r + 1
+  }
+  if (length(org_rows) == 0 || length(qcols) == 0) return(NULL)
+
+  # --- every organism x quadrat combination
+  grid <- expand.grid(i = seq_along(org_rows), j = seq_along(qcols))
+  out <- tibble(
+    organism = map_chr(grid$i, ~ as.character(get_cell(m, org_rows[.x], start))),
+    label    = qlabels[grid$j],
+    count    = map_dbl(seq_len(nrow(grid)),
+                       ~ num(get_cell(m, org_rows[grid$i[.x]], qcols[grid$j[.x]])))
+  )
+
+  ok <- grepl(quadrat_pattern, out$label)
+  out <- out %>%
+    mutate(
+      transect = suppressWarnings(as.integer(ifelse(ok, sub(quadrat_pattern, "\\1", label), NA))),
+      quadrat  = suppressWarnings(as.integer(ifelse(ok, sub(quadrat_pattern, "\\2", label), NA))),
+      point_m  = suppressWarnings(as.numeric(ifelse(ok, sub(quadrat_pattern, "\\3", label), NA)))
+    )
+
+  # --- attach metadata
+  out %>%
+    mutate(
+      source_file           = source_file,
+      sheet                 = sheet_name,
+      date                  = fmt_date(meta[["Date"]]),
+      start_time            = fmt_time(meta[["Start Time"]]),
+      stop_time             = fmt_time(meta[["Stop Time"]]),
+      location              = as.character(meta[["Location"]]),
+      latitude              = num(meta[["latitude"]]),
+      longitude             = num(meta[["longitude"]]),
+      school                = as.character(meta[["School"]]),
+      n_transect_lines      = num(meta[["Number of Transect Lines"]]),
+      transect_line_length  = num(meta[["Length of Transect Lines"]]),
+      point_spacing         = as.character(meta[["Point Spacing"]]),
+      point_spacing_m       = parse_number(as.character(meta[["Point Spacing"]])),
+      quadrats_per_transect = num(meta[["Number of Quadrats per transect"]])
+    ) %>%
+    select(source_file, sheet, date, start_time, stop_time, location,
+           latitude, longitude, school, n_transect_lines, transect_line_length,
+           point_spacing, point_spacing_m, quadrats_per_transect,
+           transect, quadrat, point_m, organism, count)
+}
+
+# Parse every survey block on one sheet
+parse_sheet <- function(path, sheet_name) {
+  # col_types = "list" keeps each cell's native type (dates, times, numbers, text)
+  m <- read_excel(path, sheet = sheet_name, col_names = FALSE,
+                  col_types = "list", .name_repair = "minimal")
+
+  # A block starts wherever row 1 says "Date"
+  starts <- which(map_lgl(seq_len(ncol(m)),
+                          ~ identical(as.character(get_cell(m, 1, .x)), "Date")))
+  if (length(starts) == 0) {
+    warning("No survey blocks found in ", basename(path), " [", sheet_name, "]")
+    return(NULL)
+  }
+  ends <- c(starts[-1] - 1, ncol(m))
+
+  map2_dfr(starts, ends, ~ parse_block(m, .x, .y, basename(path), sheet_name))
+}
+
+# ---- Run ----------------------------------------------------------
+files <- list.files(data_dir, pattern = file_regex, full.names = TRUE)
+if (length(files) == 0) stop("No files matching '", file_regex, "' found in '", data_dir, "'")
+message("Found ", length(files), " file(s):\n  ", paste(basename(files), collapse = "\n  "))
+
+combined <- map_dfr(sort(files), function(f) {
+  map_dfr(excel_sheets(f), ~ parse_sheet(f, .x))
+})
+
+if (drop_empty_cells) {
+  combined <- filter(combined, !is.na(count))
+} else {
+  combined <- mutate(combined, count = coalesce(count, 0))
+}
+
+combined <- arrange(combined, date, location, transect, quadrat, organism)
+
+write_csv(combined, out_file, na = "")
+message("Wrote ", nrow(combined), " rows x ", ncol(combined), " columns to ", out_file)
+```
+
+OK -- the R variable it created is called "combined". Let's see what the output variable looks like.
+
+```{r}
+
+glimpse(combined)
+
+```
+
+Looks good! I have also manually looked between this file and each of 2004, 2005, and 2008 to ensure all data carried over correctly. I did not verify every single species count, but I did check all the dates, the number of entries per date, and randomly looked at about 50 rows to verify throughout the document and all were correct.
+
+Now that I have combined 2004, 2005, and 2008, I need to combine and reformat 2026 to fit them all together.
+
+First I will manually redact 2026 in order to work with AI on writing a reformatting script. I did this by replacing people and school names with "fake name1", "fake name2", etc. or random strings of letters. I also mixed up all the place names so it would not represent the area accurately.
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+Great! Now, can you take these files and do the same thing, but write the new .csv to "combined_data2.csv"?
+
+**Claude:**
+
+I'll check whether these files use the same layout first.
+
+These files use a different template than the first batch. I'll look closer at the headers and the odd 2026b workbook.
+
+I've finished profiling all three 2026 workbooks, and they use a different layout from the first batch, so now I'm writing a new script for them.
+
+While reviewing the script I found a bug. In R, `as.character()` on a list turns blank cells into the literal text `"NA"`, so I'm fixing that and replacing a deprecated function.
+
+Now I'll compute the expected row counts independently, mirroring the script's logic, so you have numbers to check against.
+
+The "(54)" sheet's point numbering suggests a gap in the middle of the data, so I'll check that before finalizing.
+
+Confirmed: "(54)" has five blank rows after point 30, and my loop would have stopped there and lost points 31–41. I'm fixing it to scan the whole sheet.
+
+The new script is `combine_opihi_data2.R`, and it writes `combined_data2.csv`. As before, I couldn't run it because R isn't installed in my sandbox, so I checked the workbooks and counted expected rows in Python instead.
+
+**These files needed a new script.** The 2026 workbooks use a different layout from the first batch.
+- **2026a and 2026c** share one template. A Metadata sheet has one row per survey. A transect sheet has one organism or substrate per point. A Quadrat sheet has one row per quadrat and one column per organism.
+- **2026b** is a different, class-compiled workbook. It has transect points by group and quadrat totals by group.
+
+**Output:** `combined_data2.csv` has one row per observation, with these columns:
+- `source_file`, `sheet`, `record_type`
+- `date`, `location`, `data_entry_by`, `group`
+- `transect`, `transect_point`, `position_m`, `quadrat_location_m`
+- `category`, `organism`, `count`
+- `quadrat_total_points`, `notes`
+
+`record_type` tells you what each row is:
+- `transect_point`: one transect point, with `count` = 1.
+- `quadrat_points`: a per-quadrat count (2026a and 2026c).
+- `quadrat_group_total`: a count totalled over a whole group's survey (2026b has no per-quadrat detail).
+
+**Row counts to check against (R's `nrow`):** about 2,000 rows by default. With `drop_empty_cells <- FALSE` it's 12,873. Per file, the default is:
+- 2026a: 98 transect rows and 1,164 quadrat rows.
+- 2026b: 246 transect rows and 113 quadrat rows.
+- 2026c: 105 transect rows and 274 quadrat rows.
+
+**One extra file:** the script also writes `combined_metadata2.csv` (8 survey rows from 2026a and 2026c). I kept the metadata separate because I couldn't safely attach it to each observation. For example, 2026a has two metadata rows for 1/24 at ʻEwa Beach, with different team leaders. If you'd rather not have it, delete the last few lines of the script.
+
+**Things I handled or left alone**
+- **Stray template blocks:** the 2026a and 2026c transect sheets have two copies of the quadrat template pasted below the real data. Those rows (including leftover 2025 "Madison Armstrong" data) are ignored.
+- **2026b contains placeholder or demo content:** names like "fake name1", "jgvfb" and "asdf", and a "DEMO DATA ANALYSIS" section. I included its observation tables, and you can filter them out with `source_file`. Its transect dates (4/20 and 5/4/26) come from the workbook's titles and are set in `b_transect_dates` at the top of the script.
+- **Missing dates:** 13 transect rows in 2026a (Lēʻahi, transect 3) have no date, and I left them blank rather than guess. One 2026a quadrat row has "Gigi" typed in the date cell, so its date is blank too. One 2026c quadrat row has no date, location or transect, but it does have counts, so I kept it.
+- **Likely date errors in 2026a:** some consecutive transect points on Mauliola transects 2 and 4 have dates that step up one day at a time (1/25 through 1/31). That looks like an auto-fill mistake. I left the dates as entered.
+- **Unnamed column:** the quadrat column 58 in both files has a header of just "3" (all zeros), so it shows up as `organism` = "3".
+- **Organism names:** these are free text and not standardized ("Padina", "Padina Sp.", "Padina spp"). The script trims whitespace but doesn't merge variants, since that needs your judgment.
+- **Renamed columns:** the 2026a and 2026c quadrat sheets rename two columns (Echinometra vs "Urchin - Echinometra", Sea Star vs Brittle Star). They are kept as two separate organism names.
+
+Once you've run it, let me know if your counts differ from those above and I'll track down the cause.
+
+
+
+:::
+
+
+OK-- That's not great. It looks like a couple of the names were still present in the file due to being in the wrong column or very far from the data.
+
+"Madison Armstrong" was located on line 277 of 2026a, in the transect sheet, about 150 lines below all the input data, so I didn't see it.
+
+"Gigi" was located in line 39 of the date column, which I also didn't catch during redaction.
+
+Thankfully these do not appear to be students or identifiable with a google search. 
+
+
+
+```{r}
+
+
+#### I have commented out this script as it errors when run
+
+## ------------------------------------------------------------------
+## combine_opihi_data2.R
+##
+## Combines the 2026 OPIHI workbooks (2026a, 2026b, 2026c) into one tidy
+## ("long") CSV, combined_data2.csv, plus a small companion file with the
+## survey-level metadata (combined_metadata2.csv).
+##
+## These workbooks use a DIFFERENT layout from the 2004/2005/2008 files:
+##
+##  2026a / 2026c  (same template)
+##    "Metadata"                      one row per survey (-> metadata file)
+##    "Transect" / "Transect Point    one row per transect point, with the
+##       Intercept"                   organism/substrate under that point
+##    "Quadrat PtCounts"              one row per quadrat, one column per
+##                                    organism (row 1 = category, row 2 = name)
+##    The Transect sheet also contains two stray copies of the quadrat
+##    template pasted below the real data (starting at a row whose column A
+##    is blank-ish text or "Date"); everything from there down is ignored.
+##
+##  2026b  (class-compiled workbook; contains placeholder names and demo data)
+##    "TRANSECT PT INTERCEPT (420)"   4/20/26 point intercepts, one column
+##    "TRANSECT PT INTERCEPT (54)"    5/4/26  point intercepts, per group
+##    "QUADRAT PT INTERCEPT"          organism x group TOTALS for each date
+###    "GROUPS", "Total TRANSECT" and the analysis columns are summaries or
+###    instructions, not observations, so they are not read.
+###
+### Output columns (record_type says which kind of row it is):
+##   transect_point       one point on a transect; count = 1 (one hit)
+##   quadrat_points       number of the quadrat's points that landed on the
+##                        organism (2026a/c: per quadrat)
+##   quadrat_group_total  same, but totalled over a group's whole survey
+##                        (2026b only; no per-quadrat detail exists)
+##
+## Requires: readxl, dplyr, purrr, readr, tibble
+##   install.packages(c("readxl", "dplyr", "purrr", "readr", "tibble"))
+## ------------------------------------------------------------------
+#
+#library(readxl)
+#library(dplyr)
+#library(purrr)
+#library(readr)
+#library(tibble)
+#
+## ---- Settings -----------------------------------------------------
+#data_dir   <- here("OPIHI_Project", "Data", "redacted_fortesting")
+#files      <- c("2026a_OPIHI_data.xlsx", "2026b_OPIHI_data.xlsx", "2026c_OPIHI_data.xlsx")
+#out_file   <- here("OPIHI_Project", "Outputs", "combined_data2.csv")
+#meta_file  <- here("OPIHI_Project", "Outputs", "combined_metadata2.csv")
+#
+## Blank quadrat cells mean "organism not recorded in that quadrat".
+##   TRUE  = keep only recorded counts (smaller file)
+##   FALSE = keep every organism for every quadrat/group that has data,
+##           blanks written as 0
+#drop_empty_cells <- TRUE
+#
+## 2026b's transect sheets don't contain a date cell, so it's set here
+## (taken from the workbook's own titles: "OPIHI DATA - 4/20/26 & 5/4/26").
+#b_transect_dates <- c("TRANSECT PT INTERCEPT (420)" = "2026-04-20",
+#                      "TRANSECT PT INTERCEPT (54)"  = "2026-05-04")
+## -------------------------------------------------------------------
+#
+## ---- Helpers ------------------------------------------------------
+#read_raw <- function(path, sheet) {
+#  # col_types = "list" keeps each cell's native type (dates, numbers, text)
+#  read_excel(path, sheet = sheet, col_names = FALSE,
+#             col_types = "list", .name_repair = "minimal")
+#}
+#
+#get_cell <- function(m, r, c) {
+#  if (r < 1 || c < 1 || r > nrow(m) || c > ncol(m)) return(NA)
+#  v <- m[[c]][[r]]
+#  if (is.null(v) || length(v) == 0) NA else v
+#}
+#
+#clean_txt <- function(x) {
+#  # as.character() on a list turns blanks into the text "NA", so convert
+#  # element by element
+#  if (is.list(x)) {
+#    x <- map_chr(x, function(v) {
+#      if (length(v) == 0 || is.na(v[1])) NA_character_ else as.character(v[1])
+#    })
+#  }
+#  x <- as.character(x)
+#  x <- gsub("[[:space:]]+", " ", x)   # collapse spaces/newlines
+#  x <- trimws(x)
+#  x[x == ""] <- NA
+#  x
+#}
+#
+## Real dates only; anything else typed in a date cell (e.g. a name) -> NA
+#fmt_date <- function(x) if (inherits(x, "POSIXt")) format(x, "%Y-%m-%d") else NA_character_
+#fmt_time <- function(x) if (inherits(x, "POSIXt")) format(x, "%H:%M") else clean_txt(x)
+#num <- function(x) suppressWarnings(as.numeric(x))
+#
+#col_vec <- function(m, rows, c) map(rows, ~ get_cell(m, .x, c))
+#
+## Column order of the final file
+#final_cols <- c("source_file", "sheet", "record_type", "date", "location",
+#                "data_entry_by", "group", "transect", "transect_point",
+#                "position_m", "quadrat_location_m", "category", "organism",
+#                "count", "quadrat_total_points", "notes")
+#
+## ---- 2026a / 2026c : Metadata sheet --------------------------------
+#read_metadata_ac <- function(path, sheet) {
+#  m <- read_raw(path, sheet)
+#  hdr <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 1, .x)))
+#  keep <- which(!is.na(hdr))
+#  rows <- seq_len(nrow(m))[-1]
+#  cols <- map(keep, function(c) {
+#    map_chr(col_vec(m, rows, c), function(v) {
+#      if (inherits(v, "POSIXt")) {
+#        # times of day are stored on 1899-12-3x; real dates are 1950+
+#        if (as.integer(format(v, "%Y")) < 1950) format(v, "%H:%M") else format(v, "%Y-%m-%d")
+#      } else clean_txt(v)
+#    })
+#  })
+#  names(cols) <- hdr[keep]
+#  out <- as_tibble(cols, .name_repair = "minimal")
+#  # drop rows with no real content (template rows that only have a location)
+#  content <- out %>% select(-any_of(c("Location")))
+#  out <- out[rowSums(!is.na(content)) > 0, , drop = FALSE]
+#  bind_cols(tibble(source_file = basename(path)), out)
+#}
+#
+## ---- 2026a / 2026c : Transect point intercept ----------------------
+#read_transect_ac <- function(path, sheet) {
+#  m <- read_raw(path, sheet)
+#
+#  # Stop at the first stray template block pasted below the real data:
+#  # a row (after the header) whose column A holds text instead of a date.
+#  a <- col_vec(m, seq_len(nrow(m)), 1)
+#  stray <- which(seq_len(nrow(m)) > 1 &
+#                   map_lgl(a, ~ !is.na(.x) && !inherits(.x, "POSIXt")))
+#  last_row <- if (length(stray)) min(stray) - 1 else nrow(m)
+#
+#  rows <- 2:last_row
+#  tibble(
+#    source_file    = basename(path),
+#    sheet          = sheet,
+#    record_type    = "transect_point",
+#    date           = map_chr(col_vec(m, rows, 1), fmt_date),
+#    location       = clean_txt(col_vec(m, rows, 2)),
+#    data_entry_by  = clean_txt(col_vec(m, rows, 3)),
+#    group          = NA_character_,
+#    transect       = num(col_vec(m, rows, 4)),
+#    transect_point = num(col_vec(m, rows, 5)),
+#    position_m     = num(col_vec(m, rows, 6)),
+#    quadrat_location_m   = NA_real_,
+#    category       = NA_character_,
+#    organism       = clean_txt(col_vec(m, rows, 7)),
+#    count          = 1,
+#    quadrat_total_points = NA_real_,
+#    notes          = NA_character_
+#  ) %>%
+#    filter(!is.na(organism))          # template rows with no organism entered
+#}
+#
+## ---- 2026a / 2026c : Quadrat point counts --------------------------
+#read_quadrat_ac <- function(path, sheet) {
+#  m <- read_raw(path, sheet)
+#
+#  cat_row <- 1; name_row <- 2; first_data <- 3
+#  hdr <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, name_row, .x)))
+#
+#  total_col <- which(hdr == "Total Points")[1]
+#  notes_col <- which(grepl("^NOTES", hdr))[1]
+#  org_cols  <- which(seq_along(hdr) >= 7 & !is.na(hdr) &
+#                       seq_along(hdr) < total_col)
+#
+#  # Category for each organism column: row 1 labels the first column of
+#  # each group (Limu (Algae), Blue-Green, Invertebrates, Substrate), and it
+#  # applies until the next label.
+#  cat_raw <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, cat_row, .x)))
+#  cat_fill <- cat_raw
+#  for (i in seq_along(cat_fill)) if (is.na(cat_fill[i]) && i > 1) cat_fill[i] <- cat_fill[i - 1]
+#
+#  rows <- first_data:nrow(m)
+#  count_mat <- map(org_cols, ~ num(col_vec(m, rows, .x)))
+#  names(count_mat) <- org_cols
+#  has_data <- reduce(map(count_mat, ~ !is.na(.x)), `|`)   # row has >=1 count
+#
+#  rows <- rows[has_data]
+#  if (length(rows) == 0) return(NULL)
+#  keep_idx <- which(has_data)
+#
+#  base <- tibble(
+#    source_file    = basename(path),
+#    sheet          = sheet,
+#    record_type    = "quadrat_points",
+#    date           = map_chr(col_vec(m, rows, 1), fmt_date),
+#    location       = clean_txt(col_vec(m, rows, 2)),
+#    data_entry_by  = clean_txt(col_vec(m, rows, 3)),
+#    group          = NA_character_,
+#    transect       = num(col_vec(m, rows, 4)),
+#    transect_point = NA_real_,
+#    position_m     = NA_real_,
+#    quadrat_location_m   = num(col_vec(m, rows, 5)),
+#    quadrat_total_points = if (!is.na(total_col)) num(col_vec(m, rows, total_col)) else NA_real_,
+#    notes          = if (!is.na(notes_col)) clean_txt(col_vec(m, rows, notes_col)) else NA_character_
+#  )
+#
+#  map_dfr(seq_along(org_cols), function(k) {
+#    bind_cols(base,
+#              tibble(category = cat_fill[org_cols[k]],
+#                     organism = hdr[org_cols[k]],
+#                     count    = count_mat[[k]][keep_idx]))
+#  })
+#}
+#
+## ---- 2026b : transect point intercept (per group) -------------------
+#read_transect_b <- function(path, sheet) {
+#  m <- read_raw(path, sheet)
+#
+#  title <- clean_txt(get_cell(m, 1, 1))
+#  loc <- if (!is.na(title) && grepl(" - ", title)) sub("^.* - ", "", title) else NA_character_
+#
+#  # group columns: header row 4, columns C onward, stops at first blank header
+#  hdr <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 4, .x)))
+#  gcols <- 3:(which(is.na(hdr) & seq_along(hdr) > 3)[1] - 1)
+#  group_label <- function(h) sub("^BLOCK ([0-9]+) GROUP ([0-9]+)$", "B\\1G\\2", h)
+#  names_row <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 3, .x)))
+#
+#  # data rows: every row from 5 down that has a point number. (Don't stop at
+#  # the first blank: the "(54)" sheet has 5 empty rows after point 30.)
+#  rows <- 5:nrow(m)
+#  rows <- rows[map_lgl(rows, ~ !is.na(num(get_cell(m, .x, 1))))]
+#
+#  date_chr <- unname(b_transect_dates[sheet])
+#
+#  map_dfr(gcols, function(c) {
+#    tibble(
+#      source_file    = basename(path),
+#      sheet          = sheet,
+#      record_type    = "transect_point",
+#      date           = date_chr,
+#      location       = loc,
+#      data_entry_by  = NA_character_,
+#      group          = group_label(hdr[c]),
+#      transect       = NA_real_,
+#      transect_point = num(col_vec(m, rows, 1)),
+#      position_m     = num(col_vec(m, rows, 2)),
+#      quadrat_location_m   = NA_real_,
+#      category       = NA_character_,
+#      organism       = clean_txt(col_vec(m, rows, c)),
+#      count          = 1,
+#      quadrat_total_points = NA_real_,
+#      notes          = NA_character_
+#    )
+#  }) %>% filter(!is.na(organism))
+#}
+#
+## ---- 2026b : quadrat point intercept (group totals per date) --------
+#read_quadrat_b <- function(path, sheet) {
+#  m <- read_raw(path, sheet)
+#
+#  # Dates sit in row 1 (one per block of group columns)
+#  date_cols <- which(map_lgl(seq_len(ncol(m)), ~ inherits(get_cell(m, 1, .x), "POSIXt")))
+#  date_cols <- date_cols[date_cols <= 11]       # ignore chart-helper cells to the right
+#  date_vals <- map_chr(date_cols, ~ fmt_date(get_cell(m, 1, .x)))
+#
+#  # Group columns: row 2 has the group name (B4G1 ...); total columns are blank there
+#  grp <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 2, .x)))
+#  gcols <- which(!is.na(grp) & seq_along(grp) >= 3 & seq_along(grp) <= 11)
+#
+#  # Organism rows: below the "Organism/Substrate" header row until "TOTAL"
+#  hdr_row <- which(map_lgl(seq_len(nrow(m)),
+#                           ~ identical(clean_txt(get_cell(m, .x, 2)), "Organism/Substrate")))[1]
+#  r <- hdr_row + 1; rows <- integer(0)
+#  while (r <= nrow(m)) {
+#    lab <- clean_txt(get_cell(m, r, 2))
+#    if (is.na(lab) || grepl("^TOTAL", lab, ignore.case = TRUE)) break
+#    rows <- c(rows, r); r <- r + 1
+#  }
+#
+#  map_dfr(gcols, function(c) {
+#    nearest <- date_cols[which.min(abs(date_cols - c))]
+#    entry   <- clean_txt(get_cell(m, 3, c))
+#    tibble(
+#      source_file    = basename(path),
+#      sheet          = sheet,
+#      record_type    = "quadrat_group_total",
+#      date           = date_vals[match(nearest, date_cols)],
+#      location       = NA_character_,
+#      data_entry_by  = entry,
+#      group          = grp[c],
+#      transect       = NA_real_,
+#      transect_point = NA_real_,
+#      position_m     = NA_real_,
+#      quadrat_location_m   = NA_real_,
+#      category       = NA_character_,
+#      organism       = clean_txt(col_vec(m, rows, 2)),
+#      count          = num(col_vec(m, rows, c)),
+#      quadrat_total_points = NA_real_,
+#      notes          = NA_character_
+#    )
+#  })
+#}
+#
+## ---- Run ----------------------------------------------------------
+#paths <- file.path(data_dir, files)
+#missing <- paths[!file.exists(paths)]
+#if (length(missing)) stop("Can't find: ", paste(missing, collapse = ", "))
+#
+#data_parts <- list()
+#meta_parts <- list()
+#
+#for (p in paths) {
+#  sheets <- excel_sheets(p)
+#  message("Reading ", basename(p), " [", paste(sheets, collapse = " | "), "]")
+#
+#  if ("Metadata" %in% sheets) {
+#    # 2026a / 2026c template
+#    t_sheet <- sheets[grepl("^Transect", sheets)][1]
+#    q_sheet <- sheets[grepl("^Quadrat", sheets)][1]
+#    meta_parts[[p]] <- read_metadata_ac(p, "Metadata")
+#    data_parts[[paste(p, "T")]] <- read_transect_ac(p, t_sheet)
+#    data_parts[[paste(p, "Q")]] <- read_quadrat_ac(p, q_sheet)
+#  } else if ("QUADRAT PT INTERCEPT" %in% sheets) {
+#    # 2026b class workbook
+#    for (s in sheets[grepl("^TRANSECT PT INTERCEPT", sheets)])
+#      data_parts[[paste(p, s)]] <- read_transect_b(p, s)
+#    data_parts[[paste(p, "Q")]] <- read_quadrat_b(p, "QUADRAT PT INTERCEPT")
+#  } else {
+#    warning("Unrecognized layout, skipped: ", basename(p))
+#  }
+#}
+#
+#combined <- bind_rows(data_parts) %>% select(all_of(final_cols))
+#
+## Blank-cell handling applies to quadrat rows only (transect rows are always hits)
+#is_quad <- combined$record_type != "transect_point"
+#if (drop_empty_cells) {
+#  combined <- combined[!(is_quad & is.na(combined$count)), ]
+#} else {
+#  combined$count[is_quad & is.na(combined$count)] <- 0
+#}
+#
+#combined <- arrange(combined, source_file, record_type, date, location, group,
+#                    transect, transect_point, quadrat_location_m, organism)
+#
+#write_csv(combined, out_file, na = "")
+#message("Wrote ", nrow(combined), " rows x ", ncol(combined), " columns to ", out_file)
+#
+#metadata <- bind_rows(meta_parts)
+#if (nrow(metadata) > 0) {
+#  write_csv(metadata, meta_file, na = "")
+#  message("Wrote ", nrow(metadata), " survey rows to ", meta_file)
+#}
+#
+```
+
+Since that gave an error, I have tried again:
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+I have received this error: Reading 2026a_OPIHI_data.xlsx [Metadata | Transect | Quadrat PtCounts]
+Reading 2026b_OPIHI_data.xlsx [GROUPS | TRANSECT PT INTERCEPT (420) | TRANSECT PT INTERCEPT (54) | Total TRANSECT | QUADRAT PT INTERCEPT]Error in while (r <= nrow(m)) { : missing value where TRUE/FALSE needed
+
+**Claude:**
+
+Cause found: `read_excel()` silently drops leading empty columns. Column A of the 2026b "QUADRAT PT INTERCEPT" sheet is empty, so every column shifted left by one, the header search found nothing, and the loop got a missing row number. I'm anchoring all reads at cell A1 so positions always match the spreadsheet.
+
+I'll also add a clear error message in case a header can't be found in future.
+
+I've fixed it in the updated `combine_opihi_data2.R`.
+
+**Cause:** `read_excel()` quietly skips leading empty columns. Column A of the 2026b "QUADRAT PT INTERCEPT" sheet is completely empty, so every column shifted one to the left. The script then couldn't find the "Organism/Substrate" header in column B, got a missing row number, and crashed in the `while` loop.
+
+**Fix:** every sheet is now read from cell A1 (`range = cell_limits(c(1, 1), c(NA, NA))`), so cell positions always match the spreadsheet. I also added a clear error message, in case a header ever can't be found.
+
+Re-run the whole script. The expected counts are unchanged, at about 2,000 rows by default and 12,873 with `drop_empty_cells <- FALSE`. Since I can't run R here, other errors could still turn up. If you get another, paste it here and I'll fix it.
+
+:::
+
+
+
+
+
+```{r}
+
+# ------------------------------------------------------------------
+# combine_opihi_data2.R
+#
+# Combines the 2026 OPIHI workbooks (2026a, 2026b, 2026c) into one tidy
+# ("long") CSV, combined_data2.csv, plus a small companion file with the
+# survey-level metadata (combined_metadata2.csv).
+#
+# These workbooks use a DIFFERENT layout from the 2004/2005/2008 files:
+#
+#  2026a / 2026c  (same template)
+#    "Metadata"                      one row per survey (-> metadata file)
+#    "Transect" / "Transect Point    one row per transect point, with the
+#       Intercept"                   organism/substrate under that point
+#    "Quadrat PtCounts"              one row per quadrat, one column per
+#                                    organism (row 1 = category, row 2 = name)
+#    The Transect sheet also contains two stray copies of the quadrat
+#    template pasted below the real data (starting at a row whose column A
+#    is blank-ish text or "Date"); everything from there down is ignored.
+#
+#  2026b  (class-compiled workbook; contains placeholder names and demo data)
+#    "TRANSECT PT INTERCEPT (420)"   4/20/26 point intercepts, one column
+#    "TRANSECT PT INTERCEPT (54)"    5/4/26  point intercepts, per group
+#    "QUADRAT PT INTERCEPT"          organism x group TOTALS for each date
+#    "GROUPS", "Total TRANSECT" and the analysis columns are summaries or
+#    instructions, not observations, so they are not read.
+#
+# Output columns (record_type says which kind of row it is):
+#   transect_point       one point on a transect; count = 1 (one hit)
+#   quadrat_points       number of the quadrat's points that landed on the
+#                        organism (2026a/c: per quadrat)
+#   quadrat_group_total  same, but totalled over a group's whole survey
+#                        (2026b only; no per-quadrat detail exists)
+#
+# Requires: readxl, dplyr, purrr, readr, tibble
+#   install.packages(c("readxl", "dplyr", "purrr", "readr", "tibble"))
+# ------------------------------------------------------------------
+
+library(readxl)
+library(dplyr)
+library(purrr)
+library(readr)
+library(tibble)
+
+# ---- Settings -----------------------------------------------------
+data_dir   <- here("OPIHI_Project", "Data")
+files      <- c("2026a_OPIHI_data.xlsx", "2026b_OPIHI_data.xlsx", "2026c_OPIHI_data.xlsx")
+out_file   <- here("OPIHI_Project", "Outputs", "combined_data2.csv")
+meta_file  <- here("OPIHI_Project", "Outputs", "combined_metadata2.csv")
+
+# Blank quadrat cells mean "organism not recorded in that quadrat".
+#   TRUE  = keep only recorded counts (smaller file)
+#   FALSE = keep every organism for every quadrat/group that has data,
+#           blanks written as 0
+drop_empty_cells <- TRUE
+
+# 2026b's transect sheets don't contain a date cell, so it's set here
+# (taken from the workbook's own titles: "OPIHI DATA - 4/20/26 & 5/4/26").
+b_transect_dates <- c("TRANSECT PT INTERCEPT (420)" = "2026-04-20",
+                      "TRANSECT PT INTERCEPT (54)"  = "2026-05-04")
+# -------------------------------------------------------------------
+
+# ---- Helpers ------------------------------------------------------
+read_raw <- function(path, sheet) {
+  # col_types = "list" keeps each cell's native type (dates, numbers, text)
+  # range anchored at A1: by default read_excel() drops leading empty
+  # rows/columns, which would shift every cell position (2026b's quadrat
+  # sheet has an empty column A)
+  read_excel(path, sheet = sheet, range = cell_limits(c(1, 1), c(NA, NA)),
+             col_names = FALSE, col_types = "list", .name_repair = "minimal")
+}
+
+get_cell <- function(m, r, c) {
+  if (r < 1 || c < 1 || r > nrow(m) || c > ncol(m)) return(NA)
+  v <- m[[c]][[r]]
+  if (is.null(v) || length(v) == 0) NA else v
+}
+
+clean_txt <- function(x) {
+  # as.character() on a list turns blanks into the text "NA", so convert
+  # element by element
+  if (is.list(x)) {
+    x <- map_chr(x, function(v) {
+      if (length(v) == 0 || is.na(v[1])) NA_character_ else as.character(v[1])
+    })
+  }
+  x <- as.character(x)
+  x <- gsub("[[:space:]]+", " ", x)   # collapse spaces/newlines
+  x <- trimws(x)
+  x[x == ""] <- NA
+  x
+}
+
+# Real dates only; anything else typed in a date cell (e.g. a name) -> NA
+fmt_date <- function(x) if (inherits(x, "POSIXt")) format(x, "%Y-%m-%d") else NA_character_
+fmt_time <- function(x) if (inherits(x, "POSIXt")) format(x, "%H:%M") else clean_txt(x)
+num <- function(x) suppressWarnings(as.numeric(x))
+
+col_vec <- function(m, rows, c) map(rows, ~ get_cell(m, .x, c))
+
+# Column order of the final file
+final_cols <- c("source_file", "sheet", "record_type", "date", "location",
+                "data_entry_by", "group", "transect", "transect_point",
+                "position_m", "quadrat_location_m", "category", "organism",
+                "count", "quadrat_total_points", "notes")
+
+# ---- 2026a / 2026c : Metadata sheet --------------------------------
+read_metadata_ac <- function(path, sheet) {
+  m <- read_raw(path, sheet)
+  hdr <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 1, .x)))
+  keep <- which(!is.na(hdr))
+  rows <- seq_len(nrow(m))[-1]
+  cols <- map(keep, function(c) {
+    map_chr(col_vec(m, rows, c), function(v) {
+      if (inherits(v, "POSIXt")) {
+        # times of day are stored on 1899-12-3x; real dates are 1950+
+        if (as.integer(format(v, "%Y")) < 1950) format(v, "%H:%M") else format(v, "%Y-%m-%d")
+      } else clean_txt(v)
+    })
+  })
+  names(cols) <- hdr[keep]
+  out <- as_tibble(cols, .name_repair = "minimal")
+  # drop rows with no real content (template rows that only have a location)
+  content <- out %>% select(-any_of(c("Location")))
+  out <- out[rowSums(!is.na(content)) > 0, , drop = FALSE]
+  bind_cols(tibble(source_file = basename(path)), out)
+}
+
+# ---- 2026a / 2026c : Transect point intercept ----------------------
+read_transect_ac <- function(path, sheet) {
+  m <- read_raw(path, sheet)
+
+  # Stop at the first stray template block pasted below the real data:
+  # a row (after the header) whose column A holds text instead of a date.
+  a <- col_vec(m, seq_len(nrow(m)), 1)
+  stray <- which(seq_len(nrow(m)) > 1 &
+                   map_lgl(a, ~ !is.na(.x) && !inherits(.x, "POSIXt")))
+  last_row <- if (length(stray)) min(stray) - 1 else nrow(m)
+
+  rows <- 2:last_row
+  tibble(
+    source_file    = basename(path),
+    sheet          = sheet,
+    record_type    = "transect_point",
+    date           = map_chr(col_vec(m, rows, 1), fmt_date),
+    location       = clean_txt(col_vec(m, rows, 2)),
+    data_entry_by  = clean_txt(col_vec(m, rows, 3)),
+    group          = NA_character_,
+    transect       = num(col_vec(m, rows, 4)),
+    transect_point = num(col_vec(m, rows, 5)),
+    position_m     = num(col_vec(m, rows, 6)),
+    quadrat_location_m   = NA_real_,
+    category       = NA_character_,
+    organism       = clean_txt(col_vec(m, rows, 7)),
+    count          = 1,
+    quadrat_total_points = NA_real_,
+    notes          = NA_character_
+  ) %>%
+    filter(!is.na(organism))          # template rows with no organism entered
+}
+
+# ---- 2026a / 2026c : Quadrat point counts --------------------------
+read_quadrat_ac <- function(path, sheet) {
+  m <- read_raw(path, sheet)
+
+  cat_row <- 1; name_row <- 2; first_data <- 3
+  hdr <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, name_row, .x)))
+
+  total_col <- which(hdr == "Total Points")[1]
+  notes_col <- which(grepl("^NOTES", hdr))[1]
+  org_cols  <- which(seq_along(hdr) >= 7 & !is.na(hdr) &
+                       seq_along(hdr) < total_col)
+
+  # Category for each organism column: row 1 labels the first column of
+  # each group (Limu (Algae), Blue-Green, Invertebrates, Substrate), and it
+  # applies until the next label.
+  cat_raw <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, cat_row, .x)))
+  cat_fill <- cat_raw
+  for (i in seq_along(cat_fill)) if (is.na(cat_fill[i]) && i > 1) cat_fill[i] <- cat_fill[i - 1]
+
+  rows <- first_data:nrow(m)
+  count_mat <- map(org_cols, ~ num(col_vec(m, rows, .x)))
+  names(count_mat) <- org_cols
+  has_data <- reduce(map(count_mat, ~ !is.na(.x)), `|`)   # row has >=1 count
+
+  rows <- rows[has_data]
+  if (length(rows) == 0) return(NULL)
+  keep_idx <- which(has_data)
+
+  base <- tibble(
+    source_file    = basename(path),
+    sheet          = sheet,
+    record_type    = "quadrat_points",
+    date           = map_chr(col_vec(m, rows, 1), fmt_date),
+    location       = clean_txt(col_vec(m, rows, 2)),
+    data_entry_by  = clean_txt(col_vec(m, rows, 3)),
+    group          = NA_character_,
+    transect       = num(col_vec(m, rows, 4)),
+    transect_point = NA_real_,
+    position_m     = NA_real_,
+    quadrat_location_m   = num(col_vec(m, rows, 5)),
+    quadrat_total_points = if (!is.na(total_col)) num(col_vec(m, rows, total_col)) else NA_real_,
+    notes          = if (!is.na(notes_col)) clean_txt(col_vec(m, rows, notes_col)) else NA_character_
+  )
+
+  map_dfr(seq_along(org_cols), function(k) {
+    bind_cols(base,
+              tibble(category = cat_fill[org_cols[k]],
+                     organism = hdr[org_cols[k]],
+                     count    = count_mat[[k]][keep_idx]))
+  })
+}
+
+# ---- 2026b : transect point intercept (per group) -------------------
+read_transect_b <- function(path, sheet) {
+  m <- read_raw(path, sheet)
+
+  title <- clean_txt(get_cell(m, 1, 1))
+  loc <- if (!is.na(title) && grepl(" - ", title)) sub("^.* - ", "", title) else NA_character_
+
+  # group columns: header row 4, columns C onward, stops at first blank header
+  hdr <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 4, .x)))
+  gcols <- 3:(which(is.na(hdr) & seq_along(hdr) > 3)[1] - 1)
+  group_label <- function(h) sub("^BLOCK ([0-9]+) GROUP ([0-9]+)$", "B\\1G\\2", h)
+  names_row <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 3, .x)))
+
+  # data rows: every row from 5 down that has a point number. (Don't stop at
+  # the first blank: the "(54)" sheet has 5 empty rows after point 30.)
+  rows <- 5:nrow(m)
+  rows <- rows[map_lgl(rows, ~ !is.na(num(get_cell(m, .x, 1))))]
+
+  date_chr <- unname(b_transect_dates[sheet])
+
+  map_dfr(gcols, function(c) {
+    tibble(
+      source_file    = basename(path),
+      sheet          = sheet,
+      record_type    = "transect_point",
+      date           = date_chr,
+      location       = loc,
+      data_entry_by  = NA_character_,
+      group          = group_label(hdr[c]),
+      transect       = NA_real_,
+      transect_point = num(col_vec(m, rows, 1)),
+      position_m     = num(col_vec(m, rows, 2)),
+      quadrat_location_m   = NA_real_,
+      category       = NA_character_,
+      organism       = clean_txt(col_vec(m, rows, c)),
+      count          = 1,
+      quadrat_total_points = NA_real_,
+      notes          = NA_character_
+    )
+  }) %>% filter(!is.na(organism))
+}
+
+# ---- 2026b : quadrat point intercept (group totals per date) --------
+read_quadrat_b <- function(path, sheet) {
+  m <- read_raw(path, sheet)
+
+  # Dates sit in row 1 (one per block of group columns)
+  date_cols <- which(map_lgl(seq_len(ncol(m)), ~ inherits(get_cell(m, 1, .x), "POSIXt")))
+  date_cols <- date_cols[date_cols <= 11]       # ignore chart-helper cells to the right
+  date_vals <- map_chr(date_cols, ~ fmt_date(get_cell(m, 1, .x)))
+
+  # Group columns: row 2 has the group name (B4G1 ...); total columns are blank there
+  grp <- map_chr(seq_len(ncol(m)), ~ clean_txt(get_cell(m, 2, .x)))
+  gcols <- which(!is.na(grp) & seq_along(grp) >= 3 & seq_along(grp) <= 11)
+
+  # Organism rows: below the "Organism/Substrate" header row until "TOTAL"
+  hdr_row <- which(map_lgl(seq_len(nrow(m)),
+                           ~ identical(clean_txt(get_cell(m, .x, 2)), "Organism/Substrate")))[1]
+  if (is.na(hdr_row)) stop("Couldn't find the 'Organism/Substrate' header in column B of '", sheet, "'")
+  r <- hdr_row + 1; rows <- integer(0)
+  while (r <= nrow(m)) {
+    lab <- clean_txt(get_cell(m, r, 2))
+    if (is.na(lab) || grepl("^TOTAL", lab, ignore.case = TRUE)) break
+    rows <- c(rows, r); r <- r + 1
+  }
+
+  map_dfr(gcols, function(c) {
+    nearest <- date_cols[which.min(abs(date_cols - c))]
+    entry   <- clean_txt(get_cell(m, 3, c))
+    tibble(
+      source_file    = basename(path),
+      sheet          = sheet,
+      record_type    = "quadrat_group_total",
+      date           = date_vals[match(nearest, date_cols)],
+      location       = NA_character_,
+      data_entry_by  = entry,
+      group          = grp[c],
+      transect       = NA_real_,
+      transect_point = NA_real_,
+      position_m     = NA_real_,
+      quadrat_location_m   = NA_real_,
+      category       = NA_character_,
+      organism       = clean_txt(col_vec(m, rows, 2)),
+      count          = num(col_vec(m, rows, c)),
+      quadrat_total_points = NA_real_,
+      notes          = NA_character_
+    )
+  })
+}
+
+# ---- Run ----------------------------------------------------------
+paths <- file.path(data_dir, files)
+missing <- paths[!file.exists(paths)]
+if (length(missing)) stop("Can't find: ", paste(missing, collapse = ", "))
+
+data_parts <- list()
+meta_parts <- list()
+
+for (p in paths) {
+  sheets <- excel_sheets(p)
+  message("Reading ", basename(p), " [", paste(sheets, collapse = " | "), "]")
+
+  if ("Metadata" %in% sheets) {
+    # 2026a / 2026c template
+    t_sheet <- sheets[grepl("^Transect", sheets)][1]
+    q_sheet <- sheets[grepl("^Quadrat", sheets)][1]
+    meta_parts[[p]] <- read_metadata_ac(p, "Metadata")
+    data_parts[[paste(p, "T")]] <- read_transect_ac(p, t_sheet)
+    data_parts[[paste(p, "Q")]] <- read_quadrat_ac(p, q_sheet)
+  } else if ("QUADRAT PT INTERCEPT" %in% sheets) {
+    # 2026b class workbook
+    for (s in sheets[grepl("^TRANSECT PT INTERCEPT", sheets)])
+      data_parts[[paste(p, s)]] <- read_transect_b(p, s)
+    data_parts[[paste(p, "Q")]] <- read_quadrat_b(p, "QUADRAT PT INTERCEPT")
+  } else {
+    warning("Unrecognized layout, skipped: ", basename(p))
+  }
+}
+
+combined <- bind_rows(data_parts) %>% select(all_of(final_cols))
+
+# Blank-cell handling applies to quadrat rows only (transect rows are always hits)
+is_quad <- combined$record_type != "transect_point"
+if (drop_empty_cells) {
+  combined <- combined[!(is_quad & is.na(combined$count)), ]
+} else {
+  combined$count[is_quad & is.na(combined$count)] <- 0
+}
+
+combined <- arrange(combined, source_file, record_type, date, location, group,
+                    transect, transect_point, quadrat_location_m, organism)
+
+write_csv(combined, out_file, na = "")
+message("Wrote ", nrow(combined), " rows x ", ncol(combined), " columns to ", out_file)
+
+metadata <- bind_rows(meta_parts)
+if (nrow(metadata) > 0) {
+  write_csv(metadata, meta_file, na = "")
+  message("Wrote ", nrow(metadata), " survey rows to ", meta_file)
+}
+
+```
+
+
+This seems to have worked, but it is extremely messy with random totals and example data. Let me see if I can clean it up a bit:
+
+```{r}
+
+# first loading the two data sheets into R
+# data
+combined_data2 <- read_csv(here("OPIHI_Project", "Outputs", "combined_data2.csv"))
+
+# metadata
+combined_metadata2 <- read_csv(here("OPIHI_Project", "Outputs", "combined_metadata2.csv"))
+
+
+#remove example data and column totals
+combined_data2 |> 
+  filter_out(notes == "EXAMPLE - Do not delete") |> 
+  filter_out(data_entry_by == "Column Totals")-> filtered_data2
+
+# remove example data
+combined_metadata2 |> 
+  filter_out(Notes == "EXAMPLE do not erase") -> filtered_metadata2
+
+
+head(filtered_data2)
+
+
+
+```
+
+I would like to join the metadata with the data sheet. In order to do this, I need to group them by a common variable, which they do not seem to have. They have dates, but the dates intersect across names. The names are grouped together in a way that makes it difficult to pull apart without accidentally duplicating data.
+
+Because of this, I will manually assign group numbers to rows based on matching information in the original spreadsheets. (If date and at least one of the team leader/team member names match, they will be paired)
+
+I am using AI to assist in building this script.
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+Thanks. Now I would like to use R to combine the metadata and data files so all the information is in one spreadsheet. In order to do this using R, I need to combine them based on the dates, and at least one matching name from the columns labeled "Team Leader" or "Team Members" in the metadata sheet with the same name from the column labeled "data_entry_by" in the data sheet. These three columns have varying formats, some names are separated by ", ", and some names are separated by " ". Some cells in these columns contain only one name, some cells in these columns contain multiple names. I need the R script to match the date exactly between "Date" and "date", and then look to see if any names match. If any of the names match, then the data can be merged. Write me an R script that does this.
+
+
+**Claude:**
+
+I'll look at the real name formats in both places before writing the matching logic.
+
+I noticed something in that output: 2026c's quadrat sheet has a "Column Totals" row. I'll check whether it's slipping into the earlier output as if it were real data.
+
+That expression is more convoluted than it needs to be, so I'll simplify it.
+
+Before writing the script, I'll check what your matching rule actually produces on these files.
+
+Your rule is straightforward to implement. I simulated it on the current files, and it only produces a few merges, which I'll explain below. Here's the script.
+
+The new script is `merge_metadata_data.R`. It reads `combined_data2.csv` and `combined_metadata2.csv` and writes `combined_data2_with_metadata.csv`. As before, I couldn't run it in R here, so I simulated your matching rule in Python on the current files.
+
+**Re-run `combine_opihi_data2.R` first.** While checking name formats I found a bug in it. 2026c's quadrat sheet has a "Column Totals" row, and the script was including it as a real quadrat (94 rows of totals mixed into the data). I fixed it, which brings the expected counts to about 1,906 rows by default, or 12,779 with `drop_empty_cells <- FALSE`.
+
+**How the merge works**
+- **Date:** it must match exactly (`date` in the data against `Date` in the metadata).
+- **Names:** each cell in `Team Leader`, `Team Members` and `data_entry_by` is split into individual names. Commas, spaces, semicolons, "&", "/" and "and" all count as separators, and case is ignored. If any name is shared, the rows merge.
+- **Source file:** by default, metadata from a workbook only matches data from the same workbook. Set `require_same_source_file <- FALSE` at the top to match on date and name alone.
+- **Ties:** if a data row matches several metadata rows, the one sharing the most names wins. If it's still tied, the row stays unmerged and is flagged `ambiguous` instead of guessing.
+- **Added columns:** every data row is kept, with `match_status` (`matched`, `no_match`, `ambiguous`, `no_date` or `no_name`), `matched_names`, and `metadata_row`. The metadata columns come in prefixed with `meta_`.
+- **Report:** when it finishes, it prints the match counts, the date and name combinations that didn't merge, and any metadata rows that no data matched.
+- **Full names:** because spaces count as separators, a full name like "Mary Smith" becomes two names, and either one can trigger a match.
+
+**Expect very few merges with the current files:** my simulation gives only 12 matched rows, the 2026a transect points from 1/24 entered by "EFWS". The reasons are:
+- **Names:** the entries look like near-misses or placeholders. For example, the metadata has "FI" and "UH" while the data has "FIN" and "LSKD", and 2026c has "HF" against "Hfin" and "Lien".
+- **Dates:** 2026c's only metadata row is dated 4/26, but its data is dated 4/20.
+- **Missing dates:** 14 rows in 2026a have no date, so they can't match.
+- **2026b:** it has no metadata sheet, so none of its rows can merge.
+
+If your real data has consistent names, the match rate should be much higher. For now, the "did NOT merge" report will show exactly which dates and names failed, so you can fix them in the spreadsheets or tell me if you'd like a looser rule.
+
+
+:::
+
+
+Because I had already cleaned the data manually above, I had Claude change the input to variables/data frames rather than the original .csv files.
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+Actually, can you make the input for this script be variables in R rather than .csv files? I have done some manual file cleaning that I would like to keep.
+
+**Claude:**
+
+I'll fix one ordering problem: the friendly "variable not found" check needs to run before the variables are used.
+
+`merge_metadata_data.R` now takes R data frames instead of reading CSV files, so your manual cleaning is preserved. I couldn't run it in R here, so it's untested beyond reading it through.
+
+**To use it**
+1. Load your cleaned data frames in R.
+2. In the "Use it" section at the bottom of the script, set `data_name` and `meta_name` to your variables' names, as text. They default to `"data_clean"` and `"meta_clean"`. If either isn't found, the script says which one.
+3. Run the script. The result is in `merged_data` in your session, and it's also saved as `combined_data2_with_metadata.csv`. Delete the `write_csv` line if you only want the variable.
+
+The matching rules are the same as before: exact date match, at least one shared name, the best match wins, and ties are flagged `ambiguous`.
+
+**What changed**
+- **Reusable function:** the merge is now a function, `merge_metadata_data(data, meta, require_same_source_file = TRUE)`, so you can call it on any pair of data frames.
+- **Column types:** your columns can be any type. Only the date, name and source columns are converted for matching, and your other columns keep their types.
+- **Dates:** date columns can be text or real Date/POSIXct values. They're compared as `yyyy-mm-dd`, and `date` comes back as text in the output.
+- **Metadata column names:** these are matched ignoring case, spaces and symbols, so `Team Leader`, `team_leader` and `Team.Leader` all work. In the output they get the `meta_` prefix, like `meta_team_leader`.
+- **`source_file`:** it's only required when `require_same_source_file = TRUE`. If you cleaned it away, pass `FALSE` and it matches on date and name only.
+- **`metadata_row`:** this is now the row number in your metadata data frame, not in the old CSV. If you've reordered or deleted rows, the numbers will reflect that.
+
+:::
+
+
+
+
+```{r}
+
+# ------------------------------------------------------------------
+# merge_metadata_data.R
+#
+# Merges a metadata data frame into a data data frame, both already
+# loaded in your R session (e.g. after your own manual cleaning).
+#
+# A data row is matched to a metadata row when
+#   1. the date is EXACTLY the same (data `date` = metadata `Date`), AND
+#   2. at least one name in the data's `data_entry_by` also appears in the
+#      metadata's `Team Leader` or `Team Members`.
+#
+# Names are compared after splitting each cell into individual names
+# (separators: comma, space, semicolon, "&", "/", and the word "and"),
+# ignoring upper/lower case and stray punctuation. So "Ann, Bob",
+# "Ann Bob" and "ann bob" all give the names {ann, bob}.
+#
+# NOTE: because spaces count as separators, a full name such as "Mary Smith"
+# is treated as two names, "mary" and "smith", and EITHER one can trigger a
+# match.
+#
+# If one data row matches several metadata rows (same date, shared names),
+# the metadata row sharing the MOST names wins. If that is still a tie the
+# row is left unmerged and flagged "ambiguous" rather than guessing.
+#
+# Every data row is kept. Rows with no match get blank metadata columns.
+# Three columns are added to show what happened:
+#   match_status   matched | no_match | ambiguous | no_date | no_name
+#   matched_names  the names that matched (for checking)
+#   metadata_row   row number of the metadata data frame that was merged
+#
+# What the two input data frames need:
+#   data:  columns `date`, `data_entry_by`, and `source_file`*
+#   meta:  columns `Date`, `Team Leader`, `Team Members`, and `source_file`*
+#          (metadata column names are matched ignoring case/spaces/symbols,
+#          so "Team Leader", "team_leader" and "Team.Leader" all work)
+#   * source_file is only needed if require_same_source_file = TRUE
+#   Date columns can be text ("2026-01-24") or real Date/POSIXct values;
+#   they are compared as yyyy-mm-dd text, and `date` comes back as text.
+#
+# Requires: dplyr, tidyr, purrr, readr, tibble
+#   install.packages(c("dplyr", "tidyr", "purrr", "readr", "tibble"))
+# ------------------------------------------------------------------
+
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(readr)
+library(tibble)
+
+# ---- Helpers ------------------------------------------------------
+
+# Split name cells into individual, normalised names
+tokenize <- function(...) {
+  x <- unlist(lapply(list(...), as.character))
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(character(0))
+  tok <- unlist(strsplit(tolower(x), "[[:space:],;&/]+"))
+  tok <- gsub("^[[:punct:]]+|[[:punct:]]+$", "", tok)   # stray punctuation
+  tok <- tok[tok != "" & tok != "and"]
+  unique(tok)
+}
+
+# Dates (text, Date or POSIXct) -> "yyyy-mm-dd" text; blanks -> NA
+as_date_chr <- function(x) {
+  if (inherits(x, c("Date", "POSIXt"))) x <- format(x, "%Y-%m-%d")
+  x <- trimws(as.character(x))
+  x[x == ""] <- NA_character_
+  x
+}
+
+# ---- The merge ----------------------------------------------------
+merge_metadata_data <- function(data, meta, require_same_source_file = TRUE) {
+
+  data <- as_tibble(data)
+  meta <- as_tibble(meta)
+
+  # Normalise metadata column names: "Team Leader" -> team_leader, etc.
+  nm <- tolower(names(meta))
+  nm <- gsub("[^a-z0-9]+", "_", nm)
+  names(meta) <- gsub("^_+|_+$", "", nm)
+  if (anyDuplicated(names(meta)))
+    stop("Metadata has columns whose names become identical after cleaning: ",
+         paste(names(meta)[duplicated(names(meta))], collapse = ", "))
+
+  # Check required columns
+  miss_meta <- setdiff(c("date", "team_leader", "team_members"), names(meta))
+  if (length(miss_meta))
+    stop("Metadata is missing column(s): ", paste(miss_meta, collapse = ", "))
+  miss_data <- setdiff(c("date", "data_entry_by"), names(data))
+  if (length(miss_data))
+    stop("Data is missing column(s): ", paste(miss_data, collapse = ", "))
+  if (require_same_source_file &&
+      !("source_file" %in% names(data) && "source_file" %in% names(meta)))
+    stop("Both data frames need a `source_file` column when ",
+         "require_same_source_file = TRUE (or set it to FALSE).")
+
+  # Helper columns (removed again at the end)
+  data$date      <- as_date_chr(data$date)
+  meta$date      <- as_date_chr(meta$date)
+  data$.data_row <- seq_len(nrow(data))
+  meta$.meta_id  <- seq_len(nrow(meta))
+  data$.src <- if (require_same_source_file) as.character(data$source_file) else "all"
+  meta$.src <- if (require_same_source_file) as.character(meta$source_file) else "all"
+
+  # One row per (metadata row, name)
+  meta_names <- meta %>%
+    transmute(.meta_id, .src, date,
+              name = map2(team_leader, team_members, tokenize)) %>%
+    unnest(name)
+
+  # One row per (distinct file + date + data_entry_by, name)
+  keys <- data %>%
+    distinct(.src, date, data_entry_by) %>%
+    mutate(key_id = row_number(),
+           name   = map(data_entry_by, tokenize))
+
+  key_names <- keys %>%
+    select(key_id, .src, date, name) %>%
+    unnest(name)
+
+  # Same date (and file) + at least one shared name
+  hits <- as_tibble(merge(as.data.frame(key_names), as.data.frame(meta_names),
+                          by = c(".src", "date", "name")))
+
+  pairs <- hits %>%
+    group_by(key_id, .meta_id) %>%
+    summarise(n_names       = n_distinct(name),
+              matched_names = paste(sort(unique(name)), collapse = ", "),
+              .groups = "drop")
+
+  # Keep the metadata row(s) sharing the most names, then decide
+  key_match <- pairs %>%
+    group_by(key_id) %>%
+    filter(n_names == max(n_names)) %>%
+    summarise(n_candidates  = n(),
+              metadata_row  = if (n() == 1) .meta_id else NA_integer_,
+              matched_names = if (n() == 1) matched_names else NA_character_,
+              .groups = "drop") %>%
+    mutate(match_status = if_else(n_candidates == 1, "matched", "ambiguous"))
+
+  keys <- keys %>%
+    left_join(key_match, by = "key_id") %>%
+    mutate(match_status = case_when(
+      is.na(date)                               ~ "no_date",
+      is.na(data_entry_by) | lengths(name) == 0 ~ "no_name",
+      !is.na(match_status)                      ~ match_status,
+      TRUE                                      ~ "no_match"
+    ))
+
+  # Metadata columns to attach (prefixed meta_)
+  meta_out <- meta %>% select(-date, -.src)
+  if (require_same_source_file) meta_out <- meta_out %>% select(-source_file)
+  meta_out <- meta_out %>% rename_with(~ paste0("meta_", .x), -.meta_id)
+
+  result <- data %>%
+    left_join(keys %>% select(.src, date, data_entry_by,
+                              match_status, matched_names, metadata_row),
+              by = c(".src", "date", "data_entry_by")) %>%
+    left_join(meta_out, by = c("metadata_row" = ".meta_id")) %>%
+    arrange(.data_row) %>%
+    select(-.data_row, -.src)
+
+  # ---- Report ----
+  message("\nMatch results (data rows):")
+  print(count(result, match_status, name = "rows"))
+
+  unmatched <- result %>%
+    filter(match_status != "matched") %>%
+    count(across(any_of(c("source_file", "date", "data_entry_by", "match_status"))),
+          name = "rows")
+  if (nrow(unmatched) > 0) {
+    message("\nData that did NOT merge (check these dates/names):")
+    print(unmatched, n = Inf)
+  }
+
+  unused <- meta %>%
+    filter(!.meta_id %in% result$metadata_row) %>%
+    select(metadata_row = .meta_id,
+           any_of(c("source_file", "date", "location", "team_leader", "team_members")))
+  if (nrow(unused) > 0) {
+    message("\nMetadata rows that no data matched:")
+    print(unused, n = Inf)
+  }
+
+  result
+}
+
+# ---- Use it -------------------------------------------------------
+# Put the names of YOUR cleaned data frames on the right-hand side:
+data_name <- "filtered_data2"  # the observations (one row per record)
+meta_name <- "filtered_metadata2"  # the metadata (one row per survey)
+
+if (!exists(data_name) || !exists(meta_name))
+  stop("Can't find `", data_name, "` and/or `", meta_name, "` in your R session. ",
+       "Edit data_name / meta_name above to match your data frames' names.")
+data_in <- get(data_name)
+meta_in <- get(meta_name)
+
+merged_data <- merge_metadata_data(data_in, meta_in,
+                                   require_same_source_file = TRUE)
+
+# Optional: also save it
+write_csv(merged_data, here("OPIHI_Project", "Outputs","combined_data2_with_metadata.csv"), na = "")
+message("\nResult is in `merged_data` (", nrow(merged_data), " rows x ",
+        ncol(merged_data), " columns); also saved to combined_data2_with_metadata.csv")
+
+```
+
+OK -- It is merged! 
+
+### Joining everything together
+
+Now, I would like to merge 2004, 2005, and 2008 with 2026 to make one file. I have re-named the files after doing a quick look through, so I will bring them back into R below, and full join:
+
+```{r}
+
+data_04_05_08 <- read_csv(here("OPIHI_Project", "Outputs", "2004_2005_2008_combined_data.csv"))
+
+data_26 <- read_csv(here("OPIHI_Project", "Outputs", "2026_combined_data.csv"))
+
+#make the date column in 04-08 a date format instead of character:
+
+data_04_05_08 |> 
+  mutate(date = mdy(date)) -> data_04_05_08
+
+full_join(data_04_05_08, data_26) -> data_04_05_08_26
+
+
+data_04_05_08_26 |> 
+  write_csv(here("OPIHI_Project", "Outputs", "alldata_4_5_8_26_combined.csv"))
+
+```
+
+Cool! We have a file with everything in it. Now, I need to fix some of the redundancies in the file. For example, there's a "notes" column, and a "meta_notes" column. 
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+I now have a .csv file with a few redundant columns. Write me an R script that joins certain columns together into one column containing the information of both, excluding NA values. The columns I would like to join are: 
+
+"notes" and "meta_notes" (just call this combined column "notes")
+
+**Claude:**
+
+I've written `join_columns.R`, which merges `notes` and `meta_notes` into a single `notes` column. I haven't run it in R, so it's untested.
+
+**How it handles each row**
+- If both columns have text, they're joined with `"; "` between them (for example `"A; B"`).
+- If only one has text, that text is used as is.
+- If neither has text, the result stays blank.
+- If both hold identical text, it's kept once rather than repeated.
+- NA and empty cells are ignored, and extra spaces are trimmed.
+
+The combined `notes` column sits where the original `notes` column was, and `meta_notes` is removed. Other columns are untouched. The script prints how many rows had a value in both columns, so you can see how many were actually combined.
+
+**Before running it:** at the top of the script, set `in_file` to your .csv's name. It defaults to `combined_data2_with_metadata.csv`. The result is written to `combined_data2_joined.csv`, and you can change that name in the settings too. You can also change `separator` if you'd rather use something other than `"; "`.
+
+To join other redundant columns later, add a line to the `joins` list. For example, `location = c("location", "meta_location")` would merge those two into one `location` column.
+
+:::
+
+
+
+```{r}
+
+# ------------------------------------------------------------------
+# join_columns.R
+#
+# Joins redundant columns into one column that holds the information from
+# all of them, leaving out NA/blank values. Here: "notes" + "meta_notes"
+# -> "notes".
+#
+#   notes        meta_notes     ->  notes
+#   "A"          "B"                "A; B"
+#   "A"          NA                 "A"
+#   NA           "B"                "B"
+#   NA           NA                 NA
+#   "A"          "A"                "A"      (identical text is kept once)
+#
+# The combined column takes the position of the first column joined, and
+# the other original columns are removed.
+#
+# To join more columns later, add another line to `joins`, e.g.
+#   joins <- list(notes = c("notes", "meta_notes"),
+#                 location = c("location", "meta_location"))
+#
+# Requires: readr, purrr
+#   install.packages(c("readr", "purrr"))
+# ------------------------------------------------------------------
+
+library(readr)
+library(purrr)
+
+# ---- Settings -----------------------------------------------------
+in_file   <- here("OPIHI_Project", "Outputs", "alldata_4_5_8_26_combined.csv")   # your .csv file
+out_file  <- here("OPIHI_Project", "Outputs", "alldata_joinedcol.csv")
+separator <- "; "                                 # put between joined values
+
+# new column name = the columns to join into it
+joins <- list(
+  notes = c("notes", "meta_notes"),
+  location = c("location", "meta_location")
+)
+# -------------------------------------------------------------------
+
+# Read everything as text so no values get altered
+df <- read_csv(in_file, col_types = cols(.default = col_character()),
+               na = c("", "NA"), progress = FALSE)
+
+join_columns <- function(df, new_name, cols, sep) {
+  missing <- setdiff(cols, names(df))
+  if (length(missing))
+    stop("Column(s) not found in the file: ", paste(missing, collapse = ", "))
+
+  # Combine each row's non-NA, non-blank values (identical values kept once)
+  combined <- pmap_chr(df[cols], function(...) {
+    v <- trimws(c(...))
+    v <- unique(v[!is.na(v) & v != ""])
+    if (length(v) == 0) NA_character_ else paste(v, collapse = sep)
+  })
+
+  # Where the new column goes: the position of the first column joined
+  pos   <- min(match(cols, names(df)))
+  keep  <- setdiff(names(df), cols)
+  order <- append(keep, new_name, after = pos - 1)
+
+  n_both <- sum(rowSums(!is.na(df[cols]) & trimws(as.matrix(df[cols])) != "") > 1,
+                na.rm = TRUE)
+  message("'", new_name, "': joined ", paste(cols, collapse = " + "), " (",
+          n_both, " rows had a value in more than one of them)")
+
+  df[[new_name]] <- combined
+  df[order]
+}
+
+for (nm in names(joins)) {
+  df <- join_columns(df, nm, joins[[nm]], separator)
+}
+
+write_csv(df, out_file, na = "")
+message("Wrote ", nrow(df), " rows x ", ncol(df), " columns to ", out_file)
+
+```
+

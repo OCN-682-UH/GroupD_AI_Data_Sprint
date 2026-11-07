@@ -1,0 +1,1167 @@
+---
+title: "OPIHI Data Sprint - Project Notes on Data Cleaning"
+author: "Kat Viehl"
+format:
+  html:
+    embed-resources: true
+    code-fold: true
+    code-summary: "**Show code**"
+    theme:
+      light: solar
+execute:
+  warning: false
+  message: false
+page-layout: full
+---
+
+![](opihi_divider.png)
+
+-----------------------------------------------------------------
+
+All OPIHI datasets belong to: **Dr. Joanna Philippoff** - philippo@hawaii.edu
+
+Contents of this Quarto were written by: **Kat Viehl** - kviehl@hawaii.edu
+
+---
+
+Created on : 2026-10-21
+
+Last Updated on : 2026-10-27
+
+AI used for scripting assistance. AI agent used: Claude Sonnet 5.5 Medium
+
+---
+
+Load libraries:
+
+```{r}
+
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(knitr)
+library(readxl)
+
+```
+
+---
+
+### Overview:
+
+This quarto document contains step-by-step notes about the data cleaning and processing conducted on the OPIHI datasets collected from 2004 - 2026.
+
+First, I will rename all the sheets to have the same format. Below I detail each of the old names and new names side by side in a table:
+
+
+```{r}
+
+
+filenames_metadata <- read_csv(here("OPIHI_Project", "Data", "filenames_metadata.csv"))
+
+
+filenames_metadata |> 
+  kbl(col.names = c("Original Filename", "New Filename")) |> 
+  kable_material()
+
+```
+
+
+### Renaming Scripting:
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Renaming Text Files
+
+**Kat:**
+
+Write me a script that will rename files based on file names in a .csv in R
+
+**Claude:**
+
+I've written the script as `rename_files.R`. It assumes a CSV with two columns, `old_name` and `new_name`, with file extensions included in both.
+
+To use it, set `csv_path` and `file_dir` in the settings block at the top. If your column headers differ, change `old_col` and `new_col` to match.
+
+It defaults to a dry run, which prints the planned renames without touching anything. Once the preview looks right, set `dry_run <- FALSE` and run it again.
+
+It also checks a few things before renaming, so a bad CSV doesn't wreck your files:
+- Files listed in the CSV but missing from the folder are skipped with a warning.
+- Duplicate new names in the CSV stop the script.
+- New names that already exist in the folder are skipped, so nothing gets overwritten.
+
+If your CSV uses a different layout, such as a prefix or pattern instead of full new names, let me know and I'll adjust it.
+
+:::
+
+
+Based on the AI script provided, files were renamed below. Backups of the original files are kept in ~OPIHI_Project/Data/backups.
+
+File renaming script:
+
+```{r}
+
+###############################Code written by Claude:
+
+## ---------------------------------------------------------------
+## Rename files using a CSV of old and new names
+## ---------------------------------------------------------------
+## The CSV needs two columns (change the names in SETTINGS if yours differ):
+##
+##   old_name,new_name
+##   IMG_001.jpg,beach_sunrise.jpg
+##   IMG_002.jpg,beach_sunset.jpg
+##
+## Tip: include file extensions in both columns.
+## ---------------------------------------------------------------
+#
+## ---- SETTINGS -------------------------------------------------
+#csv_path    <- here("OPIHI_Project", "Data", "filenames_metadata.csv")      # path to your CSV
+#file_dir    <- here("OPIHI_Project", "Data")  # folder containing the files to rename
+#old_col     <- "original_filename"            # CSV column with current file names
+#new_col     <- "new_filename"            # CSV column with desired file names
+#dry_run     <- TRUE                  # TRUE = preview only, FALSE = actually rename (KAT NOTE: after running on FALSE #I set this to true to avoid rerunning it accidentally)
+## ---------------------------------------------------------------
+#
+## Read the CSV (everything as text so names like "001" don't lose zeros)
+#map <- read.csv(csv_path, stringsAsFactors = FALSE, colClasses = "character",
+#                strip.white = TRUE)
+#
+#if (!all(c(old_col, new_col) %in% names(map))) {
+#  stop("CSV must contain columns '", old_col, "' and '", new_col, "'. Found: ",
+#       paste(names(map), collapse = ", "))
+#}
+#
+## Drop blank rows
+#map <- map[nzchar(map[[old_col]]) & nzchar(map[[new_col]]), ]
+#
+#old_paths <- file.path(file_dir, map[[old_col]])
+#new_paths <- file.path(file_dir, map[[new_col]])
+#
+## ---- Safety checks --------------------------------------------
+#missing_old <- !file.exists(old_paths)
+#dup_new     <- duplicated(new_paths) | duplicated(new_paths, fromLast = TRUE)
+#clash       <- file.exists(new_paths) & old_paths != new_paths
+#
+#if (any(missing_old)) {
+#  warning("These files were not found and will be skipped:\n  ",
+#          paste(map[[old_col]][missing_old], collapse = "\n  "))
+#}
+#if (any(dup_new)) {
+#  stop("Duplicate new names in the CSV:\n  ",
+#       paste(unique(map[[new_col]][dup_new]), collapse = "\n  "))
+#}
+#if (any(clash)) {
+#  warning("These new names already exist in the folder and will be skipped ",
+#          "(to avoid overwriting):\n  ",
+#          paste(map[[new_col]][clash], collapse = "\n  "))
+#}
+#
+#ok <- !missing_old & !clash
+#
+## ---- Rename ---------------------------------------------------
+#if (dry_run) {
+#  message("DRY RUN - no files changed. Planned renames:")
+#  print(data.frame(from = map[[old_col]][ok], to = map[[new_col]][ok]),
+#        row.names = FALSE)
+#  message("\nSet dry_run <- FALSE to apply these changes.")
+#} else {
+#  result <- file.rename(old_paths[ok], new_paths[ok])
+#  message(sum(result), " of ", sum(ok), " files renamed successfully.")
+#  if (any(!result)) {
+#    warning("Failed to rename:\n  ",
+#            paste(map[[old_col]][ok][!result], collapse = "\n  "))
+#  }
+#}
+#
+
+## commented everything out to avoid running it again
+
+
+
+```
+
+All files renamed. Now I will manually separate the multiple sheets and remove the information that may break R to be able to import them:
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Import Sheets from .xlsx files
+
+**Kat:**
+
+Using R, write me a code that imports each sheet from every .xlsx file in a specific folder, with each variable name based on the file name and sheet number. Make sure that it converts any excel-coded dates to YYYY-MM-DD  so they are readable.
+
+
+**Claude:**
+
+I've written the script as `import_xlsx_sheets.R`. Set `input_dir` to your folder and run it.
+
+Each sheet becomes its own data frame named `<file name>_sheet<number>`, where the number is the sheet's position in the workbook. For example, `sales.xlsx` with two tabs gives you `sales_sheet1` and `sales_sheet2`, and a single-sheet `budget.xlsx` gives you `budget_sheet1`. File names are cleaned with `make.names()` so they're valid R variable names. Spaces and dashes become dots, and a name starting with a digit gets an `X` in front. If two files clean up to the same name, the script adds a numeric suffix and warns you.
+
+Every data frame is also stored in a list called `all_sheets`, keyed by the same names. That's handy if you want to loop over them later, for example `lapply(all_sheets, nrow)` or `all_sheets[["sales_sheet1"]]`. If you'd rather not clutter your workspace with 20+ separate variables, set `to_global <- FALSE` and use only the list.
+
+Excel dates are converted to `YYYY-MM-DD` text. Date-time cells are shortened to the date by default, and you can set `keep_time <- TRUE` to keep the time of day. Time-only cells are written as `HH:MM:SS`.
+
+Two caveats:
+- **Mixed columns:** A column that mixes dates with text, such as an occasional "TBD", is read by `readxl` as all text, and the dates in it can still appear as serial numbers. The script checks the first 10,000 rows (`guess_rows`) to decide column types.
+- **Dates are text:** After conversion, date columns are character strings, which sort correctly in this format. If you want to do date math, wrap them in `as.Date()`.
+
+If you hit a mixed column that still shows serial numbers, tell me which one and I can add handling for it.
+
+_**Kat Note:** I ran the code and it created two variables per sheet._
+
+**Kat:**
+
+This made two variables per sheet. Why did it do that?
+
+
+**Claude:**
+
+That was my design choice, and it was a poor one. The script stored each sheet in two places: as its own variable (like `sales_sheet1`) and as an entry in a list called `all_sheets`. I added the list as a convenience for looping later, but it duplicated every data frame, so the contents of each sheet existed twice in your session.
+
+I've updated `import_xlsx_sheets.R` so it no longer builds that list. Each sheet is now created once, as a single variable named `<file name>_sheet<number>`. The script also no longer has the `to_global` setting, since separate variables are now the only behavior. At the end it prints the names of the variables it created, so you can see them all without a list holding copies.
+
+If you still see two of something per sheet after rerunning, I may have guessed wrong about the cause. Restart R or run `rm(list = ls())` first so leftovers from the earlier version don't confuse things. If duplicates persist, tell me the variable names you're seeing (for example, `sales_sheet1` and `sales_sheet1.1`, or `sales_sheet1` and something else) and I'll track down the cause.
+
+:::
+
+```{r}
+## ---------------------------------------------------------------
+## Import every sheet of every .xlsx file in a folder into R.
+## Each sheet becomes its own data frame named:
+##
+##       <file name>_sheet<number>
+##
+##   e.g.  sales.xlsx (2 sheets)  ->  sales_sheet1, sales_sheet2
+##         budget.xlsx (1 sheet)  ->  budget_sheet1
+##
+## The sheet number is the sheet's position in the workbook
+## (1 = first tab, 2 = second tab, ...).
+##
+## Excel dates are converted from serial numbers (e.g. 45366)
+## to readable text in YYYY-MM-DD format (e.g. 2024-03-15).
+##
+## Requires the readxl package:  install.packages("readxl")
+## ---------------------------------------------------------------
+#
+#library(readxl)
+#
+## ---- SETTINGS -------------------------------------------------
+#input_dir   <- here("OPIHI_Project", "Data")  # folder containing the .xlsx files
+#keep_time   <- TRUE                  # TRUE = keep time of day on date-time cells
+#guess_rows  <- 10000                  # rows used to detect column types
+## ---------------------------------------------------------------
+#
+#xlsx_files <- list.files(input_dir, pattern = "\\.xlsx$", full.names = TRUE,
+#                         ignore.case = TRUE)
+#xlsx_files <- xlsx_files[!startsWith(basename(xlsx_files), "~$")]  # skip Excel lock files
+#
+#if (length(xlsx_files) == 0) stop("No .xlsx files found in: ", input_dir)
+#
+## Turn any date / date-time column into YYYY-MM-DD text
+#format_dates <- function(df) {
+#  for (col in names(df)) {
+#    x <- df[[col]]
+#    if (inherits(x, "Date")) {
+#      df[[col]] <- format(x, "%Y-%m-%d")
+#    } else if (inherits(x, "POSIXct")) {
+#      vals <- x[!is.na(x)]
+#      if (length(vals) == 0) next
+#      is_time_only <- all(format(vals, "%Y-%m-%d", tz = "UTC") == "1899-12-31")
+#      df[[col]] <- if (is_time_only) {
+#        format(x, "%H:%M:%S", tz = "UTC")             # time-only cells stay as times
+#      } else if (keep_time) {
+#        format(x, "%Y-%m-%d %H:%M:%S", tz = "UTC")
+#      } else {
+#        format(x, "%Y-%m-%d", tz = "UTC")
+#      }
+#    }
+#  }
+#  df
+#}
+#
+#created <- character(0)   # just the names of the variables created
+#
+#for (f in xlsx_files) {
+#  book_name <- make.names(tools::file_path_sans_ext(basename(f)))
+#
+#  sheets <- tryCatch(
+#    excel_sheets(f),
+#    error = function(e) {
+#      warning("Could not open ", basename(f), ": ", conditionMessage(e))
+#      character(0)
+#    }
+#  )
+#
+#  for (i in seq_along(sheets)) {
+#    var_name <- paste0(book_name, "_sheet", i)
+#
+#    # Guard against two files that clean up to the same name
+#    if (var_name %in% created) {
+#      var_name <- make.unique(c(created, var_name))[length(created) + 1]
+#      warning("Duplicate variable name; saved as '", var_name, "'")
+#    }
+#
+#    df <- tryCatch(
+#      read_excel(f, sheet = i, guess_max = guess_rows),
+#      error = function(e) {
+#        warning("Could not read sheet ", i, " ('", sheets[i], "') in ",
+#                basename(f), ": ", conditionMessage(e))
+#        NULL
+#      }
+#    )
+#    if (is.null(df)) next
+#
+#    df <- format_dates(as.data.frame(df))
+#    assign(var_name, df, envir = .GlobalEnv)   # one variable per sheet, no copies
+#    created <- c(created, var_name)
+#  }
+#  message(basename(f), ": ", length(sheets), " sheet(s) imported")
+#}
+#
+#message("\nDone. ", length(created), " data frames created:")
+#print(created)
+#
+
+## Commented everything out so I do not accidentally run it again.
+
+
+```
+
+OK that seems to have worked, but the files are such a mess. First, let's see if we can save these sheets so that we don't have to load them in from the .xlsx files each time.
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Saving the Variables
+
+**Kat:**
+
+Great! Now that they are all variables, can you write a script that saves them all as .csv files to a new folder in a new directory named "sheets"?
+
+
+**Claude:**
+
+I've written the script as `save_sheets_to_csv.R`. Run `import_xlsx_sheets.R` first so the variables exist in your session, then set `parent_dir` to the directory where you want the new folder. The script creates a `sheets` folder inside it, and you can change the name with `folder_name`.
+
+Each data frame is saved under its own variable name, so `sales_sheet1` becomes `sheets/sales_sheet1.csv`. The dates were already converted to `YYYY-MM-DD` on import, so they're written to the CSVs as readable dates, and blank cells are written as empty values instead of `NA`.
+
+By default the script only saves variables whose names end in `_sheet` followed by a number, so any other data frames in your session aren't swept in. If you want every data frame saved, change `name_pattern` to `"."`.
+
+I interpreted "a new folder in a new directory" as one new `sheets` folder inside whichever directory you choose. If you meant two separate levels, such as a new directory containing a differently named folder that itself contains `sheets`, tell me the structure and I'll adjust it.
+
+
+:::
+
+```{r}
+
+#########################Code written by Claude:
+## ---------------------------------------------------------------
+## Save every sheet data frame in your R session (e.g. sales_sheet1,
+## budget_sheet1) as its own .csv file in a new folder named "sheets".
+##
+## Run import_xlsx_sheets.R first so the variables exist.
+##
+## Each file is named after its variable:
+##   sales_sheet1  ->  sheets/sales_sheet1.csv
+## ---------------------------------------------------------------
+#
+## ---- SETTINGS -------------------------------------------------
+#parent_dir   <- here("OPIHI_Project", "Data")  # where the "sheets" folder will be created
+#folder_name  <- "sheets"                 # name of the new folder
+#name_pattern <- "_sheet[0-9]+$"          # only save variables whose names match this
+#                                         #   (keeps unrelated data frames out)
+#                                         #   use "." to save EVERY data frame instead
+## ---------------------------------------------------------------
+#
+#output_dir <- file.path(parent_dir, folder_name)
+#dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+#
+## Find the matching data frames in the R session
+#candidates <- ls(envir = .GlobalEnv, pattern = name_pattern)
+#sheet_vars <- candidates[vapply(candidates,
+#                                function(v) is.data.frame(get(v, envir = .GlobalEnv)),
+#                                logical(1))]
+#
+#if (length(sheet_vars) == 0) {
+#  stop("No data frames matching '", name_pattern, "' found. ",
+#       "Run import_xlsx_sheets.R first.")
+#}
+#
+#n_written <- 0
+#
+#for (v in sheet_vars) {
+#  out_file <- file.path(output_dir, paste0(v, ".csv"))
+#
+#  ok <- tryCatch({
+#    write.csv(get(v, envir = .GlobalEnv), out_file, row.names = FALSE, na = "")
+#    TRUE
+#  }, error = function(e) {
+#    warning("Could not save ", v, ": ", conditionMessage(e))
+#    FALSE
+#  })
+#
+#  if (ok) n_written <- n_written + 1
+#}
+#
+#message("Done. ", n_written, " of ", length(sheet_vars),
+#        " CSV files written to: ", normalizePath(output_dir))
+#
+##commented out so I don't run it again
+
+```
+
+Cool, now I have a folder full of sheets. I'm going to go ahead and have Claude write a script that re-imports them all so I don't have to keep running the three giant blocks of code above.
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Import all .csv's in a specified directory
+
+**Kat:**
+
+Nice, that worked! Can you now write me a script in R that imports all .csv files in a specific directory into R studio as variables with the same name as their file name (without the .csv)?
+
+
+**Claude:**
+
+I've written the script as `import_csvs.R`. Set `input_dir` to your folder and run it. Each `.csv` becomes a data frame named after its file, so `sales_sheet1.csv` becomes `sales_sheet1`. It creates one variable per file with no extra copies, and prints the list of names at the end.
+
+Because your earlier scripts produced names like `sales_sheet1`, they'll come back with exactly the same names. If a file name isn't a valid R variable name, such as one with spaces, dashes, or a leading digit, the script converts it with `make.names()` and prints a message telling you what it was renamed to. For example, `Q1 sales.csv` becomes `Q1.sales`. If two files would end up with the same variable name, the second gets a numeric suffix and a warning.
+
+Two settings are worth knowing about:
+- **`read_as_text`:** By default R guesses each column's type, which is usually what you want, but it drops leading zeros from things like ZIP codes. Set this to `TRUE` to read every column as text instead. The dates you saved earlier in `YYYY-MM-DD` format come in as text either way.
+- **`recursive`:** Set this to `TRUE` to also pick up CSVs in subfolders. Files with the same name in different subfolders will collide, so they get numeric suffixes.
+
+Blank cells and `NA` are both read as `NA`, and column headers are kept exactly as written instead of being altered by R. That means a header with a space, like `First Name`, stays that way, and you'll need backticks to refer to it in code.
+
+:::
+
+```{r}
+
+# ---------------------------------------------------------------
+# Import every .csv file in a folder into R as its own data frame,
+# named after the file (without ".csv").
+#
+#   sales_sheet1.csv  ->  sales_sheet1
+#   budget_sheet1.csv ->  budget_sheet1
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+input_dir    <- here("OPIHI_Project", "Data", "sheets")  # folder containing the .csv files
+recursive    <- FALSE                 # TRUE = also import CSVs in subfolders
+read_as_text <- TRUE                 # TRUE = read every column as text (keeps leading
+                                      #        zeros in IDs/ZIP codes, no type guessing)
+# ---------------------------------------------------------------
+
+csv_files <- list.files(input_dir, pattern = "\\.csv$", full.names = TRUE,
+                        recursive = recursive, ignore.case = TRUE)
+
+if (length(csv_files) == 0) stop("No .csv files found in: ", input_dir)
+
+created <- character(0)
+
+for (f in csv_files) {
+  # File name without the .csv extension
+  var_name <- tools::file_path_sans_ext(basename(f))
+
+  # Only changes the name if it isn't a valid R variable name
+  # (e.g. contains spaces or starts with a digit)
+  clean_name <- make.names(var_name)
+  if (clean_name != var_name) {
+    message("Renamed variable '", var_name, "' to '", clean_name, "'")
+    var_name <- clean_name
+  }
+
+  # Guard against two files ending up with the same variable name
+  if (var_name %in% created) {
+    new_name <- make.unique(c(created, var_name))[length(created) + 1]
+    warning("Duplicate variable name '", var_name, "'; saved as '", new_name, "'")
+    var_name <- new_name
+  }
+
+  df <- tryCatch(
+    read.csv(f, stringsAsFactors = FALSE, check.names = FALSE,
+             colClasses = if (read_as_text) "character" else NA,
+             na.strings = c("", "NA")),
+    error = function(e) {
+      warning("Could not read ", basename(f), ": ", conditionMessage(e))
+      NULL
+    }
+  )
+  if (is.null(df)) next
+
+  assign(var_name, df, envir = .GlobalEnv)
+  created <- c(created, var_name)
+}
+
+message("\nDone. ", length(created), " data frames created:")
+print(created)
+
+
+
+```
+
+One of the sheets failed to import, but that makes sense as it is completely empty! Going to that sheet's original .xlsx file shows me that it only contains an image of pressed limu species.
+
+One other issue is that so many dates converted incorrectly. They ended up as excel codes...? I'm not sure what to do about that just yet, but I will return to that problem later.
+
+---
+
+### Data Compiling:
+
+Now we must create a new datasheet format that will hold all the data from each file. For this, I'll be following GBIF's Darwin Core header styles from [the Darwin Core Guide.](https://rs.gbif.org/core/dwc_event_2025-07-10.xml) 
+
+I will start with adding all relevant column headers from the earliest file (2004), and add more columns as we go. 
+
+```{r}
+
+head(X2004a_OPIHI_data_sheet1)
+
+```
+
+The first eleven rows contain one set of information in a long format, then the next section contains information in a wide format... 
+
+Okay. I think the first thing to do is identify what some columns could be:
+
+ - Sampling Date
+ 
+ - Event Start Time
+ 
+ - Event Stop Time
+ 
+ - Location Name
+ 
+ - Latitude
+ 
+ - Longitude
+ 
+ - School
+ 
+ - Position (the "transect-1 quadrat-1 at point 0.50") information
+ 
+ - Species Identity
+ 
+ - Count
+ 
+ - Overall Number of Transect Lines
+ 
+ - Length of Transect Lines
+ 
+ - Point Spacing
+ 
+ - Overall Number of Quadrats per Transect
+
+
+At the bottom of the sheet there is a "totals" blurb, but I think this will cause some serious issues with data compilation. I will remove that "totals" blurb below:
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+Write me an R script that removes all rows from a dataframe below a specified row number.
+
+
+**Claude:**
+
+I've written the script as `remove_rows_below.R`. Set `df_name` to the name of your data frame (in quotes) and `row_number` to the last row you want to keep, then run it. With `row_number <- 10`, rows 1 through 10 stay and everything from row 11 onward is removed.
+
+The script overwrites the original variable in your session, so the removed rows are gone until you re-import the data. If you'd rather keep the original, change the `assign(df_name, ...)` line to save under a new name, such as `assign(paste0(df_name, "_trimmed"), df, envir = .GlobalEnv)`.
+
+It also resets the row numbering to 1, 2, 3, and so on. If the data frame has fewer rows than `row_number`, it leaves the data alone and tells you.
+
+One thing to check: R counts the header as column names, not as a row. So "row 10" means the tenth row of data, not the tenth line of the original file. If your sheets had title rows above the real headers, those rows are part of the data and are counted.
+
+If you want to do this to many data frames at once, such as all your `_sheet` variables, or remove rows above a certain row instead, let me know.
+
+:::
+
+2004:
+
+```{r}
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2004a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 34          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+```
+
+Ok... Nice. I'm going to do this for all the other dataframes real quick, for those that have the same format and need it. I will be manually looking at each excel file to determine which row ends the raw data and begins the "totals", as some have different patterns.
+
+
+2005:
+
+```{r}
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2005a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 32          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+```
+
+2006:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2006a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 59          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+2008:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2008a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 36          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+2016:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2016a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 45          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+2017:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2017a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 62          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+2018:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2018a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 48          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+2019:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2019a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 53          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+2020:
+
+```{r}
+
+
+# ---------------------------------------------------------------
+# Remove all rows below a specified row number from a data frame.
+#
+# Example: with row_number = 10, rows 1-10 are kept and
+#          rows 11 onward are removed.
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+df_name    <- "X2020a_OPIHI_data_sheet1"   # name of the data frame in your R session (in quotes)
+row_number <- 24          # last row to KEEP; everything below it is removed
+# ---------------------------------------------------------------
+
+df <- get(df_name, envir = .GlobalEnv)
+
+if (!is.data.frame(df)) stop("'", df_name, "' is not a data frame.")
+
+if (row_number >= nrow(df)) {
+  message("'", df_name, "' has only ", nrow(df), " rows, so nothing was removed.")
+} else {
+  n_removed <- nrow(df) - row_number
+  df <- df[seq_len(row_number), , drop = FALSE]
+  rownames(df) <- NULL                         # reset row numbering to 1, 2, 3, ...
+  assign(df_name, df, envir = .GlobalEnv)      # overwrite the original variable
+  message("Removed ", n_removed, " rows from '", df_name, "'. ",
+          nrow(df), " rows remain.")
+}
+
+
+```
+
+It looks like starting at 2022a onward, the sheets change format. Based on this, let's focus on compiling 2004-2020 to begin.
+
+As these are all the same format, I will make redacted versions real quick and use those to ask Claude how it would write a script to combine these.
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+
+
+**Claude:**
+
+:::
+
+
+```{r}
+
+write_csv(X2004a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2004a.csv"))
+write_csv(X2005a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2005a.csv"))
+#write_csv(X2006a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2006a.csv"))
+#write_csv(X2008a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2008a.csv"))
+#write_csv(X2016a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2016a.csv"))
+#write_csv(X2017a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2017a.csv"))
+#write_csv(X2018a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2018a.csv"))
+#write_csv(X2019a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2019a.csv"))
+#write_csv(X2020a_OPIHI_data_sheet1, here("OPIHI_Project", "Data", "sheets", "redacted_examples", "2020a.csv"))
+
+# didn't end up using all of them.
+
+```
+
+
+```{r}
+
+# ---------------------------------------------------------------
+# Combine several survey .csv files (like 2004a.csv, 2005a.csv) into
+# ONE tidy .csv with one row per organism count.
+#
+# HOW THE INPUT FILES ARE LAID OUT (what this script expects)
+#   - Each file holds several surveys side by side. Every survey is a
+#     "block" of columns that starts with a label column whose header
+#     is "Date" (e.g. "Date...37").
+#   - The header row holds the survey date as an Excel serial number
+#     (e.g. 38050), sometimes with a suffix like "38473.0...144".
+#   - Below that: Start Time, Stop Time, Number of Transect Lines,
+#     Length of Transect Lines, Point Spacing, Number of Quadrats per
+#     transect, Location, latitude, longitude, School.
+#   - Then an "Organisms" row labelling each column as
+#     "transect-1 quadrat-2 at point 3.50", followed by one row per
+#     species with its counts. Each block has its own species list.
+#
+# HOW THE OUTPUT LOOKS (one row per species count)
+#   source_file, survey_id, survey, date, start_time, stop_time,
+#   number_of_transect_lines, length_of_transect_lines, point_spacing,
+#   number_of_quadrats_per_transect, location, latitude, longitude,
+#   school, species, transect, quadrat, point, count
+# ---------------------------------------------------------------
+
+# ---- SETTINGS -------------------------------------------------
+input_dir  <- here("OPIHI_Project", "Data", "sheets", "redacted_examples")       # folder containing the files
+
+file_names <- c("2004a.csv", "2005a.csv")
+                                         # (or set file_names <- NULL to use
+                                         #  every .csv in the folder)
+
+output_file   <- "combined_data.csv"     # the combined file to create
+drop_empty    <- TRUE    # TRUE  = keep only cells that have a count (NA = not recorded)
+                         # FALSE = keep a row for every species x quadrat, NA counts included
+convert_times <- TRUE    # TRUE  = turn Excel times (0.0416667) into HH:MM:SS (01:00:00)
+# ---------------------------------------------------------------
+
+# ---- Helper functions -----------------------------------------
+
+# "Number of Transect Lines" -> "number_of_transect_lines"
+clean_name <- function(x) {
+  gsub("^_+|_+$", "", gsub("[^a-z0-9]+", "_", tolower(x)))
+}
+
+# Excel serial (e.g. "38050", "38473.0...144") -> "2004-03-04"
+excel_date <- function(x) {
+  if (is.na(x)) return(NA_character_)
+  x   <- sub("\\.\\.\\.[0-9]+$", "", trimws(x))   # drop the "...144" suffix
+  num <- suppressWarnings(as.numeric(x))
+  if (!is.na(num)) return(format(as.Date(floor(num), origin = "1899-12-30")))
+  d <- tryCatch(as.Date(x), error = function(e) NA)  # already a readable date?
+  if (!is.na(d)) format(d) else x
+}
+
+# Excel time fraction (0.041666667) -> "01:00:00"
+excel_time <- function(x) {
+  if (is.na(x)) return(NA_character_)
+  num <- suppressWarnings(as.numeric(x))
+  if (is.na(num) || num < 0 || num >= 1) return(x)
+  secs <- round(num * 86400)
+  sprintf("%02d:%02d:%02d", secs %/% 3600, (secs %% 3600) %/% 60, secs %% 60)
+}
+
+# Stack data frames that may have different columns
+rbind_fill <- function(lst) {
+  lst      <- lst[!vapply(lst, is.null, logical(1))]
+  tail_cols <- c("species", "transect", "quadrat", "point", "count")
+  all_cols <- unique(unlist(lapply(lst, names)))
+  all_cols <- c(setdiff(all_cols, tail_cols), tail_cols)
+  lst <- lapply(lst, function(d) {
+    for (cn in setdiff(all_cols, names(d))) d[[cn]] <- NA
+    d[all_cols]
+  })
+  do.call(rbind, lst)
+}
+
+# ---- Read one file and return a tidy data frame ----------------
+process_file <- function(path) {
+  m <- as.matrix(read.csv(path, header = FALSE, colClasses = "character",
+                          na.strings = c("NA", ""), fill = TRUE,
+                          strip.white = TRUE, stringsAsFactors = FALSE))
+  dimnames(m) <- NULL
+
+  hdr <- m[1, ]
+  starts <- which(grepl("^Date(\\.\\.\\.[0-9]+)?$", hdr, ignore.case = TRUE))
+  if (length(starts) == 0) stop("no 'Date' columns found in the first row")
+  ends <- c(starts[-1] - 1, ncol(m))
+
+  org_row <- which(m[, 1] == "Organisms")[1]
+  if (is.na(org_row)) stop("no 'Organisms' row found in the first column")
+
+  file_stem <- tools::file_path_sans_ext(basename(path))
+  pat <- "^transect-([0-9]+) quadrat-([0-9]+) at point ([0-9.]+)$"
+  blocks <- list()
+
+  for (b in seq_along(starts)) {
+    s <- starts[b]
+    e <- ends[b]
+    if (e <= s) next
+
+    # -- Survey details (date + the labelled rows above "Organisms") --
+    meta_rows <- 2:(org_row - 1)
+    meta_rows <- meta_rows[!is.na(m[meta_rows, s])]
+    meta <- as.list(m[meta_rows, s + 1])
+    names(meta) <- clean_name(m[meta_rows, s])
+    meta <- c(list(date = excel_date(m[1, s + 1])), meta)
+    if (convert_times) {
+      if (!is.null(meta$start_time)) meta$start_time <- excel_time(meta$start_time)
+      if (!is.null(meta$stop_time))  meta$stop_time  <- excel_time(meta$stop_time)
+    }
+
+    # -- Data columns: only those that have an "Organisms" label --
+    cols       <- (s + 1):e
+    org_labels <- m[org_row, cols]
+    keep       <- !is.na(org_labels)
+    cols       <- cols[keep]
+    org_labels <- org_labels[keep]
+    if (length(cols) == 0) next
+
+    # -- Species rows: everything below "Organisms" with a name in the label column --
+    sp_rows <- which(seq_len(nrow(m)) > org_row & !is.na(m[, s]))
+    if (length(sp_rows) == 0) next
+
+    cnt <- m[sp_rows, cols, drop = FALSE]
+    hit <- if (drop_empty) {
+      which(!is.na(cnt), arr.ind = TRUE)
+    } else {
+      as.matrix(expand.grid(row = seq_len(nrow(cnt)), col = seq_len(ncol(cnt))))
+    }
+    if (nrow(hit) == 0) next
+
+    # -- Split "transect-1 quadrat-2 at point 3.50" into three numbers --
+    parts    <- regmatches(org_labels, regexec(pat, org_labels, ignore.case = TRUE))
+    transect <- quadrat <- point <- rep(NA_real_, length(org_labels))
+    for (k in seq_along(parts)) {
+      if (length(parts[[k]]) == 4) {
+        transect[k] <- as.numeric(parts[[k]][2])
+        quadrat[k]  <- as.numeric(parts[[k]][3])
+        point[k]    <- as.numeric(parts[[k]][4])
+      }
+    }
+    if (any(is.na(transect))) {
+      warning(basename(path), ", survey ", b,
+              ": some 'Organisms' labels didn't match the expected pattern")
+    }
+
+    # -- Build the rows for this survey --
+    n   <- nrow(hit)
+    out <- data.frame(source_file = rep(basename(path), n),
+                      survey_id   = rep(sprintf("%s_%02d", file_stem, b), n),
+                      survey      = rep(b, n),
+                      stringsAsFactors = FALSE)
+    for (nm in names(meta)) out[[nm]] <- rep(meta[[nm]], n)
+    out$species  <- m[sp_rows, s][hit[, "row"]]
+    out$transect <- transect[hit[, "col"]]
+    out$quadrat  <- quadrat[hit[, "col"]]
+    out$point    <- point[hit[, "col"]]
+    out$count    <- suppressWarnings(as.numeric(cnt[hit]))
+
+    blocks[[length(blocks) + 1]] <- out
+  }
+
+  if (length(blocks) == 0) stop("no survey data found")
+  rbind_fill(blocks)
+}
+
+# ---- Main -----------------------------------------------------
+if (is.null(file_names)) {
+  file_names <- list.files(input_dir, pattern = "\\.csv$", ignore.case = TRUE)
+  file_names <- setdiff(file_names, basename(output_file))
+}
+if (length(file_names) == 0) stop("No input files specified or found.")
+
+paths   <- file.path(input_dir, file_names)
+missing <- !file.exists(paths)
+if (any(missing)) {
+  stop("These files were not found in '", input_dir, "':\n  ",
+       paste(file_names[missing], collapse = "\n  "))
+}
+
+results <- list()
+for (i in seq_along(paths)) {
+  res <- tryCatch(process_file(paths[i]), error = function(e) {
+    warning("Skipped ", file_names[i], ": ", conditionMessage(e))
+    NULL
+  })
+  if (!is.null(res)) {
+    results[[length(results) + 1]] <- res
+    message(file_names[i], ": ", length(unique(res$survey_id)), " surveys, ",
+            nrow(res), " rows")
+  }
+}
+
+if (length(results) == 0) stop("No data could be read from any file.")
+
+combined <- rbind_fill(results)
+
+# Turn numeric-looking text columns (latitude, number of lines, ...) back into numbers
+combined[] <- lapply(combined, function(x) {
+  if (is.character(x)) type.convert(x, as.is = TRUE) else x
+})
+
+write.csv(combined, output_file, row.names = FALSE, na = "")
+message("\nDone. ", nrow(combined), " rows from ", length(results),
+        " of ", length(file_names), " files written to: ", output_file)
+
+```
+
+
+
+
+
+
+
+
+First, we'll specify a new dataframe that will be the destination of all this data. We'll start with the headers.
+
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+
+
+**Claude:**
+
+:::
+
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Template
+
+**Kat:**
+
+
+
+**Claude:**
+
+:::
