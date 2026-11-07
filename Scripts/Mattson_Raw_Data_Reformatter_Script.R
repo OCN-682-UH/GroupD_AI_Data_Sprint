@@ -12,9 +12,9 @@ library(here)
 
 # --- CONFIGURATION ---
 # here() locates your R Project root folder automatically.
-FILE_PATH       <- here::here("Data", "OPIHI_data_2018.xlsx")   
-SHEET_NAME      <- "OPIHI data 2018"               
-MASTER_CSV_PATH <- here::here("Outputs","output_data_2018_sorted.csv")     
+FILE_PATH       <- here::here("Data", "OPIHI_data_2017.xlsx")   
+SHEET_NAME      <- "OPIHI data 2017"               
+MASTER_CSV_PATH <- here::here("Outputs","output_data_2017_sorted.csv")     
 
 # Row definitions inside your Excel sheet
 METADATA_ANCHOR_ROW <- 1    # The exact row where the word "Date" sits as a label
@@ -159,9 +159,8 @@ if (length(all_quadrats_list) == 0) {
 df_extracted <- bind_rows(map(all_quadrats_list, ~ .x %>% mutate(across(everything(), as.character))))
 
 # ----------------------------------------------------------------------------
-# 3. ALIGN AND FORMAT TO MATCH YOUR EXACT MASTER CSV SCHEMA
+# 3. ALIGN, SORT SPECIES ALPHABETICALLY, AND ADJUST COLS LEFT
 # ----------------------------------------------------------------------------
-# This matches your layout specification down to the exact order provided.
 master_headers <- c(
   "date", "location", "data_entry_by", "school", "transect_number", "position_on_transect_m",
   "acanthophora_spicifera", "amansia_sp", "articulated_coralline", "asparagopsis_sp",
@@ -193,42 +192,64 @@ master_headers <- c(
   "x_collecting", "what_collecting", "notes"
 )
 
-# Create the clean skeleton structural dataframe matching your headers explicitly
+left_metadata_headers <- c(
+  "date", "location", "latitude", "longitude", 
+  "data_entry_by", "school", "transect_number", "position_on_transect_m"
+)
+
+right_survey_headers <- c(
+  "x_x", "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only", "sediment_depth",
+  "unknown_bulbous_algae", "team_leader", "team_members", "stressful_events",
+  "low_tide_time", "low_tide_height", "x_in_field_group", "x_t_lines", "longest_t_m",
+  "dist_between_t_pts_for_q", "x_quad_t", "start_time", "end_time", "weather",
+  "rain_events", "wave_height", "wind_speed", "x_visitors", "x_fishing",
+  "x_collecting", "what_collecting", "notes"
+)
+
 df_template <- as.data.frame(matrix(ncol = length(master_headers), nrow = 0), stringsAsFactors = FALSE)
 colnames(df_template) <- master_headers
 df_template[] <- lapply(df_template, as.character)
 
-# Keep only columns from your raw data that actually belong in the master schema
-matching_raw_cols <- intersect(names(df_extracted), master_headers)
-df_extracted_clean <- df_extracted %>% select(all_of(matching_raw_cols))
+names(df_extracted) <- trimws(names(df_extracted))
+raw_only_cols <- setdiff(names(df_extracted), master_headers)
 
-# Inject data frames into template structure cleanly
-df_final_master <- bind_rows(df_template, df_extracted_clean) %>%
-  select(all_of(master_headers)) # Forces columns into your EXACT master schema blueprint order
+# FIX: Corrected double assignment typo that was breaking column evaluations
+is_numeric_col <- !is.na(suppressWarnings(as.numeric(raw_only_cols)))
+is_total_col   <- str_detect(str_to_lower(raw_only_cols), "total")
+junk_columns   <- raw_only_cols[is_numeric_col | is_total_col]
+real_new_species <- setdiff(raw_only_cols, junk_columns)
 
-# --- FIX EXCEL SERIAL FORMATS (DATES AND TIMES) ---
+df_extracted_clean <- df_extracted %>% select(-any_of(junk_columns))
+df_final_master    <- bind_rows(df_template, df_extracted_clean)
+
+all_current_cols <- colnames(df_final_master)
+organism_pool    <- setdiff(all_current_cols, c(left_metadata_headers, right_survey_headers))
+sorted_species_columns <- sort(organism_pool)
+
+final_column_ordering <- c(left_metadata_headers, sorted_species_columns, right_survey_headers)
+
+df_final_master <- df_final_master %>%
+  select(all_of(intersect(final_column_ordering, names(.))))
+
+# --- FIX EXCEL SERIAL FORMATS & EXECUTE DYNAMIC ZERO-TO-NA CONVERSION ---
 df_final_master <- df_final_master %>%
   mutate(
-    # Fix the Excel Date serial numbers (e.g. 42911 -> 2017-06-25)
     date = if_else(str_detect(date, "^\\d+$"), 
                    as.character(openxlsx::convertToDate(as.numeric(date))), 
                    date),
     
-    # FIX: Changed \. to \\. here
     start_time = if_else(str_detect(start_time, "^0\\.\\d+|^\\d+\\.\\d+"),
                          format(openxlsx::convertToDateTime(as.numeric(start_time)), "%H:%M:%S"),
                          start_time),
     
-    # FIX: Changed \. to \\. here
     end_time = if_else(str_detect(end_time, "^0\\.\\d+|^\\d+\\.\\d+"),
                        format(openxlsx::convertToDateTime(as.numeric(end_time)), "%H:%M:%S"),
-                       end_time)
+                       end_time),
+    
+    # This step now has a clean list of species columns to evaluate
+    across(all_of(sorted_species_columns), ~ if_else(.x == "0" | .x == 0, NA_character_, .x))
   )
 # --------------------------------------------------------
-
-#Change zero species counts to NA
-df_final_master <- df_final_master|>
-  mutate(across(everything(), ~ ifelse(. == 0, NA, .)))
 
 write.csv(df_final_master, MASTER_CSV_PATH, row.names = FALSE)
 cat(sprintf("Success! Complete layout compiled. Master CSV written to: %s\n", MASTER_CSV_PATH))
