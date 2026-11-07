@@ -57,6 +57,7 @@ opihi_2024 <- left_join(quadrat_2024, metadata_2024, by = c("Date", "Location"))
 ```
 
 ```{r}
+#mei-generated, not ai
 master <- master |> 
   mutate(
     Date=mdy(Date),
@@ -776,4 +777,4 @@ mei_allyears <- full_join(clean_2024, clean1920)
 write_csv(mei_allyears, "mei_allyears.csv")
 ```
 
-### Research Question: Teacher/team effects: Does sampling completeness or consistency vary by teacher/team? Are some teams "better"? If so, how? Visualize information by different teams 
+### Research Question: Teacher/team effects: Does sampling completeness or consistency vary by teacher/team? Are some teams "better"? If so, how? Visualize information by different teams
