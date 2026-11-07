@@ -13,6 +13,9 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(lubridate)
+library(readr)
+library(stringr)
+library(purrr)
 ```
 
 ```{r}
@@ -54,6 +57,7 @@ opihi_2024 <- left_join(quadrat_2024, metadata_2024, by = c("Date", "Location"))
 ```
 
 ```{r}
+#mei-generated, not ai
 master <- master |> 
   mutate(
     Date=mdy(Date),
@@ -106,4 +110,671 @@ master <- master |>
   )
 ```
 
-### Research Question: Teacher/team effects: Does sampling completeness or consistency vary by teacher/team? Are some teams "better"? If so, how? Visualize information by different teams 
+### Cleaning Opihi 2020 data with Gemini
+
+I used Gemini to clean the OPIHI 2020 data - specifically, I asked it to combine all the data in the csv file into one clean dataset with all the same column names, while retaining all the different species counts that had occurred throughout the multiple field trips. Prior to uploading a csv file to Gemini, I redacted all the school names and coded them by number instead.
+
+```{r}
+#this whole chunk is ai-generated code
+
+# 1. Read the raw unheadered CSV file
+raw_data <- read_csv("Data/opihi_2020_ai.csv", col_names = FALSE, show_col_types = FALSE)
+
+# 2. Identify the starting column index for each survey block
+# (Blocks begin where row 1 contains "Date" or row 8 contains "Location")
+block_start_cols <- which(
+  raw_data[1, ] == "Date" | raw_data[8, ] == "Location"
+)
+
+# Define column boundaries for each survey block
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 3. Function to parse an individual survey block
+parse_survey_block <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # Extract metadata values (rows 1 to 11)
+  meta_keys <- raw_data[1:11, meta_label_col][[1]] %>% str_trim()
+  meta_vals <- raw_data[1:11, meta_val_col][[1]]
+  
+  meta_df <- tibble(key = meta_keys, val = meta_vals) %>%
+    filter(!is.na(key), key != "") %>%
+    pivot_wider(names_from = key, values_from = val)
+  
+  # Ensure standard metadata names are present
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Find row where "Organisms" header is located (rows 12-20)
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # Extract quadrat sample header names (e.g. transect-1 quadrat-1 at point 0.00)
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract species count rows
+  species_rows <- (org_row_idx + 1):nrow(raw_data)
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(!is.na(species_names) & species_names != "")
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build count matrix for this block
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape to long format (quadrat sample x organism count)
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  # Combine metadata with organism counts
+  bind_cols(meta_df, long_counts)
+}
+
+# 4. Process all blocks and combine into one spreadsheet
+combined_dataset <- map_dfr(block_ranges, ~ parse_survey_block(.x[1], .x[2]))
+
+# 5. Fill missing values (NAs) in species count columns with 0
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset), metadata_cols)
+
+combined_dataset <- combined_dataset %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 6. Save consolidated CSV
+write_csv(combined_dataset, "opihi_2020_combined.csv")
+
+# View structure
+glimpse(combined_dataset)
+```
+
+After looking through the code it generated and the outputs, it added some unnecessary columns and some of the numbers were wrong because I think it got confused with some of the totals columns. I tried again by asking Gemini to ignore everything under Totals:
+
+```{r}
+#ai-generated code
+
+# 1. Read raw CSV
+#raw_data <- read_csv("opihi_2020_ai.csv", col_names = FALSE, show_col_types = FALSE)
+
+# 2. Identify start column of each survey block
+block_start_cols <- which(
+  raw_data[1, ] == "Date" | raw_data[8, ] == "Location"
+)
+
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 3. Block parser function (stops before 'TOTALS:')
+parse_survey_block <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # Extract metadata values (rows 1 to 11)
+  meta_keys <- raw_data[1:11, meta_label_col][[1]] %>% str_trim()
+  meta_vals <- raw_data[1:11, meta_val_col][[1]]
+  
+  meta_df <- tibble(key = meta_keys, val = meta_vals) %>%
+    filter(!is.na(key), key != "") %>%
+    pivot_wider(names_from = key, values_from = val)
+  
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Locate 'Organisms' row header
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # Locate 'TOTALS:' row index to ignore everything below it
+  all_col_labels <- raw_data[(org_row_idx + 1):nrow(raw_data), meta_label_col][[1]] %>% as.character()
+  totals_rel_idx <- which(str_detect(str_to_upper(all_col_labels), "TOTALS"))
+  
+  if (length(totals_rel_idx) > 0) {
+    max_species_row <- org_row_idx + totals_rel_idx[1] - 1
+  } else {
+    max_species_row <- nrow(raw_data)
+  }
+  
+  # Extract quadrat sample header names
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract raw individual quadrat species rows (stopping before TOTALS:)
+  species_rows <- (org_row_idx + 1):max_species_row
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(!is.na(species_names) & species_names != "" & !str_detect(str_to_upper(species_names), "TOTALS"))
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build count matrix for individual quadrats
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape to wide quadrat table
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  bind_cols(meta_df, long_counts)
+}
+
+# 4. Process blocks into a single clean dataset
+combined_dataset <- map_dfr(block_ranges, ~ parse_survey_block(.x[1], .x[2]))
+
+# 5. Fill missing values across species columns with 0
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset), metadata_cols)
+
+combined_dataset <- combined_dataset %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 6. Save final dataset
+write_csv(combined_dataset, "opihi_2020_combined_no_totals.csv")
+```
+
+It looks better now! Finally, I realized there was some unknown data at the very end of the sheet that has no associated metadata with it at all - I asked gemini to ignore that data when combining everything together. I also asked it to delete the columns M-S that it had added when cleaning the sheet.
+
+```{r}
+
+# 1. Read raw CSV
+#raw_data <- read_csv("opihi_2020_ai.csv", col_names = FALSE, show_col_types = FALSE)
+
+# 2. Limit raw dataset columns up to column FN (Column 170 in R)
+max_col_fn <- min(ncol(raw_data), 170)
+raw_data <- raw_data[, 1:max_col_fn]
+
+# 3. Identify start column of each survey block within the raw data
+block_start_cols <- which(
+  raw_data[1, ] == "Date" | raw_data[8, ] == "Location"
+)
+
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 4. Block parser function (stops before 'TOTALS:')
+parse_survey_block <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # Extract metadata values (rows 1 to 11)
+  meta_keys <- raw_data[1:11, meta_label_col][[1]] %>% str_trim()
+  meta_vals <- raw_data[1:11, meta_val_col][[1]]
+  
+  meta_df <- tibble(key = meta_keys, val = meta_vals) %>%
+    filter(!is.na(key), key != "") %>%
+    pivot_wider(names_from = key, values_from = val)
+  
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Locate 'Organisms' row header
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # Locate 'TOTALS:' row index to ignore everything below it
+  all_col_labels <- raw_data[(org_row_idx + 1):nrow(raw_data), meta_label_col][[1]] %>% as.character()
+  totals_rel_idx <- which(str_detect(str_to_upper(all_col_labels), "TOTALS"))
+  
+  if (length(totals_rel_idx) > 0) {
+    max_species_row <- org_row_idx + totals_rel_idx[1] - 1
+  } else {
+    max_species_row <- nrow(raw_data)
+  }
+  
+  # Extract quadrat sample header names
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract individual quadrat species rows (stopping before TOTALS:)
+  species_rows <- (org_row_idx + 1):max_species_row
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(!is.na(species_names) & species_names != "" & !str_detect(str_to_upper(species_names), "TOTALS"))
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build count matrix for individual quadrats
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape to wide quadrat table
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  bind_cols(meta_df, long_counts)
+}
+
+# 5. Process blocks into a single clean dataset
+combined_dataset <- map_dfr(block_ranges, ~ parse_survey_block(.x[1], .x[2]))
+
+# 6. Organize metadata and species columns, filling NAs with 0
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset), metadata_cols)
+
+combined_dataset <- combined_dataset %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 7. REMOVE COLUMNS M THROUGH S (Columns 13:19) FROM THE FINAL COMBINED DATASET
+# (Columns 1 to 12 are metadata + Quadrat_Sample; columns 13 to 19 are species columns M:S)
+combined_dataset <- combined_dataset %>%
+  select(-c(13:19))
+
+# 8. Save final dataset
+write_csv(combined_dataset, "opihi_2020_combined_final.csv")
+```
+
+With that, OPIHI 2020 looks cleaner and easier to join with the rest of the years and all the data looks correct to me.
+
+### Cleaning OPIHI 2019 data with Gemini
+
+Once again, I redacted all school names and coded them with numbers instead. I will put the school names back at the end when I am working in R myself. With the redacted data sheet, I asked Gemini to once again clean all the separate field trip entries into one clean datasheet with an R script. I asked it to ignore all data after row 54, which is when there are some rows for totals per species and not raw data itself.
+
+Turns out I forgot to redact one of the schools :( changed that after I noticed it!
+
+```{r}
+#ai-generated code
+
+# 1. Read the raw 2019 CSV dataset
+raw_data <- read_csv("Data/opihi_2019_ai.csv", col_names = FALSE, show_col_types = FALSE)
+
+# 2. Identify all survey block starting column indices (where row 1 == "Date")
+block_start_cols <- which(raw_data[1, ] == "Date")
+
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 3. Block parser function that strictly caps row reading at row 54
+parse_survey_block_2019 <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # --- Extract Metadata (Rows 1 to 11) ---
+  # Handle cases where Location key/val might be in adjacent columns
+  meta_df <- tibble(
+    key = raw_data[1:11, meta_label_col][[1]] %>% as.character() %>% str_trim(),
+    val = raw_data[1:11, meta_val_col][[1]]
+  ) %>%
+    filter(!is.na(key), key != "", key != "NA") %>%
+    pivot_wider(names_from = key, values_from = val, values_fn = first)
+  
+  # Check if location is recorded in nearby cell if omitted in key column
+  if (!"Location" %in% names(meta_df) || is.na(meta_df$Location)) {
+    loc_val <- raw_data[8, meta_val_col + 1][[1]]
+    if (!is.na(loc_val) && str_trim(loc_val) != "") {
+      meta_df$Location <- as.character(loc_val)
+    }
+  }
+  
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Locate 'Organisms' header row (typically row 13)
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # --- Cap reading strictly to Row 54 ---
+  max_row_limit <- min(nrow(raw_data), 54)
+  
+  # Extract quadrat header names (e.g. T-1 Q-1 at point 0.00)
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "" & quadrat_names != "NA")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract species rows from (org_row_idx + 1) up to row 54
+  species_rows <- (org_row_idx + 1):max_row_limit
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(!is.na(species_names) & species_names != "" & species_names != "NA" & !str_detect(str_to_upper(species_names), "TOTALS"))
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build species count matrix for this block
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape long format to wide quadrat sample table
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  bind_cols(meta_df, long_counts)
+}
+
+# 4. Parse all blocks and stack into a single unified dataframe
+combined_dataset_2019 <- map_dfr(block_ranges, ~ parse_survey_block_2019(.x[1], .x[2]))
+
+# 5. Order metadata columns and alphabetically sort all species columns
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset_2019), metadata_cols)
+
+combined_dataset_2019 <- combined_dataset_2019 %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 6. Save the consolidated spreadsheet to CSV
+write_csv(combined_dataset_2019, "clean_opihi_2019_ai.csv")
+```
+
+Some notes - most of the data looks good here but the Location is not filled in for some of the field trips because the columns were off by 1, I may manually change that myself and re run it.
+
+```{r}
+#ai-generated code
+
+
+# 1. Read raw CSV dataset
+raw_data <- read_csv("Data/opihi_2019_ai.csv", col_names = FALSE, show_col_types = FALSE)
+
+# 2. Identify all survey block starting column indices (where row 1 == "Date")
+block_start_cols <- which(raw_data[1, ] == "Date")
+
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 3. Block parser function that strictly caps row reading at row 54
+parse_survey_block_2019 <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # --- Extract Metadata (Rows 1 to 11) ---
+  meta_df <- tibble(
+    key = raw_data[1:11, meta_label_col][[1]] %>% as.character() %>% str_trim(),
+    val = raw_data[1:11, meta_val_col][[1]]
+  ) %>%
+    filter(!is.na(key), key != "", key != "NA") %>%
+    pivot_wider(names_from = key, values_from = val, values_fn = first)
+  
+  # Ensure location value is captured if offset by a column
+  if (!"Location" %in% names(meta_df) || is.na(meta_df$Location)) {
+    loc_val <- raw_data[8, meta_val_col + 1][[1]]
+    if (!is.na(loc_val) && str_trim(loc_val) != "") {
+      meta_df$Location <- as.character(loc_val)
+    }
+  }
+  
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Locate 'Organisms' header row (typically row 13)
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # --- Cap reading strictly to Row 54 ---
+  max_row_limit <- min(nrow(raw_data), 54)
+  
+  # Extract quadrat header names (e.g. T-1 Q-1 at point 0.00)
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "" & quadrat_names != "NA")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract individual quadrat species rows from (org_row_idx + 1) up to row 54
+  species_rows <- (org_row_idx + 1):max_row_limit
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(
+    !is.na(species_names) & 
+      species_names != "" & 
+      species_names != "NA" & 
+      !str_detect(str_to_upper(species_names), "TOTALS")
+  )
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build count matrix for individual quadrats
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape long format to wide quadrat sample table
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  bind_cols(meta_df, long_counts)
+}
+
+# 4. Process all blocks into a single combined dataframe
+combined_dataset_2019_2 <- map_dfr(block_ranges, ~ parse_survey_block_2019(.x[1], .x[2]))
+
+# 5. Arrange metadata columns first, followed by alphabetically sorted species columns
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset_2019_2), metadata_cols)
+
+combined_dataset_2019_2 <- combined_dataset_2019_2 %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 6. Save consolidated CSV file
+write_csv(combined_dataset_2019_2, "clean_opihi_2019_ai.csv")
+```
+
+Output looks pretty good now!
+
+### Joining OPIHI data years 2019, 2020, and 2024
+
+```{r}
+#import clean datasheets
+clean_2019 <- read.csv(here("Data","clean_opihi_2019_ai.csv"))
+clean_2020 <- read.csv(here("Data","clean_opihi_2020_ai.csv"))
+clean_2024 <- read.csv(here("Data","clean_opihi_2024.csv"))
+```
+
+```{r}
+#manually clean them up a bit more
+clean_2019 <- clean_2019 |> 
+  clean_names() |> 
+  mutate(schoolname = case_when(
+    school == 1 ~ "Molokai High School",
+    school == 2 ~ "Ka Umeke Kaeo PCS",
+    school == 3 ~ "Highlands Intermediate",
+    school == 4 ~ "St. Anthony High School",
+    school == 5 ~ "UH Manoa",
+    school == 6 ~ "Stevenson Middle School",
+    school == "Hawaii Academy of Arts and Science" ~ "Hawaii Academy of Arts and Science", #somehow missed redacting this :( 
+    school == "Kilauea" ~ "Kilauea",
+    school == "Waianae High School" ~ "Waianae High School",
+    school == 10 ~ "Saint Louis School",
+    school == 11 ~ "Hawaii Technology Academy",
+    school == 12 ~ "Hilo Union Elementary",
+    school == 13 ~ "Waipahu High School",
+    school == 14 ~ "Voyager Public Charter School",
+    school == 15 ~ "Waimanalo School",
+    school == 16 ~ "Waipahu High School",
+    school == 17 ~ "Waimea High School",
+    school == 18 ~ "West Hawaii Explorations Academy PCS",
+    school == 19 ~ "Hongwanji Mission School",
+    school == 20 ~ "Waimea Canyon Middle School",
+    school == 21 ~ "Mare Ike"
+  )) #I probably could have done a for loop or something haha
+```
+
+```{r}
+#manually clean 2020 data
+clean_2020 <- clean_2020 |> 
+  clean_names() |> 
+  mutate(schoolname = case_when(
+    school == 1 ~ "Hawaii School for the Deaf and the Blind",
+    school == 2 ~ "Waimanalo School",
+    school == 3 ~ "Waipahu High School",
+    school == 4 ~ "UH Manoa",
+    school == 5 ~ "West Hawaii Explorations Academy PCS"
+  ))
+
+clean_2020$school <- as.character(clean_2020$school) #to join the school columns together below, both school columns have to be the same class
+
+#join 2020 and 2019 data together! 
+clean1920 <- full_join(clean_2019, clean_2020)
+```
+
+Joining 2019-2020 data with 2024 data!
+
+```{r}
+colnames(clean_2024)
+
+#rename column names to match to 2024
+clean1920 <- clean1920 |> 
+  rename(
+    #"end_time" = "stop_time",  #already ran this at first to test out my code, pulls an error if i try to run it again
+    "x_t_lines" = "number_of_transect_lines",
+    "longest_t_m" = "length_of_transect_lines",
+    "x_quad_t" = "number_of_quadrats_per_transect"
+    )
+
+
+clean1920$x_quad_t <- as.character(clean1920$x_quad_t) #to be able to join with other column, needs to be the same class 
+mei_allyears <- full_join(clean_2024, clean1920)
+
+write_csv(mei_allyears, "mei_allyears.csv")
+```
+
+### Research Question: Teacher/team effects: Does sampling completeness or consistency vary by teacher/team? Are some teams "better"? If so, how? Visualize information by different teams
