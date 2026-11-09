@@ -1,5 +1,29 @@
 # AIsprint_GroupD
 
+### OPIHI master file
+* link
+
+### Cleaning Scripts (add your quarto links here)
+* Nick (years cleaned)
+* Mei (years cleaned)
+* Mai (years cleaned)
+* Kat (years cleaned)
+
+
+### Quarto Report + figures + function  
+ * link
+
+### Group AI Developer Log
+ * link
+
+### Reflections
+ * link 
+
+
+
+
+
+
 ### Mai data notes:
 * Similar files for 2023: [opihi_master_long.csv](https://github.com/meiiiwamoto/AIsprint_GroupD/blob/main/Mai/data/opihi_master_long.csv) and [opihi_23_long.csv](https://github.com/meiiiwamoto/AIsprint_GroupD/blob/main/Mai/data/opihi_23_long.csv)
  * most recent file: opihi_23_long.csv
