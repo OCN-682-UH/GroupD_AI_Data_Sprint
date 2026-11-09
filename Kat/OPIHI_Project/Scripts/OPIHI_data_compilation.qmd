@@ -1,0 +1,2444 @@
+---
+title: "Combining All Group Data"
+author: "Kat Viehl"
+format:
+  html:
+    embed-resources: true
+    code-fold: true
+    code-summary: "**Show code**"
+    theme:
+      light: solar
+execute:
+  warning: false
+  message: false
+page-layout: full
+---
+
+### Combining Data from Group Members
+
+My group members and I have compiled data from all the years into similar formats. Now I will take them and stitch them together as best as possible.
+
+First, load libraries:
+
+```{r}
+
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(knitr)
+library(readxl)
+library(janitor)
+
+```
+
+
+
+Then, load data:
+
+```{r}
+
+data_04_05_08 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2004_2005_2008_combined_data.csv"))
+
+data_26 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026_combined_data.csv"))
+
+data_19_20_24 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "mei_clean_2019-2020-2024.csv"))
+
+data_17 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2017_sorted.csv"))
+
+data_18 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2018_sorted.csv"))
+
+data_06_07_16_23 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "opihi_master_combine.csv"))
+
+
+
+
+```
+
+OK- some of these are wide, and some of these are long. Let's make them all long:
+
+```{r}
+
+# datasets that are wide: data_17, data_18, data_19_20_24
+
+data_17 |> 
+  pivot_longer(cols = c(acanthophora_spicifera:zoanthid_sp),
+               names_to = "organism",
+               values_to = "count",
+               values_drop_na = TRUE) -> data_17_long
+
+data_18 |> 
+  pivot_longer(cols = c(acanthophora_spicifera:valonia_sp),
+               names_to = "organism",
+               values_to = "count",
+               values_drop_na = TRUE) -> data_18_long
+
+
+data_19_20_24 |> 
+  pivot_longer(cols = c(acanthophora_spicifera:unknown, unknown_bulbous_algae, actinopyga_varians:zoanthid_spp, hermit_crab),
+               names_to = "organism",
+               values_to = "count",
+               values_drop_na = TRUE) |> 
+  filter_out(count == 0) -> data_19_20_24_long
+
+
+
+```
+
+
+Then used AI to write a script to combine all six:
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+_(I accidentally asked for this with .csv files instead of dataframes at first)_
+
+write me a script in R that full joins six dataframes together by any columns that they share and creates a new .csv file from the result named "allyears_joined_data.csv"
+
+**Claude:**
+
+I've written `join_dfs.R`, the data frame version of the join script. Replace `df1` through `df6` in the `dfs` list with the names of your own data frames, which need to already be loaded in your R session. It needs the `dplyr`, `purrr`, and `readr` packages.
+
+It joins them one at a time, matching each time on every column name that the data joined so far shares with the next data frame. A message prints which columns were used for each join. It stops with an error if two tables have no shared columns, rather than silently matching on nothing.
+
+Unlike the CSV version, this one doesn't read everything as text first, so if a shared column has different types across data frames (say numeric in one and character in another), `full_join()` will throw a type error. If that happens, convert that column to the same type in each data frame before running the script, for example with `mutate(year = as.character(year))`.
+
+If your data frames share specific key columns, such as an ID and a year, tell me which ones and I'll set `by` explicitly, which is safer than matching on everything.
+
+:::
+
+
+```{r}
+
+# Full join six data frames on all columns they share,
+# then save the result to "allyears_joined_data.csv"
+
+## install.packages(c("dplyr", "purrr", "readr"))  # run once if needed
+#library(dplyr)
+#library(purrr)
+#library(readr)
+#
+## 1. Put your six data frames in a list (edit these names) -----------------
+## They must already be loaded in your R session.
+#dfs <- list(data_17_long, data_18_long, data_19_20_24_long, data_26, data_06_07_16_23, data_04_05_08)
+#
+## 2. Full join, one data frame at a time -----------------------------------
+## Each join matches on every column name that the data joined so far
+## shares with the next data frame (a "natural" join).
+#joined <- reduce(dfs, function(x, y) {
+#  shared <- intersect(names(x), names(y))
+#  if (length(shared) == 0) {
+#    stop("No shared columns found between the data joined so far and the next data frame.")
+#  }
+#  message("Joining on: ", paste(shared, collapse = ", "))
+#  full_join(x, y, by = shared)
+#})
+#
+## 3. Write the result ------------------------------------------------------
+#write_csv(joined, "allyears_joined_data.csv")
+#
+#message("Saved ", nrow(joined), " rows and ", ncol(joined),
+#        " columns to allyears_joined_data.csv")
+#
+```
+
+That gave an error so I copy-pasted it into Claude, which gave me this:
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Error in `full_join()`:
+! Can't join `x$start_time` with `y$start_time` due to incompatible types.
+ℹ `x$start_time` is a <character>.
+ℹ `y$start_time` is a <time>.
+
+**Claude:**
+
+That error means `start_time` is stored as text in one data frame and as a time in another, and `full_join()` won't match across types. I've updated `join_dfs.R` to fix it.
+
+The script now converts every column in every data frame to character before joining. After the join, `type_convert()` guesses the types again, so `start_time` should come back as a time and numbers as numbers.
+
+Since everything is compared as text, values must be formatted identically to match. For example, `"08:30:00"` in one data frame and `"8:30"` in another won't line up. If you see more rows than expected in the result, check the formatting of your shared columns first.
+
+Also, if any of your columns are date-times (POSIXct), converting them to character can drop the time portion for values at exactly midnight. If you have columns like that, let me know and I'll handle them separately.
+
+:::
+
+
+```{r}
+
+# Full join six data frames on all columns they share,
+# then save the result to "allyears_joined_data.csv"
+
+# install.packages(c("dplyr", "purrr", "readr"))  # run once if needed
+library(dplyr)
+library(purrr)
+library(readr)
+
+# 1. Put your six data frames in a list (edit these names) -----------------
+# They must already be loaded in your R session.
+dfs <- list(data_17_long, data_18_long, data_19_20_24_long, data_26, data_06_07_16_23, data_04_05_08)
+
+# 2. Convert every column to character ---------------------------------------
+# This avoids "incompatible types" errors when the same column is stored
+# differently in different data frames (e.g. character vs. time).
+# Types are restored in step 4.
+dfs <- map(dfs, ~ mutate(.x, across(everything(), as.character)))
+
+# 3. Full join, one data frame at a time -----------------------------------
+# Each join matches on every column name that the data joined so far
+# shares with the next data frame (a "natural" join).
+joined <- reduce(dfs, function(x, y) {
+  shared <- intersect(names(x), names(y))
+  if (length(shared) == 0) {
+    stop("No shared columns found between the data joined so far and the next data frame.")
+  }
+  message("Joining on: ", paste(shared, collapse = ", "))
+  full_join(x, y, by = shared)
+})
+
+# 4. Restore sensible column types -----------------------------------------
+joined <- type_convert(joined)
+
+# 5. Write the result ------------------------------------------------------
+write_csv(joined, here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "allyears_joined_data.csv"))
+
+message("Saved ", nrow(joined), " rows and ", ncol(joined),
+        " columns to allyears_joined_data.csv")
+
+
+```
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Write me a script that pulls all the column names from a dataframe and saves them to a .csv file.
+
+**Claude:**
+
+```r
+# Pull column names from a data frame and save them to a CSV
+col_names_df <- data.frame(column_name = names(df))
+
+write.csv(col_names_df, "column_names.csv", row.names = FALSE)
+```
+
+Replace `df` with the name of your data frame. This creates `column_names.csv` in your working directory, with one column called `column_name` and one row per column from your data frame. To save it somewhere else, give `write.csv()` a full path, such as `"C:/my_folder/column_names.csv"`.
+
+:::
+
+```{r}
+
+# Pull column names from a data frame and save them to a CSV
+col_names_df <- data.frame(column_name = names(joined))
+
+col_names_sorted <- col_names_df |> 
+  arrange(column_name)
+
+
+print(col_names_sorted)
+
+
+col_names_sorted |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "column_names.csv"))
+
+
+joined |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "alljoined_data.csv"))
+
+
+
+# some of the columns are incomprehensible or have no data, so I am going to remove them.
+joined |> 
+  select(!c(x_x, X, x_y, x_1, x_2, x_3)) -> all_joined
+
+
+colnames(all_joined)
+
+
+```
+
+
+Cool, so many things that match up!
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+write me a script in R that removes the string "meta_" from every column name in a dataframe, then merges any columns that now have the same name.
+
+**Claude:**
+
+I've written `remove_meta_merge.R`. Replace `df` with the name of your data frame. The merged result is saved as `df_merged`, and your original `df` is left unchanged only if you rename it in step 1, since the script reassigns `df` as it goes. The script needs the `dplyr` package.
+
+It strips `"meta_"` from every column name, wherever it appears in the name. For example, `meta_id` and `id` both become `id`. Columns that now share a name are combined into one by taking the first non-missing value in each row, going left to right. Column order follows the first appearance of each name.
+
+If two same-named columns both have a value in the same row and the values differ, the leftmost column wins. If your columns can conflict like that, check them before merging. If the duplicate columns have different types (for example, one numeric and one character), they're compared as text, so the merged column ends up as character.
+
+If you only want to remove `"meta_"` when it's at the start of the name, change the `gsub()` line to `gsub("^meta_", "", names(df))`.
+
+:::
+
+
+
+```{r}
+
+# Remove "meta_" from every column name, then merge columns that now share a name
+
+# install.packages("dplyr")  # run once if needed
+library(dplyr)
+
+# 1. Start from your data frame (edit the name) ----------------------------
+# as.data.frame() makes sure duplicate column names are allowed in step 2.
+df <- as.data.frame(all_joined)
+
+# 2. Remove "meta_" from every column name ---------------------------------
+names(df) <- gsub("meta_", "", names(df), fixed = TRUE)
+
+# 3. Merge columns that now have the same name -----------------------------
+# For each set of same-named columns, take the first non-missing value
+# in each row (left to right).
+new_names <- unique(names(df))
+
+merged <- lapply(new_names, function(nm) {
+  cols <- unname(as.list(df[, names(df) == nm, drop = FALSE]))
+
+  # If the duplicate columns have different types, compare them as text
+  types <- vapply(cols, function(x) class(x)[1], character(1))
+  if (length(unique(types)) > 1) cols <- lapply(cols, as.character)
+
+  Reduce(coalesce, cols)
+})
+names(merged) <- new_names
+
+all_joined_merged <- as.data.frame(merged, check.names = FALSE, stringsAsFactors = FALSE)
+
+# 4. Check the result ------------------------------------------------------
+message(ncol(df), " columns reduced to ", ncol(all_joined_merged))
+print(names(all_joined_merged))
+
+# Optional: save to disk
+# write.csv(df_merged, "df_merged.csv", row.names = FALSE)
+
+```
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Great! Write me a script in R that does the same exact thing, but with the string "x_"
+
+**Claude:**
+
+I've written `remove_x_merge.R`. It works the same way as the `meta_` version: replace `df` in step 1 with the name of your data frame, and the merged result is saved as `df_merged`. This version also works on a copy (`df_work`), so your original data frame isn't changed.
+
+`"x_"` is a much shorter string than `"meta_"`, so it's more likely to appear inside other column names. For example, `max_value` would become `mavalue`, and `index_id` would become `indeid`. If you only want to strip it from the start of a name (like `x_id` becoming `id`), use the commented-out `gsub("^x_", ...)` line in step 2 in place of the one below it.
+
+:::
+
+
+
+
+
+```{r}
+
+# Remove "x_" from every column name, then merge columns that now share a name
+
+# install.packages("dplyr")  # run once if needed
+library(dplyr)
+
+# 1. Make a working copy of your data frame (edit the name) ----------------
+# as.data.frame() makes sure duplicate column names are allowed in step 2.
+df_work <- as.data.frame(all_joined_merged)
+
+# 2. Remove "x_" from every column name ------------------------------------
+# Note: this removes "x_" anywhere in a name, so "max_value" would become
+# "mavalue". To remove it only at the start of a name, use this instead:
+# names(df_work) <- gsub("^x_", "", names(df_work))
+names(df_work) <- gsub("x_", "", names(df_work), fixed = TRUE)
+
+# 3. Merge columns that now have the same name -----------------------------
+# For each set of same-named columns, take the first non-missing value
+# in each row (left to right).
+new_names <- unique(names(df_work))
+
+merged <- lapply(new_names, function(nm) {
+  cols <- unname(as.list(df_work[, names(df_work) == nm, drop = FALSE]))
+
+  # If the duplicate columns have different types, compare them as text
+  types <- vapply(cols, function(x) class(x)[1], character(1))
+  if (length(unique(types)) > 1) cols <- lapply(cols, as.character)
+
+  Reduce(coalesce, cols)
+})
+names(merged) <- new_names
+
+final_df_merged <- as.data.frame(merged, check.names = FALSE, stringsAsFactors = FALSE)
+
+# 4. Check the result ------------------------------------------------------
+message(ncol(df_work), " columns reduced to ", ncol(final_df_merged))
+print(names(final_df_merged))
+
+# Optional: save to disk
+# write.csv(df_merged, "df_merged.csv", row.names = FALSE)
+
+
+```
+
+```{r}
+
+final_df_merged |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "cleaned_alljoined_data.csv"))
+
+
+colnames(final_df_merged)
+
+
+```
+
+
+
+OK, time to unite some columns. So these are columns that need to be joined:
+
+ - school + schoolname
+ 
+ - transect_number + transect
+ 
+ - number_of_transect_lines + n_transect_lines
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Write me an R script that will join two specific columns in a dataframe if, after dropping NAs, the two columns do not overlap in data.
+
+**Claude:**
+
+This script checks whether the two columns overlap, and only merges them if they don't. I've read "overlap" as **the two columns never both have a value in the same row** (after ignoring `NA`s), since that's the case where merging loses nothing. If you meant something different, see the note below the code.
+
+```r
+merge_if_no_overlap <- function(df, col1, col2, new_col = "merged",
+                                drop_originals = TRUE) {
+  a <- df[[col1]]
+  b <- df[[col2]]
+
+  # Overlap = any row where both columns have a non-NA value
+  overlap_rows <- which(!is.na(a) & !is.na(b))
+
+  if (length(overlap_rows) > 0) {
+    warning(sprintf(
+      "Columns '%s' and '%s' overlap in %d row(s) (e.g., row %d). No merge performed.",
+      col1, col2, length(overlap_rows), overlap_rows[1]
+    ))
+    return(df)
+  }
+
+  # No overlap: take whichever value is present (keeps the original data type)
+  merged <- a
+  merged[is.na(a)] <- b[is.na(a)]
+
+  df[[new_col]] <- merged
+  if (drop_originals) {
+    df[, c(col1, col2)] <- NULL
+  }
+  df
+}
+
+# --- Example 1: no overlap -> merges ---
+df_ok <- data.frame(
+  id   = 1:4,
+  col1 = c("A", NA, "C", NA),
+  col2 = c(NA, "B", NA, NA),
+  stringsAsFactors = FALSE
+)
+result_ok <- merge_if_no_overlap(df_ok, "col1", "col2", new_col = "merged")
+print(result_ok)
+
+# --- Example 2: overlap in row 1 -> warns and leaves df unchanged ---
+df_bad <- data.frame(
+  id   = 1:3,
+  col1 = c("A", NA, "C"),
+  col2 = c("X", "B", NA),
+  stringsAsFactors = FALSE
+)
+result_bad <- merge_if_no_overlap(df_bad, "col1", "col2")
+print(result_bad)
+```
+
+**How it works:**
+
+- **Overlap check:** `!is.na(a) & !is.na(b)` flags rows where both columns hold data. If any exist, the function warns you (with the count and first offending row) and returns the data frame untouched.
+- **Merge:** when there's no overlap, each row has at most one value, so filling the `NA`s in `col1` from `col2` gives the combined column. Rows where both are `NA` stay `NA`.
+- **Options:** `new_col` sets the name of the result, and `drop_originals = FALSE` keeps the original two columns.
+
+**If you meant a different kind of overlap:** some people mean the two columns share the same *values* anywhere (e.g., "A" appears in both, in any rows), not just in the same row. To check that instead, replace the overlap test with:
+
+```r
+shared_values <- intersect(na.omit(a), na.omit(b))
+if (length(shared_values) > 0) { ... }
+```
+
+And if both columns can have values in the same row under that definition, you'd join them as text (like the `paste()` approach from before) rather than filling gaps. Let me know which you need and I can adjust it.
+
+
+:::
+
+
+
+
+
+```{r}
+
+merge_if_no_overlap <- function(df, col1, col2, new_col = "merged",
+                                drop_originals = TRUE) {
+  a <- df[[col1]]
+  b <- df[[col2]]
+
+  # Overlap = any row where both columns have a non-NA value
+  overlap_rows <- which(!is.na(a) & !is.na(b))
+
+  if (length(overlap_rows) > 0) {
+    warning(sprintf(
+      "Columns '%s' and '%s' overlap in %d row(s) (e.g., row %d). No merge performed.",
+      col1, col2, length(overlap_rows), overlap_rows[1]
+    ))
+    return(df)
+  }
+
+  # No overlap: take whichever value is present (keeps the original data type)
+  merged <- a
+  merged[is.na(a)] <- b[is.na(a)]
+
+  df[[new_col]] <- merged
+  if (drop_originals) {
+    df[, c(col1, col2)] <- NULL
+  }
+  df
+}
+
+
+
+
+# this is to remove the random numbers in the school column:
+final_df_merged <- final_df_merged |>
+  mutate(
+    school = if_else(
+      grepl("^\\s*-?[0-9]+(\\.[0-9]+)?\\s*$", school),
+      NA_character_, school
+    ))
+
+
+
+# - school + schoolname
+# 
+# - transect_number + transect
+# 
+# - number_of_transect_lines + n_transect_lines
+
+# merge school with schoolname:
+final_df_merged <- merge_if_no_overlap(final_df_merged, "school", "schoolname", new_col = "school")
+
+
+
+
+
+
+```
+
+
+Ok so that didn't work because some schools are repeated in school & schoolname.
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Write me an R script that will join two specific columns in a dataframe if, after dropping NAs, the two columns do not overlap in data. If the two columns contain the exact same data, merge them anyway.
+
+**Claude:**
+
+This version merges the columns when there's no overlap, or when they contain exactly the same data. Otherwise it warns and returns the data frame unchanged.
+
+```r
+merge_if_compatible <- function(df, col1, col2, new_col = "merged",
+                                drop_originals = TRUE,
+                                allow_agreeing_overlap = FALSE) {
+  a <- df[[col1]]
+  b <- df[[col2]]
+
+  # Avoid factor comparison problems
+  if (is.factor(a)) a <- as.character(a)
+  if (is.factor(b)) b <- as.character(b)
+
+  # Rows where both columns have a value
+  both <- !is.na(a) & !is.na(b)
+
+  # Case 1: no overlap (no row has a value in both columns)
+  no_overlap <- !any(both)
+
+  # Case 2: exact same data (same NA positions and same values everywhere)
+  exact_same <- identical(is.na(a), is.na(b)) &&
+    all(a[!is.na(a)] == b[!is.na(b)])
+
+  # Optional relaxed rule: overlapping rows are allowed if the values agree
+  agreeing_overlap <- allow_agreeing_overlap && all(a[both] == b[both])
+
+  if (!(no_overlap || exact_same || agreeing_overlap)) {
+    warning(sprintf(
+      "Columns '%s' and '%s' overlap with different values in %d row(s) (e.g., row %d). No merge performed.",
+      col1, col2, sum(both & a != b), which(both & a != b)[1]
+    ))
+    return(df)
+  }
+
+  # Merge: take col1, fill its NAs from col2
+  merged <- a
+  merged[is.na(a)] <- b[is.na(a)]
+
+  df[[new_col]] <- merged
+  if (drop_originals) df[, c(col1, col2)] <- NULL
+  df
+}
+
+# --- Example 1: no overlap -> merges ---
+df1 <- data.frame(id = 1:4,
+                  col1 = c("A", NA, "C", NA),
+                  col2 = c(NA, "B", NA, NA))
+df1 |> merge_if_compatible("col1", "col2") |> print()
+
+# --- Example 2: identical columns -> merges anyway ---
+df2 <- data.frame(id = 1:3,
+                  col1 = c("A", "B", NA),
+                  col2 = c("A", "B", NA))
+df2 |> merge_if_compatible("col1", "col2") |> print()
+
+# --- Example 3: conflicting overlap -> warns, df unchanged ---
+df3 <- data.frame(id = 1:3,
+                  col1 = c("A", NA, "C"),
+                  col2 = c("X", "B", NA))
+df3 |> merge_if_compatible("col1", "col2") |> print()
+```
+
+**How the rules work:**
+
+- **No overlap:** no row has a value in both columns, so merging loses nothing.
+- **Exact same data:** the columns have `NA`s in the same rows and equal values everywhere else. This is the case the overlap check alone would reject, which is why it gets its own test.
+- **Anything else** (a row where both columns have different values) triggers the warning and leaves the data frame untouched.
+
+**Optional relaxed rule:** by default, "exact same" means the whole columns match, including where the `NA`s fall. If you'd rather merge whenever the rows that overlap agree with each other, even if one column has extra values the other lacks, use `allow_agreeing_overlap = TRUE`:
+
+```r
+df |> merge_if_compatible("col1", "col2", allow_agreeing_overlap = TRUE)
+```
+
+**Notes:**
+
+- Factor columns are converted to character before merging, so the merged column is text.
+- Use `drop_originals = FALSE` to keep the original two columns, and `new_col` to name the result.
+- Values are compared with `==`, so `"a"` and `"A"` count as different.
+
+
+:::
+
+
+```{r}
+
+merge_if_compatible <- function(df, col1, col2, new_col = "merged",
+                                drop_originals = TRUE,
+                                allow_agreeing_overlap = FALSE) {
+  a <- df[[col1]]
+  b <- df[[col2]]
+
+  # Avoid factor comparison problems
+  if (is.factor(a)) a <- as.character(a)
+  if (is.factor(b)) b <- as.character(b)
+
+  # Rows where both columns have a value
+  both <- !is.na(a) & !is.na(b)
+
+  # Case 1: no overlap (no row has a value in both columns)
+  no_overlap <- !any(both)
+
+  # Case 2: exact same data (same NA positions and same values everywhere)
+  exact_same <- identical(is.na(a), is.na(b)) &&
+    all(a[!is.na(a)] == b[!is.na(b)])
+
+  # Optional relaxed rule: overlapping rows are allowed if the values agree
+  agreeing_overlap <- allow_agreeing_overlap && all(a[both] == b[both])
+
+  if (!(no_overlap || exact_same || agreeing_overlap)) {
+    warning(sprintf(
+      "Columns '%s' and '%s' overlap with different values in %d row(s) (e.g., row %d). No merge performed.",
+      col1, col2, sum(both & a != b), which(both & a != b)[1]
+    ))
+    return(df)
+  }
+
+  # Merge: take col1, fill its NAs from col2
+  merged <- a
+  merged[is.na(a)] <- b[is.na(a)]
+
+  df[[new_col]] <- merged
+  if (drop_originals) df[, c(col1, col2)] <- NULL
+  df
+}
+
+# merge school names:
+final_df_merged <- merge_if_compatible(final_df_merged, "school", "schoolname", new_col = "name_of_school", allow_agreeing_overlap = TRUE)
+
+# - transect_number + transect
+# 
+# - number_of_transect_lines + n_transect_lines
+
+final_df_merged <- merge_if_compatible(final_df_merged, "transect_number", "transect", new_col = "transect_n", allow_agreeing_overlap = TRUE)
+
+
+final_df_merged <- merge_if_compatible(final_df_merged, "number_of_transect_lines", "n_transect_lines", new_col = "total_transect_n", allow_agreeing_overlap = TRUE)
+
+
+
+```
+
+
+So it looks like the column "unknown_bulbous_algae" is completely NA's, so I will remove it:
+
+```{r}
+
+
+# remove pointless columns
+final_df_merged |> 
+  select(!unknown_bulbous_algae) -> final_df_merged
+
+```
+
+
+OK, more merging and cleaning:
+
+```{r}
+
+final_df_merged <- merge_if_compatible(final_df_merged, "total_transect_n", "t_lines", new_col = "number_of_transect_lines", allow_agreeing_overlap = TRUE)
+
+# I am going to remove a few columns that are unnecessary:
+# source file is only present for a few of the files, so it doesn't help identify data any more than the date does.
+# sheet does not provide any meaningful information
+# record_type also does not provide any meaningful information
+# transect point seems broken, randomly says true and false
+# position_m also seems broken, random true/false
+# match_status and matched_names are artifacts from previous merges
+# metadata_row is also a merge artifact
+
+final_df_merged |> 
+  select(!c(source_file, 
+            sheet, 
+            record_type, 
+            transect_point, 
+            position_m, 
+            match_status, 
+            matched_names, 
+            metadata_row)) -> final_df_merged
+
+
+final_df_merged <- merge_if_compatible(final_df_merged, "site", "location", new_col = "site_name", allow_agreeing_overlap = TRUE)
+
+
+final_df_merged <- merge_if_compatible(final_df_merged, "stop_time", "end_time", new_col = "time_end", allow_agreeing_overlap = TRUE)
+
+
+
+# more removal:
+# checker 1 and checker 2 contain no data except NAs:
+
+final_df_merged |> 
+  select(!c(checker_1,
+            checker_2)) -> final_df_merged
+
+
+final_df_merged <- merge_if_compatible(final_df_merged, "team_leader", "recorder", new_col = "team_lead_or_recorder", allow_agreeing_overlap = TRUE)
+
+
+final_df_merged <- merge_if_compatible(final_df_merged, "total_points", "transect_points", new_col = "total_transect_points", allow_agreeing_overlap = TRUE)
+
+# fixing some weird column names
+final_df_merged |> 
+  rename(stop_time = time_end) |> 
+  rename(total_number_of_transect_points = total_transect_points) |> 
+  rename(total_number_of_transect_lines = number_of_transect_lines) |> 
+  rename(transect_number = transect_n) -> final_df_merged
+
+final_df_merged <- merge_if_compatible(final_df_merged, "length_of_transect_lines", "transect_line_length", new_col = "length_of_transect_line", allow_agreeing_overlap = TRUE)
+
+final_df_merged <- merge_if_compatible(final_df_merged, "number_of_quadrats_per_transect", "quadrats_per_transect", new_col = "n_quadrats_per_transect", allow_agreeing_overlap = TRUE)
+
+
+# removing "original_labels" column as it is redundant
+
+final_df_merged |> 
+  select(!original_labels) -> final_df_merged
+
+# removing type as it is also redundant. It is pretty obvious that rocks and sand are substrate
+final_df_merged |> 
+  select(!type) -> final_df_merged
+
+final_df_merged <- merge_if_compatible(final_df_merged, "organism", "organism_substrate", new_col = "organism_or_substrate_type", allow_agreeing_overlap = TRUE)
+
+
+
+```
+
+Ok, so now we are down to 49 columns. These columns are as follows:
+
+```{r}
+
+colnames(final_df_merged)
+
+```
+
+Let me rearrange the columns
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+could you put these in a more intuitive order?
+
+```
+ [1] "date"                                                            
+ [2] "latitude"                                                        
+ [3] "longitude"                                                       
+ [4] "data_entry_by"                                                   
+ [5] "position_on_transect_m"                                          
+ [6] "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only"
+ [7] "sediment_depth"                                                  
+ [8] "team_members"                                                    
+ [9] "stressful_events"                                                
+[10] "low_tide_time"                                                   
+[11] "low_tide_height"                                                 
+[12] "in_field_group"                                                  
+[13] "longest_t_m"                                                     
+[14] "dist_between_t_pts_for_q"                                        
+[15] "quad_t"                                                          
+[16] "start_time"                                                      
+[17] "weather"                                                         
+[18] "rain_events"                                                     
+[19] "wave_height"                                                     
+[20] "wind_speed"                                                      
+[21] "visitors"                                                        
+[22] "fishing"                                                         
+[23] "collecting"                                                      
+[24] "what_collecting"                                                 
+[25] "notes"                                                           
+[26] "count"                                                           
+[27] "point_spacing"                                                   
+[28] "quadrat_sample"                                                  
+[29] "group"                                                           
+[30] "quadrat_location_m"                                              
+[31] "category"                                                        
+[32] "quadrat_total_points"                                            
+[33] "method"                                                          
+[34] "p1_or_p2"                                                        
+[35] "points"                                                          
+[36] "quadrat"                                                         
+[37] "year"                                                            
+[38] "point_spacing_m"                                                 
+[39] "point_m"                                                         
+[40] "name_of_school"                                                  
+[41] "transect_number"                                                 
+[42] "total_number_of_transect_lines"                                  
+[43] "site_name"                                                       
+[44] "stop_time"                                                       
+[45] "team_lead_or_recorder"                                           
+[46] "total_number_of_transect_points"                                 
+[47] "length_of_transect_line"                                         
+[48] "n_quadrats_per_transect"                                         
+[49] "organism_or_substrate_type"   
+```
+
+**Claude:**
+
+Here's a reordering that groups the columns by purpose: when and where, who, conditions, human activity, transect design, quadrat/point details, then observations.
+
+```r
+library(dplyr)
+
+col_order <- c(
+  # When and where
+  "date", "year", "start_time", "stop_time",
+  "site_name", "latitude", "longitude",
+  "name_of_school", "in_field_group", "group",
+
+  # Who
+  "team_members", "team_lead_or_recorder", "data_entry_by",
+
+  # Conditions
+  "low_tide_time", "low_tide_height",
+  "weather", "rain_events", "wave_height", "wind_speed",
+  "stressful_events",
+
+  # Human activity
+  "visitors", "fishing", "collecting", "what_collecting",
+
+  # Transect design
+  "transect_number", "total_number_of_transect_lines",
+  "length_of_transect_line", "longest_t_m",
+  "total_number_of_transect_points", "dist_between_t_pts_for_q",
+  "quad_t", "n_quadrats_per_transect",
+  "method", "point_spacing", "point_spacing_m",
+
+  # Quadrat and point details
+  "quadrat", "quadrat_sample", "quadrat_location_m",
+  "quadrat_total_points", "position_on_transect_m",
+  "point_m", "points", "p1_or_p2",
+
+  # Observations
+  "organism_or_substrate_type", "category", "count",
+  "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only",
+  "sediment_depth", "notes"
+)
+
+df <- df |>
+  select(any_of(col_order), everything())
+```
+
+- `any_of()` ignores names that don't exist in your data frame (for example, after a merge removes one), instead of throwing an error.
+- `everything()` tacks on any columns not in the list, so nothing gets dropped.
+- If you only want to check the order first, run `setdiff(names(df), col_order)` to see which columns aren't covered.
+
+A few placements were judgment calls: `group` and `in_field_group` could also belong under "Who", and `method` could sit with the observations. Move them to whichever section fits how you use the data.
+
+:::
+
+```{r}
+
+
+col_order <- c(
+  # When and where
+  "date", "year", "start_time", "stop_time",
+  "site_name", "latitude", "longitude",
+  "name_of_school", "in_field_group", "group",
+
+  # Who
+  "team_members", "team_lead_or_recorder", "data_entry_by",
+
+  # Conditions
+  "low_tide_time", "low_tide_height",
+  "weather", "rain_events", "wave_height", "wind_speed",
+  "stressful_events",
+
+  # Human activity
+  "visitors", "fishing", "collecting", "what_collecting",
+
+  # Transect design
+  "transect_number", "total_number_of_transect_lines",
+  "length_of_transect_line", "longest_t_m",
+  "total_number_of_transect_points", "dist_between_t_pts_for_q",
+  "quad_t", "n_quadrats_per_transect",
+  "method", "point_spacing", "point_spacing_m",
+
+  # Quadrat and point details
+  "quadrat", "quadrat_sample", "quadrat_location_m",
+  "quadrat_total_points", "position_on_transect_m",
+  "point_m", "points", "p1_or_p2",
+
+  # Observations
+  "organism_or_substrate_type", "category", "count",
+  "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only",
+  "sediment_depth", "notes"
+)
+
+final_df_merged <- final_df_merged |>
+  select(any_of(col_order), everything())
+
+```
+
+
+Nice! Okay, after looking at the re-ordered file, I have identified more columns that can be joined.
+
+```{r}
+
+final_df_merged <- merge_if_compatible(final_df_merged, "position_on_transect_m", "point_m", new_col = "point_on_transect_m", allow_agreeing_overlap = TRUE)
+
+final_df_merged <- merge_if_compatible(final_df_merged, "point_on_transect_m", "points", new_col = "position_on_transect_m", allow_agreeing_overlap = TRUE)
+
+# point_spacing_m seems pointless (pun intended), point_spacing says it already, but needs to have the units removed.
+
+final_df_merged |> 
+  select(!point_spacing_m) -> final_df_merged
+  
+
+```
+
+
+Now I need to convert the "point_spacing" column to numbers so the units and fractions do not mess up figuremaking.
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+I have a column with the following unique entries: "1 meter", "2 meters", "1/2 meter", "3 meters", "5 meters", "1.5 meters", "4 meters", "1/4 meter", "2.5 meters". Write me an R script that will remove the " meter" and " meters" part of each entry, and convert any fractions to decimals. Do not keep the original column.
+
+**Claude:**
+
+```r
+library(dplyr)
+
+# Converts entries like "1/2 meter" or "2.5 meters" to numeric values
+clean_meters <- function(x) {
+  x <- x |>
+    as.character() |>
+    sub(pattern = "\\s*meters?\\s*$", replacement = "", ignore.case = TRUE) |>
+    trimws()
+
+  vapply(x, function(s) {
+    if (is.na(s) || s == "") return(NA_real_)
+    if (grepl("/", s, fixed = TRUE)) {
+      parts <- as.numeric(strsplit(s, "/", fixed = TRUE)[[1]])
+      parts[1] / parts[2]
+    } else {
+      as.numeric(s)
+    }
+  }, numeric(1), USE.NAMES = FALSE)
+}
+
+# Apply it, overwriting the original column (replace `point_spacing` with your column name)
+df <- df |>
+  mutate(point_spacing = clean_meters(point_spacing))
+
+# Quick test with your unique entries
+test <- c("1 meter", "2 meters", "1/2 meter", "3 meters", "5 meters",
+          "1.5 meters", "4 meters", "1/4 meter", "2.5 meters")
+clean_meters(test)
+#> [1] 1.0 2.0 0.5 3.0 5.0 1.5 4.0 0.25 2.5
+```
+
+- **Original column:** `mutate()` assigns the result back to the same column name, so the original text version is replaced, not kept.
+- **Result type:** the column becomes numeric, so you can do math on it. The unit (meters) is now implied, so you may want to rename the column to something like `point_spacing_m`.
+- **Fractions:** anything with a `/` is split and divided, so `"1/2"` becomes `0.5` and `"1/4"` becomes `0.25`.
+- **Other entries:** `NA`s stay `NA`. Entries the function can't parse come back as `NA` with a warning, so you'll know if an unexpected value slips in. Mixed numbers like `"1 1/2 meters"` aren't handled, since none appear in your list.
+
+If you'd rather use base R without `dplyr`, replace the `mutate()` call with `df$point_spacing <- clean_meters(df$point_spacing)`.
+
+:::
+
+
+```{r}
+
+
+# Converts entries like "1/2 meter" or "2.5 meters" to numeric values
+clean_meters <- function(x) {
+  x <- x |>
+    as.character() |>
+    sub(pattern = "\\s*meters?\\s*$", replacement = "", ignore.case = TRUE) |>
+    trimws()
+
+  vapply(x, function(s) {
+    if (is.na(s) || s == "") return(NA_real_)
+    if (grepl("/", s, fixed = TRUE)) {
+      parts <- as.numeric(strsplit(s, "/", fixed = TRUE)[[1]])
+      parts[1] / parts[2]
+    } else {
+      as.numeric(s)
+    }
+  }, numeric(1), USE.NAMES = FALSE)
+}
+
+# Apply it, overwriting the original column (replace `point_spacing` with your column name)
+final_df_merged <- final_df_merged |>
+  mutate(point_spacing = clean_meters(point_spacing))
+
+```
+
+
+
+OK, save progress as I must pause for tonight:
+
+```{r}
+
+final_df_merged |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-07_clean_combined.csv"))
+
+
+```
+
+
+
+Back at it today! 
+
+So we need to do the following things:
+
+ 1. 
+
+```{r}
+
+final_df_merged |> 
+  count(quadrat_sample, sort = TRUE) -> to_be_separated
+
+
+to_be_separated |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "to_separate.csv"))
+
+```
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Can you write me an R script that looks for a column containing three sets of data named "quadrat_sample" in a dataframe, and separates the data into invidual "transect", "quadrat", and "point" columns in that same dataframe. Sometimes the data is formatted differently. I have attached a .csv that lists all the different entries in this column.
+
+
+**Claude:**
+
+Quick update: I've been checking the script against your CSV and fixed a bug where negative point values like `-1.00` lost their minus sign. Here's the finished file.
+
+The script is in `separate_quadrat_sample.R`. It defines a function that takes your dataframe, finds `quadrat_sample`, and adds `transect`, `quadrat`, and `point` columns to the same dataframe.
+
+```r
+source("separate_quadrat_sample.R")
+df <- separate_quadrat_sample(df)
+```
+
+Your CSV has two formats, plus `NA`:
+- `T-1 Q-2 at point 4.00`
+- `transect-2 quadrat-1 at point 0.00`
+- `NA` stays `NA` in all three new columns
+
+The pattern ignores case and accepts `T` or `transect` and `Q` or `quadrat`. It also tolerates `-`, `_`, or a space between a label and its number, and it makes "at" optional. That should cover most other variants you might run into. Point values can be negative or decimal, so `-1.00`, `8.50`, and `4.25` all parse correctly. `transect` and `quadrat` come out as integers, and `point` as numeric.
+
+If a non-missing entry doesn't match the pattern, it gets `NA` in the new columns and the function prints a warning listing those values, so nothing is silently lost.
+
+R isn't available in my environment, so I couldn't run the script itself. I tested the same regular expression in Python against all 472 non-NA entries in your CSV, and every one matched, including the negative point value. The script uses base R only, so no packages need installing. If you hit any trouble, send me the output and I'll fix it.
+
+If your column has a different name, pass it as the second argument: `separate_quadrat_sample(df, "other_name")`.
+
+:::
+
+
+
+```{r}
+
+#' Split a "quadrat_sample" column into transect, quadrat, and point columns
+#'
+#' Handles entries such as:
+#'   "T-1 Q-2 at point 4.00"
+#'   "transect-2 quadrat-1 at point 0.00"
+#'   NA (left as NA in all three new columns)
+#'
+#' The pattern is deliberately flexible: it is case-insensitive, accepts
+#' "T" or "transect" and "Q" or "quadrat", tolerates "-", "_", or a space
+#' (or nothing) between the label and its number, makes "at" optional, and
+#' allows negative or decimal point values (e.g. "-1.00", "8.50").
+#'
+#' Base R only; no packages needed.
+
+separate_quadrat_sample <- function(df, col = "quadrat_sample") {
+
+  if (!col %in% names(df)) {
+    stop("Column '", col, "' not found in the dataframe.")
+  }
+
+  x <- trimws(as.character(df[[col]]))
+
+  pattern <- paste0(
+    "^(?:transect|t)\\s*[-_ ]?\\s*(\\d+)\\s+",       # transect number
+    "(?:quadrat|q)\\s*[-_ ]?\\s*(\\d+)\\s+",         # quadrat number
+    "(?:at\\s+)?point\\s*(-?\\d+(?:\\.\\d+)?)$"  # point value
+  )
+
+  # Capture groups for every entry (NA where there is no match)
+  m <- regmatches(x, regexec(pattern, x, ignore.case = TRUE, perl = TRUE))
+
+  pull_group <- function(i) {
+    vapply(m, function(z) if (length(z) == 4) z[i + 1] else NA_character_,
+           character(1))
+  }
+
+  df$transect_col <- as.integer(pull_group(1))
+  df$quadrat_col  <- as.integer(pull_group(2))
+  df$point_col    <- as.numeric(pull_group(3))
+
+  # Report anything that was non-missing but didn't match the pattern
+  unmatched <- !is.na(x) & x != "" & is.na(df$transect_col)
+  if (any(unmatched)) {
+    warning(
+      sum(unmatched), " row(s) in '", col, "' did not match the expected ",
+      "format and were set to NA. Unmatched values:\n  ",
+      paste(unique(x[unmatched]), collapse = "\n  ")
+    )
+  }
+
+  df
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- read.csv("your_data.csv", stringsAsFactors = FALSE)
+# df <- separate_quadrat_sample(df)              # uses "quadrat_sample"
+# df <- separate_quadrat_sample(df, "other_col") # or specify another name
+#
+# Quick test with the formats in your file:
+# test <- data.frame(quadrat_sample = c("T-1 Q-1 at point 0.00",
+#                                       "transect-2 quadrat-4 at point 3.00",
+#                                       "T-5 Q-1 at point -1.00",
+#                                       "T-5 Q-3 at point 8.50",
+#                                       NA))
+# separate_quadrat_sample(test)
+
+
+
+final_df_merged_test <- separate_quadrat_sample(final_df_merged)
+
+
+final_df_merged_test |> 
+  select(!quadrat_sample) -> final_df_toclean
+
+
+colnames(final_df_toclean)
+
+
+```
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Write me a script in R that reorders these columns in an intuitive way:  [1] "date"                                                            
+ [2] "year"                                                            
+ [3] "start_time"                                                      
+ [4] "stop_time"                                                       
+ [5] "site_name"                                                       
+ [6] "latitude"                                                        
+ [7] "longitude"                                                       
+ [8] "name_of_school"                                                  
+ [9] "in_field_group"                                                  
+[10] "group"                                                           
+[11] "team_members"                                                    
+[12] "team_lead_or_recorder"                                           
+[13] "data_entry_by"                                                   
+[14] "low_tide_time"                                                   
+[15] "low_tide_height"                                                 
+[16] "weather"                                                         
+[17] "rain_events"                                                     
+[18] "wave_height"                                                     
+[19] "wind_speed"                                                      
+[20] "stressful_events"                                                
+[21] "visitors"                                                        
+[22] "fishing"                                                         
+[23] "collecting"                                                      
+[24] "what_collecting"                                                 
+[25] "transect_number"                                                 
+[26] "total_number_of_transect_lines"                                  
+[27] "length_of_transect_line"                                         
+[28] "longest_t_m"                                                     
+[29] "total_number_of_transect_points"                                 
+[30] "dist_between_t_pts_for_q"                                        
+[31] "quad_t"                                                          
+[32] "n_quadrats_per_transect"                                         
+[33] "method"                                                          
+[34] "point_spacing"                                                   
+[35] "quadrat"                                                         
+[36] "quadrat_location_m"                                              
+[37] "quadrat_total_points"                                            
+[38] "p1_or_p2"                                                        
+[39] "organism_or_substrate_type"                                      
+[40] "category"                                                        
+[41] "count"                                                           
+[42] "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only"
+[43] "sediment_depth"                                                  
+[44] "notes"                                                           
+[45] "position_on_transect_m"                                          
+[46] "transect_col"                                                    
+[47] "quadrat_col"                                                     
+[48] "point_col"
+
+**Claude:**
+
+I wrote `reorder_columns.R`, which defines a `reorder_columns(df)` function. Use it like this:
+
+```r
+source("reorder_columns.R")
+df <- reorder_columns(df)
+```
+
+It arranges your 48 columns into six groups that run from general to specific:
+
+1. **When and where:** date, year, start/stop time, site name, latitude, longitude
+2. **Who:** school, field group, group, team members, team lead/recorder, data entry
+3. **Site conditions and activity:** tide, weather, rain, waves, wind, stressful events, visitors, fishing, collecting
+4. **Survey design:** method, number and length of transect lines, transect points, quadrat spacing, point spacing
+5. **Sample location:** transect, then quadrat, then point (including your new `transect_col`, `quadrat_col`, and `point_col`), plus the position and total-points columns
+6. **Observations:** organism or substrate type, category, count, the Mamala Bay proximity column, sediment depth, notes
+
+Columns missing from your dataframe are skipped, and any column not on my list goes at the end, so nothing gets dropped. The function also prints a message listing both cases.
+
+I couldn't run R here, so this is untested, but it only uses basic indexing.
+
+You now have both `transect_number` and `transect_col`, and both `quadrat` and `quadrat_col`. I put each pair next to each other. If they hold the same information, you may want to drop one of each. You can also change the order by editing the `col_order` vector at the top of the function.
+
+:::
+
+
+```{r}
+
+
+#' Reorder dataframe columns into logical groups:
+#'   when/where -> who -> conditions -> transect design -> sample location -> observations
+#'
+#' Base R only. Columns missing from the dataframe are skipped silently, and
+#' any columns not listed here are kept and placed at the end (so nothing is
+#' ever dropped).
+
+reorder_columns <- function(df) {
+
+  col_order <- c(
+    # --- When and where ---------------------------------------------------
+    "date", "year", "start_time", "stop_time",
+    "site_name", "latitude", "longitude",
+
+    # --- Who --------------------------------------------------------------
+    "name_of_school", "in_field_group", "group", "team_members",
+    "team_lead_or_recorder", "data_entry_by",
+
+    # --- Site conditions and activity -------------------------------------
+    "low_tide_time", "low_tide_height",
+    "weather", "rain_events", "wave_height", "wind_speed",
+    "stressful_events", "visitors", "fishing", "collecting", "what_collecting",
+
+    # --- Transect / survey design -----------------------------------------
+    "method",
+    "total_number_of_transect_lines", "length_of_transect_line", "longest_t_m",
+    "total_number_of_transect_points", "dist_between_t_pts_for_q",
+    "quad_t", "n_quadrats_per_transect", "point_spacing",
+
+    # --- Location of each sample (transect > quadrat > point) -------------
+    "transect_number", "transect_col",
+    "quadrat", "quadrat_col", "quadrat_location_m", "quadrat_total_points",
+    "point_col", "p1_or_p2", "position_on_transect_m",
+
+    # --- Observations -----------------------------------------------------
+    "organism_or_substrate_type", "category", "count",
+    "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only",
+    "sediment_depth", "notes"
+  )
+
+  present <- col_order[col_order %in% names(df)]
+  extras  <- setdiff(names(df), present)
+
+  missing <- setdiff(col_order, names(df))
+  if (length(missing) > 0) {
+    message("Not found in dataframe (skipped): ", paste(missing, collapse = ", "))
+  }
+  if (length(extras) > 0) {
+    message("Not in the order list (placed at end): ", paste(extras, collapse = ", "))
+  }
+
+  df[, c(present, extras), drop = FALSE]
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- reorder_columns(df)
+#
+# With dplyr you could instead write:
+#   df <- dplyr::select(df, dplyr::any_of(col_order), dplyr::everything())
+
+
+final_df_toclean |>
+  reorder_columns() -> reordered_data
+
+reordered_data |> 
+  merge_if_compatible("transect_number", "transect_col", new_col = "transect_id", allow_agreeing_overlap = TRUE) |>
+  merge_if_compatible("quadrat", "quadrat_col", new_col = "quadrat_id", allow_agreeing_overlap = TRUE) |> 
+  merge_if_compatible("point_col", "position_on_transect_m", new_col = "point_id", allow_agreeing_overlap = TRUE) -> reordered_data_clean
+
+
+
+
+```
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Write me a script that will standardize a date column in a dataframe containing a bunch of different formats to YYYY-MM-DD.
+
+**Claude:**
+
+I wrote `standardize_dates.R`, which defines a `standardize_dates()` function. It converts your date column to R's `Date` class, which prints as YYYY-MM-DD.
+
+```r
+source("standardize_dates.R")
+df <- standardize_dates(df)                  # column named "date"
+df <- standardize_dates(df, "survey_date")   # or name another column
+```
+
+It handles these formats:
+- **Numeric:** `2024-03-05`, `2024/3/5`, `20240305`, `3/5/2024`, `3-5-24`, `3.5.2024`
+- **With month names:** `March 5, 2024`, `5 Mar 2024`, `5-Mar-24`, `March 5th, 2024`, and versions with a weekday in front
+- **With a time:** `2024-03-05 14:30:00` and `2024-03-05T14:30:00Z`. The time is dropped.
+- **Excel serial numbers:** `45356`, whether stored as numbers or as text
+- **Already-converted values:** existing `Date` or `POSIXct` values pass through unchanged
+
+Two things to know about how it behaves:
+- **Ambiguous dates:** `3/5/2024` could be March 5 or May 3. It assumes month-first (US style) by default. If your data is day-first, use `day_first = TRUE`. When ambiguous dates are present, the function prints a message saying how it read them. Dates like `13/5/2024` can only be day-first, so they will come back as `NA` under the default setting. If your data mixes both orders, you'll need to sort that out before running this.
+- **Unparseable values:** Anything it can't read, including impossible dates like `2/30/2024`, becomes `NA`. The function prints a warning listing the original values, so you can fix them by hand.
+
+If you want to keep the original text, add `keep_original = TRUE` and it will save a copy in `date_original`. To get plain text instead of a `Date`, use `df$date <- format(df$date, "%Y-%m-%d")`.
+
+I couldn't run R here, so this is untested. If you paste in the unique values from your date column, as you did with `quadrat_sample`, I can check them against the patterns.
+
+_(**Kat Note:** I was worried the script would flip days with months, so I asked again)_
+
+**Kat:**
+
+All of the dates are either in MM/DD/YYYY, M/D/YY, or YYYY-MM-DD. For example, 4/6/24 (M/D/YY), 4/22/2005 (M/DD/YYYY), and 2018-05-16 (YYYY-MM-DD) are all in the column. Write me an R script that can convert those and does not mix-up the month and day positions. Month will always come first unless the year is first. If the year is first, it will always be four digits.
+
+**Claude:**
+
+I wrote `standardize_dates_simple.R`, a shorter version of the date script built for your three formats.
+
+```r
+source("standardize_dates_simple.R")
+df <- standardize_dates(df)                  # column named "date"
+df <- standardize_dates(df, "survey_date")   # or name another column
+```
+
+Each format has its own pattern that must match the whole string, so a 4-digit year is never read as a 2-digit one:
+- **`2018-05-16`**: year first, 4 digits
+- **`4/22/2005`**: month first, 4-digit year
+- **`4/6/24`**: month first, 2-digit year
+
+Month is always read first unless the year comes first, so `4/6/24` becomes April 6, 2024 and `4/22/2005` becomes April 22, 2005. Leading zeros such as `04/06/24` work too.
+
+Two-digit years follow R's standard rule: 00 to 68 become 2000 to 2068, and 69 to 99 become 1969 to 1999. That's fine for data from 2005 onward, but a two-digit year like `99` would become 1999.
+
+Any value that doesn't match one of the three formats, or isn't a real date such as `2/30/2024`, becomes `NA`, and the function prints a warning listing those values. If you see a warning, it usually points to a typo in the data.
+
+The result is stored as R's `Date` class, which prints as YYYY-MM-DD. If you want plain text instead, use `df$date <- format(df$date, "%Y-%m-%d")`.
+
+I couldn't run R here, so this is untested. The commented-out test at the bottom of the file shows the expected output for four sample dates.
+
+:::
+
+
+```{r}
+
+#' Convert a date column with these three formats to YYYY-MM-DD:
+#'   M/D/YY      e.g. 4/6/24      (month first, 2-digit year)
+#'   M/DD/YYYY   e.g. 4/22/2005   (month first, 4-digit year; leading zeros OK)
+#'   YYYY-MM-DD  e.g. 2018-05-16  (year first, 4-digit year)
+#'
+#' Month is always read first unless the year comes first, so day and month
+#' can never be swapped. Each pattern is anchored to the whole string, so a
+#' 4-digit year is never mistaken for a 2-digit one.
+#'
+#' Base R only; no packages needed.
+
+standardize_dates <- function(df, col = "date") {
+
+  if (!col %in% names(df)) stop("Column '", col, "' not found in the dataframe.")
+
+  original <- df[[col]]
+  if (inherits(original, "Date")) return(df)
+
+  x <- trimws(as.character(original))
+  x[x %in% c("", "NA")] <- NA_character_
+
+  result <- as.Date(rep(NA_real_, length(x)))
+
+  # Format 1: YYYY-MM-DD
+  i <- grepl("^\\d{4}-\\d{1,2}-\\d{1,2}$", x)
+  result[i] <- as.Date(x[i], format = "%Y-%m-%d")
+
+  # Format 2: M/D/YYYY (4-digit year)
+  i <- grepl("^\\d{1,2}/\\d{1,2}/\\d{4}$", x)
+  result[i] <- as.Date(x[i], format = "%m/%d/%Y")
+
+  # Format 3: M/D/YY (2-digit year; 00-68 -> 2000-2068, 69-99 -> 1969-1999)
+  i <- grepl("^\\d{1,2}/\\d{1,2}/\\d{2}$", x)
+  result[i] <- as.Date(x[i], format = "%m/%d/%y")
+
+  # Report anything that didn't convert
+  failed <- !is.na(x) & is.na(result)
+  if (any(failed)) {
+    warning(
+      sum(failed), " value(s) in '", col, "' did not match the expected ",
+      "formats (or were invalid dates) and were set to NA:\n  ",
+      paste(unique(x[failed]), collapse = "\n  ")
+    )
+  }
+
+  df[[col]] <- result
+  df
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- standardize_dates(df)
+#
+# To store the result as plain text instead of a Date object:
+# df$date <- format(df$date, "%Y-%m-%d")
+#
+# Quick test:
+# test <- data.frame(date = c("4/6/24", "4/22/2005", "2018-05-16", "12/1/99", NA))
+# standardize_dates(test)
+# Expected: 2024-04-06, 2005-04-22, 2018-05-16, 1999-12-01, NA
+
+
+reordered_data_clean |> 
+  standardize_dates() -> reordered_data_dates_clean
+
+
+
+
+```
+
+
+Alright! Let's now fix the organism name column to make them all match each other.
+
+First, I'm going to extract the organism name column in order to give it to claude for fixing.
+
+
+```{r}
+
+reordered_data_dates_clean |> 
+  count(organism_or_substrate_type, sort = "TRUE") -> organism_substrate_names
+
+
+organism_substrate_names |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "organism_substrate_names.csv"))
+
+```
+
+
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+My dataframe contains a column of various organism and substrate names with many different formats. Can you group similar IDs together and write me an R script that renames all of the similar ones to match each other in a standard format?
+
+**Claude:**
+
+Quick update: I've finished the R script and the grouping table. I'm tidying one confusing line in the script's header comment, then I'll send you both files.
+
+I grouped your 552 distinct entries into 252 standardized names. `standardize_organism_names.R` does the renaming, and `organism_name_groups.csv` shows every original name next to the name it maps to, with counts, so you can check the grouping first.
+
+```r
+source("standardize_organism_names.R")
+df <- read.csv("your_data.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+df <- standardize_organism_names(df)
+```
+
+The original text is kept in `organism_or_substrate_type_original`. Add `keep_original = FALSE` if you don't want that column. `organism_name_map(df)` returns the same original-to-standard table from your own data.
+
+**Standard format**
+- **Species:** `Genus species`, so `dictyota_sandvicensis` and `Dictyota sandvicensis` both become `Dictyota sandvicensis`.
+- **Genus level:** `Genus spp.`. Entries like `padina_sp`, `Padina spp.`, `Padina Sp.` and bare `Padina` all become `Padina spp.`.
+- **Groups and substrates:** sentence case, such as `Turf algae`, `Sand`, `Crustose coralline algae (CCA)`, and `Articulated corallines`.
+
+**What it fixes**
+- **Typos:** `Bornatella sphaerica` → `Bornetella sphaerica`, `gracilaria_salicronia` → `Gracilaria salicornia`, `Turbinariaornata` → `Turbinaria ornata`, `Cerramium` → `Ceramium spp.`.
+- **Prefixes and extra text:** `Snail- Siphonaria normalis` → `Siphonaria normalis`, and `Pennaria disticha (christmas tree hydroid)` → `Pennaria disticha`.
+- **Hawaiian names:** both `limu ʻeleʻele` spellings and the three `pālahalaha` variants each collapse to one name.
+
+**Judgment calls to check**
+- **Rock:** `Rock` and `Bare rock` are merged. `Shallow rock`, `Basalt`, and `Limestone` stay separate.
+- **Brown crust:** Several brown-crust variants are merged, including `Brown/Orange Crust`. `ORANGE CRUST` stays its own group.
+- **Dendropoma:** I merged `gregarium` into `gregaria` because I believe `gregaria` is the valid species name. Please verify that.
+- **Limu kohu:** It stays separate from `Asparagopsis taxiformis`, though the common name probably refers to that species.
+- **Mixed entries:** Values like `Sand turf`, `Turf substrate`, and `Turf 2cm jania` were left essentially as they were.
+- **The value `3`:** It is left untouched. It is probably a data-entry error.
+
+Names that aren't in the script's lookup table are handled by rule: one word becomes `Genus spp.` and longer names become `Genus species`. A new non-taxon word like `kelp` would therefore come out as `Kelp spp.`, so add it to the `.name_lookup` table at the top of the script. The script prints a message listing odd-looking unmapped values for review.
+
+I couldn't run R here, so the script is untested. I built the same logic in Python, checked all 552 names against it, and generated the CSV from that, so the groupings are verified but the R code itself has not been run.
+
+
+**Kat:**
+
+Great! Could you have the script also keep the original name by adding it to the notes column as "original ID = [original organism name]" (without deleting anything that is already in the notes column).
+
+
+**Claude:**
+
+I updated `standardize_organism_names.R` so the original name is now saved in the notes column. The call is the same as before:
+
+```r
+df <- standardize_organism_names(df)
+```
+
+Here is how the notes are handled:
+- **Existing notes are kept.** If a row already has notes, the new text goes after them, separated by `; `, e.g. `observed near tide pool; original ID = padina_sp`.
+- **Empty notes:** If the notes cell is empty or `NA`, it just becomes `original ID = padina_sp`.
+- **No duplicates:** Running the script twice won't add the same tag again.
+- **Missing notes column:** If your dataframe has no `notes` column, the script creates one.
+
+**Only changed rows get the tag.** Rows whose name didn't change, such as one already written as `Sand`, get nothing, since the original is identical to the new name. To tag every row anyway, use `only_if_changed = FALSE`.
+
+I also changed the default for `keep_original` to `FALSE`, because the notes column now holds the original name. Set it to `TRUE` if you also want the separate `organism_or_substrate_type_original` column.
+
+If your notes column has a different name, pass it with `notes_col = "comments"`.
+
+As before, I couldn't run R here, so this update is untested. If it errors on your data, paste the message and I'll fix it.
+
+:::
+
+
+
+
+```{r}
+
+#' Standardize organism / substrate names
+#'
+#' Standard format
+#'   * Species:        "Genus species"      e.g. "dictyota_sandvicensis" -> "Dictyota sandvicensis"
+#'   * Genus level:    "Genus spp."         e.g. "padina_sp", "Padina spp.", "Padina" -> "Padina spp."
+#'   * Groups/substrates: Sentence case     e.g. "Turf algae", "Sand", "Bare rock"
+#'
+#' How it works
+#'   1. Each name is reduced to a "key": lower case, underscores / punctuation
+#'      turned into spaces, trailing "sp" / "spp" removed, and prefixes such as
+#'      "Snail-", "Cucumber-", "Urchin-" removed.
+#'   2. The key is looked up in a table of known groups, synonyms, and typos.
+#'   3. If it is not in the table: a one-word key is treated as a genus
+#'      ("Genus spp."); a longer key becomes "Genus species".
+#'
+#' Base R only; no packages needed.
+#'
+#' NOTE: new non-taxon words (e.g. "kelp") that are not in the table below will
+#' come out as "Kelp spp.". Add them to the table (right side = final label).
+
+# ---- Lookup table: key -> standard label -----------------------------------
+.name_lookup <- c(
+  # Groups and substrates
+  "turf"                       = "Turf algae",
+  "turf algae"                 = "Turf algae",
+  "turf alfae"                 = "Turf algae",
+  "turf fuzzy algae 2 mm tall" = "Turf algae",
+  "cca"                        = "Crustose coralline algae (CCA)",
+  "crustose coralline algae"   = "Crustose coralline algae (CCA)",
+  "crustose coralline algae cca" = "Crustose coralline algae (CCA)",
+  "articulated corallines"     = "Articulated corallines",
+  "articulated coralline"      = "Articulated corallines",
+  "articulated coralines"      = "Articulated corallines",
+  "articulated corrallines"    = "Articulated corallines",
+  "rock"                       = "Bare rock",
+  "bare rock"                  = "Bare rock",
+  "sand"                       = "Sand",
+  "rubble"                     = "Rubble",
+  "pebble"                     = "Pebble",
+  "hole"                       = "Hole",
+  "substrate"                  = "Substrate",
+  "limestone"                  = "Limestone",
+  "basalt"                     = "Basalt",
+  "mud silt"                   = "Mud/silt",
+  "rock sand"                  = "Rock and sand",
+  "sand rock"                  = "Rock and sand",
+  "rock manmade"               = "Rock (manmade)",
+  "dry rock above water"       = "Dry rock (above water)",
+  "coralsand"                  = "Coral sand",
+  "unknown"                    = "Unknown",
+  "unknown species"            = "Unknown",
+  "unidentified"               = "Unknown",
+  "brown crust"                = "Brown crust",
+  "brown orange crust"         = "Brown crust",
+  "brown colored crust"        = "Brown crust",
+  "brown color crust"          = "Brown crust",
+
+  # Broad groups (not genera, so no "spp.")
+  "cyanobacteria" = "Cyanobacteria",
+  "coral"         = "Coral",
+  "sponge"        = "Sponge",
+  "urchin"        = "Urchin",
+  "crab"          = "Crab",
+  "snail"         = "Snail",
+  "limpet"        = "Limpet",
+  "barnacles"     = "Barnacles",
+  "wana"          = "Wana",
+  "wana purple"   = "Wana (purple)",
+  "lipoa"         = "Lipoa",
+  "limu algae"    = "Limu (algae)",
+
+  # Hawaiian names (okina = \u02bb, kahak\u014d letters written as escapes)
+  "limu eleele"             = "Limu \u02bbele\u02bbele",
+  "limu ele ele"            = "Limu \u02bbele\u02bbele",
+  "limu p\u0101lahalaha"    = "Limu p\u0101lahalaha",
+  "lime p\u0101lahalaha"    = "Limu p\u0101lahalaha",
+  "p\u0101lahalaha"         = "Limu p\u0101lahalaha",
+
+  # Combined / multi-taxon entries
+  "cladophora or cladophoropsis"   = "Cladophora/Cladophoropsis spp.",
+  "cladophora cladophoropsis"      = "Cladophora/Cladophoropsis spp.",
+  "galaxaura or liagora"           = "Galaxaura/Liagora spp.",
+  "sargassum aquifolium sargassum polyphyllum" = "Sargassum aquifolium/polyphyllum",
+
+  # Common-name clutter attached to a scientific name
+  "pennaria disticha christmas tree hydroid" = "Pennaria disticha",
+  "haminoea cymbalum green snail"            = "Haminoea cymbalum",
+  "sea urchin echinodermata mathaei"         = "Echinometra mathaei",
+  "nerite"                                   = "Nerita spp.",
+
+  # Misspellings
+  "neritapicea"                = "Nerita picea",
+  "turbinariaornata"           = "Turbinaria ornata",
+  "lyngbia"                    = "Lyngbya spp.",
+  "halimida"                   = "Halimeda spp.",
+  "lyngbya magmuscula"         = "Lyngbya majuscula",
+  "dichtyopterous"             = "Dictyopteris spp.",
+  "bornatella sphaerica"       = "Bornetella sphaerica",
+  "bornatella"                 = "Bornetella spp.",
+  "gracilaria salicronia"      = "Gracilaria salicornia",
+  "astronema"                  = "Asteronema spp.",
+  "astronema breviarticulatum" = "Asteronema breviarticulatum",
+  "sphaecelaria"               = "Sphacelaria spp.",
+  "spyridia fligmentosa"       = "Spyridia filamentosa",
+  "cerramium"                  = "Ceramium spp.",
+  "laurencia dendrodea"        = "Laurencia dendroidea",
+  "symploca hypnoides"         = "Symploca hydnoides",
+  "holothurdoidea"             = "Holothuroidea",
+  "hermet crab"                = "Hermit crab",
+  "dendropoma gregarium"       = "Dendropoma gregaria"
+)
+
+# ---- Step 1: reduce a raw name to a lookup key -----------------------------
+.name_key <- function(s) {
+  k <- tolower(s)
+  k <- gsub("[\u02bb'\u2019]", "", k, perl = TRUE)            # okina / apostrophes
+  k <- gsub("_", " ", k, fixed = TRUE)
+  k <- gsub("[^\\p{L}\\p{N} ]", " ", k, perl = TRUE)          # punctuation -> space
+  k <- trimws(gsub("\\s+", " ", k))
+  k <- sub("\\s+spp?$", "", k)                                # trailing sp / spp
+  k <- sub("^(snails?|cucumber|urchin)\\s+(?=\\S)", "", k, perl = TRUE)
+  k
+}
+
+# ---- Steps 2-3: one name -> standard label ---------------------------------
+.standardize_one <- function(s) {
+  if (is.na(s)) return(NA_character_)
+  s <- trimws(s)
+  k <- .name_key(s)
+
+  if (!grepl("[a-z]", k)) return(s)                           # e.g. "3": leave alone
+  if (k %in% names(.name_lookup)) return(unname(.name_lookup[k]))
+
+  w <- strsplit(k, " ", fixed = TRUE)[[1]]
+  cap <- function(z) paste0(toupper(substring(z, 1, 1)), substring(z, 2))
+  if (length(w) == 1) {
+    paste0(cap(w), " spp.")                                   # genus level
+  } else {
+    paste(c(cap(w[1]), w[-1]), collapse = " ")                # Genus species
+  }
+}
+
+#' Standardize the names in a dataframe column
+#'
+#' The original name is preserved by appending "original ID = <original name>"
+#' to the notes column. Anything already in the notes is kept; the new text is
+#' added after it, separated by "; ".
+#'
+#' @param df              dataframe
+#' @param col             column to clean (default "organism_or_substrate_type")
+#' @param notes_col       notes column to append to (default "notes"; created
+#'                        if it does not exist)
+#' @param only_if_changed TRUE (default): add the original ID only to rows whose
+#'                        name actually changed. FALSE: add it to every row that
+#'                        has a name.
+#' @param keep_original   if TRUE, also saves the raw text in "<col>_original"
+#'                        (default FALSE, since the notes now hold it)
+standardize_organism_names <- function(df, col = "organism_or_substrate_type",
+                                       notes_col = "notes",
+                                       only_if_changed = TRUE,
+                                       keep_original = FALSE) {
+
+  if (!col %in% names(df)) stop("Column '", col, "' not found in the dataframe.")
+
+  raw <- as.character(df[[col]])
+  if (keep_original) df[[paste0(col, "_original")]] <- raw
+
+  uniq   <- unique(raw)
+  mapped <- vapply(uniq, .standardize_one, character(1), USE.NAMES = FALSE)
+  clean  <- mapped[match(raw, uniq)]
+
+  # ---- Append the original name to the notes column -----------------------
+  if (!notes_col %in% names(df)) df[[notes_col]] <- NA_character_
+  notes <- as.character(df[[notes_col]])
+
+  has_name <- !is.na(raw) & trimws(raw) != ""
+  add_it   <- if (only_if_changed) has_name & (trimws(raw) != clean) else has_name
+  add_it[is.na(add_it)] <- FALSE
+
+  tag <- paste0("original ID = ", trimws(raw))
+  already_there <- !is.na(notes) & add_it & mapply(grepl, tag, notes, MoreArgs = list(fixed = TRUE))
+  add_it <- add_it & !already_there                  # never add the same tag twice
+
+  existing <- !is.na(notes) & trimws(notes) != ""
+  notes[add_it & !existing] <- tag[add_it & !existing]
+  notes[add_it &  existing] <- paste0(notes[add_it & existing], "; ", tag[add_it & existing])
+
+  df[[notes_col]] <- notes
+  df[[col]]       <- clean
+
+  # ---- Flag unusual results for review -------------------------------------
+  # (values NOT in the lookup table that contain digits or are 4+ words long)
+  keys    <- vapply(uniq, .name_key, character(1), USE.NAMES = FALSE)
+  unknown <- !is.na(uniq) & !(keys %in% names(.name_lookup))
+  odd     <- unknown & (grepl("[0-9]", mapped) | lengths(strsplit(mapped, " ")) >= 4)
+  if (any(odd, na.rm = TRUE)) {
+    message("Please review these values (left mostly as-is):\n  ",
+            paste0(uniq[odd], "  ->  ", mapped[odd], collapse = "\n  "))
+  }
+
+  message(length(uniq[!is.na(uniq)]), " unique names reduced to ",
+          length(unique(mapped[!is.na(mapped)])), ". Original ID added to '",
+          notes_col, "' for ", sum(add_it), " row(s).")
+  df
+}
+
+#' Make a table of original -> standardized names with counts (for checking)
+organism_name_map <- function(df, col = "organism_or_substrate_type") {
+  raw <- as.character(df[[col]])
+  uniq <- unique(raw)
+  out <- data.frame(
+    original     = uniq,
+    standardized = vapply(uniq, .standardize_one, character(1), USE.NAMES = FALSE),
+    n            = as.integer(table(factor(raw, levels = uniq))),
+    stringsAsFactors = FALSE
+  )
+  out[order(out$standardized, -out$n), ]
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- read.csv("your_data.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+# df <- standardize_organism_names(df)                         # notes column = "notes"
+# df <- standardize_organism_names(df, only_if_changed = FALSE) # tag every row
+# df <- standardize_organism_names(df, notes_col = "comments")
+#
+# To inspect the groupings first:
+# View(organism_name_map(df))
+# write.csv(organism_name_map(df), "organism_name_map.csv", row.names = FALSE)
+
+
+standardize_organism_names(reordered_data_dates_clean) -> cleaned_standardized_data
+
+
+
+
+```
+
+Great! Now I need to do the same thing with the location.
+
+```{r}
+
+cleaned_standardized_data |> 
+  count(site_name, sort = TRUE) -> site_names_toclean
+
+site_names_toclean |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "site_names_toclean.csv"))
+
+```
+
+
+
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Great! Can you do exactly the same thing (write an R script that standardizes a set of data, then adds the original to the notes), but with a different column? This is a column of location data. Match up those that appear to be the same, then standardize them. Any location names that are changed, add them to the notes column (without removing anything currently in the notes column) as "original location name = [original location name here]"
+
+**Claude:**
+
+I don't have the location data yet. Your message didn't include a file, and the only files I can see are the two from earlier, the `quadrat_sample` CSV and the organism names CSV.
+
+Could you upload a CSV of the unique location names, ideally with counts like the earlier ones? Then I can see which entries are variants of the same place and build the grouping from your real data. Please also tell me the column name, or I'll assume `site_name`, which is the closest match in your column list.
+
+Once I have it, I'll write the script the same way as the organism one. It will standardize the names, append `original location name = [original]` to the notes column without removing anything already there, and I'll include a CSV showing every grouping so you can check it first.
+
+**Kat:**
+
+Sorry, here is the .csv with the location names to clean. (csv containign the list of site names)
+
+**Claude:**
+
+Quick update: I've finished the site name script and the grouping table, and I'm sending both now.
+
+I wrote `standardize_site_names.R`, which works like the organism script. `site_name_groups.csv` lists every original name next to its standardized name and marks the ones that change.
+
+```r
+source("standardize_site_names.R")
+df <- standardize_site_names(df)
+```
+
+**What it merges.** It reduced your 49 distinct names to 46:
+- **Ewa Beach:** `Ewa` and `Ewa Beach` merge into `Ewa Beach`.
+- **Lēʻahi:** `Lē'ahi` and `Leahi` merge into `Lēʻahi`.
+- **Waipuʻilani:** `Waipuilani` and `Waipuʻilani` merge into `Waipuʻilani`.
+- **Apostrophes:** Plain apostrophes become the Hawaiian okina (ʻ), so `Hulopo'e Bay` becomes `Hulopoʻe Bay` and `Kahalu'u Bay` becomes `Kahaluʻu Bay`. This matches the names you already had written with an okina, such as `Waiʻanae High School Reef`.
+
+Every row whose name changes gets `original location name = [original]` added to the notes column. Existing notes are kept, and the new text goes after them, separated by `; `. A missing notes column is created, and rerunning the script won't duplicate the tag. As before, `only_if_changed = FALSE` tags every row, and `keep_original = TRUE` also saves the raw name in a separate column.
+
+**Judgment calls I left alone**
+- **Diamond Head and Lēʻahi:** Lēʻahi is the Hawaiian name for Diamond Head, but they could be separate monitoring sites in your data, so I kept them apart. The script has a short commented-out section to merge them.
+- **Barbers Point and Kalaeloa:** The same applies; Kalaeloa is the Hawaiian name for Barbers Point. A commented-out section covers this merge too.
+- **`Location`:** It appears 2,011 times and looks like a placeholder rather than a place. I left it unchanged, and the script prints a message listing placeholder-like values.
+- **Similar names:** `Sandy Beach` vs `Sandy Beach West`, `Keiki Ponds` vs `Keiki Bay`, and `Waipouli` vs `Waipuʻilani` look like different places, so they stay separate.
+- **Diacritics:** I didn't add okina or macrons to names that lack them, such as `Moomomi`, since I can't be sure of the correct spelling.
+
+I couldn't run R here, so the script is untested. I built the same logic in Python and checked it against all 49 names, and the groupings and CSV come from that. If you hit an error, paste the message and I'll fix it.
+
+:::
+
+
+
+```{r}
+
+#' Standardize location (site) names
+#'
+#' How it works
+#'   1. Each name is reduced to a matching "key": lower case, apostrophes and
+#'      okina removed, macrons removed (\u0113 -> e), extra spaces collapsed.
+#'      So "L\u0113'ahi" and "Leahi" both become "leahi".
+#'   2. If the key is in the table below, the name becomes the standard label.
+#'   3. Otherwise the name is kept as written, except that straight or curly
+#'      apostrophes are converted to the Hawaiian okina (\u02bb) and extra spaces
+#'      are removed (e.g. "Hulopo'e Bay" -> "Hulopo\u02bbe Bay").
+#'
+#' Whenever a name is changed, "original location name = <original>" is added to
+#' the notes column. Anything already in the notes is kept; the new text is
+#' added after it, separated by "; ".
+#'
+#' Base R only; no packages needed.
+
+# ---- Lookup table: key -> standard label -----------------------------------
+.loc_lookup <- c(
+  "leahi"                    = "L\u0113\u02bbahi",
+  "waipuilani"               = "Waipu\u02bbilani",
+  "ewa"                      = "Ewa Beach",
+  "ewa beach"                = "Ewa Beach",
+  "hulopoe bay"              = "Hulopo\u02bbe Bay",
+  "kahaluu bay"              = "Kahalu\u02bbu Bay",
+  "waianae high school reef" = "Wai\u02bbanae High School Reef"
+
+  # ---- Optional merges (judgment calls; remove the leading # to use) --------
+  # L\u0113\u02bbahi is the Hawaiian name for Diamond Head. To merge them, change the
+  # "leahi" line above to "Diamond Head (L\u0113\u02bbahi)" and un-comment this line:
+  # , "diamond head"          = "Diamond Head (L\u0113\u02bbahi)"
+  # Kalaeloa is the Hawaiian name for Barbers Point. Un-comment to merge them:
+  # , "barbers point"         = "Barbers Point (Kalaeloa)"
+  # , "kalaeloa"              = "Barbers Point (Kalaeloa)"
+)
+
+# Values that are placeholders rather than real locations (reported, not changed)
+.loc_placeholders <- c("location", "unknown", "na", "n/a", "none")
+
+# ---- Step 1: matching key ---------------------------------------------------
+.loc_key <- function(s) {
+  k <- tolower(s)
+  k <- gsub("[\u02bb\u2018\u2019'`]", "", k, perl = TRUE)
+  k <- chartr("\u0101\u0113\u012b\u014d\u016b", "aeiou", k)
+  trimws(gsub("\\s+", " ", k))
+}
+
+# ---- Steps 2-3: one name -> standard label ----------------------------------
+.loc_standardize_one <- function(s) {
+  if (is.na(s)) return(NA_character_)
+  s <- trimws(s)
+  k <- .loc_key(s)
+  if (k %in% names(.loc_lookup)) return(unname(.loc_lookup[k]))
+  s <- gsub("\\s+", " ", s)
+  gsub("[\u2018\u2019'`]", "\u02bb", s, perl = TRUE)
+}
+
+#' Standardize the names in a dataframe column
+#'
+#' @param df              dataframe
+#' @param col             column to clean (default "site_name")
+#' @param notes_col       notes column to append to (default "notes"; created
+#'                        if it does not exist)
+#' @param only_if_changed TRUE (default): add the original name only to rows
+#'                        whose name actually changed. FALSE: add to every row.
+#' @param keep_original   if TRUE, also saves the raw text in "<col>_original"
+#'                        (default FALSE, since the notes now hold it)
+standardize_site_names <- function(df, col = "site_name",
+                                   notes_col = "notes",
+                                   only_if_changed = TRUE,
+                                   keep_original = FALSE) {
+
+  if (!col %in% names(df)) stop("Column '", col, "' not found in the dataframe.")
+
+  raw <- as.character(df[[col]])
+  if (keep_original) df[[paste0(col, "_original")]] <- raw
+
+  uniq   <- unique(raw)
+  mapped <- vapply(uniq, .loc_standardize_one, character(1), USE.NAMES = FALSE)
+  clean  <- mapped[match(raw, uniq)]
+
+  # ---- Append the original name to the notes column -----------------------
+  if (!notes_col %in% names(df)) df[[notes_col]] <- NA_character_
+  notes <- as.character(df[[notes_col]])
+
+  has_name <- !is.na(raw) & trimws(raw) != ""
+  add_it   <- if (only_if_changed) has_name & (trimws(raw) != clean) else has_name
+  add_it[is.na(add_it)] <- FALSE
+
+  tag <- paste0("original location name = ", trimws(raw))
+  already_there <- !is.na(notes) & add_it &
+    mapply(grepl, tag, notes, MoreArgs = list(fixed = TRUE))
+  add_it <- add_it & !already_there                  # never add the same tag twice
+
+  existing <- !is.na(notes) & trimws(notes) != ""
+  notes[add_it & !existing] <- tag[add_it & !existing]
+  notes[add_it &  existing] <- paste0(notes[add_it & existing], "; ", tag[add_it & existing])
+
+  df[[notes_col]] <- notes
+  df[[col]]       <- clean
+
+  # ---- Report placeholders and summary -------------------------------------
+  ph <- unique(raw[!is.na(raw) & .loc_key(raw) %in% .loc_placeholders])
+  if (length(ph) > 0) {
+    message("These values look like placeholders, not locations (left unchanged): ",
+            paste(ph, collapse = ", "))
+  }
+  message(length(uniq[!is.na(uniq)]), " unique names reduced to ",
+          length(unique(mapped[!is.na(mapped)])), ". Original name added to '",
+          notes_col, "' for ", sum(add_it), " row(s).")
+  df
+}
+
+#' Table of original -> standardized names with counts (for checking)
+site_name_map <- function(df, col = "site_name") {
+  raw  <- as.character(df[[col]])
+  uniq <- unique(raw)
+  out <- data.frame(
+    original     = uniq,
+    standardized = vapply(uniq, .loc_standardize_one, character(1), USE.NAMES = FALSE),
+    n            = as.integer(table(factor(raw, levels = uniq))),
+    stringsAsFactors = FALSE
+  )
+  out[order(out$standardized, -out$n), ]
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- read.csv("your_data.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+# df <- standardize_site_names(df)
+# df <- standardize_site_names(df, only_if_changed = FALSE)   # tag every row
+# df <- standardize_site_names(df, notes_col = "comments")
+#
+# To inspect the groupings first:
+# View(site_name_map(df))
+
+
+cleaned_standardized_data |> 
+  standardize_site_names() -> cleaned_standardized_data_and_sites
+
+
+#finally, one last sorting script:
+
+cleaned_standardized_data_and_sites |> 
+  colnames()
+
+```
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Can you write me an R script that reorders these columns in an intuitive way?
+
+**Claude:**
+
+I don't see a column list in your message. Could you paste the column names, or upload a CSV of the headers? The names from your first reorder request are 48 columns, and I wrote `reorder_columns.R` for those. If this is a different set, I'll build a new order from the list you send.
+
+If it's the same dataframe with new columns added, such as the cleaned-up `transect`, `quadrat`, and `point` columns, just say so. My earlier script already places any column it doesn't recognize at the end instead of dropping it, so the new ones would still be kept.
+
+**Kat:**
+
+```
+[1] "date"                                                            
+ [2] "year"                                                            
+ [3] "start_time"                                                      
+ [4] "stop_time"                                                       
+ [5] "site_name"                                                       
+ [6] "latitude"                                                        
+ [7] "longitude"                                                       
+ [8] "name_of_school"                                                  
+ [9] "in_field_group"                                                  
+[10] "group"                                                           
+[11] "team_members"                                                    
+[12] "team_lead_or_recorder"                                           
+[13] "data_entry_by"                                                   
+[14] "low_tide_time"                                                   
+[15] "low_tide_height"                                                 
+[16] "weather"                                                         
+[17] "rain_events"                                                     
+[18] "wave_height"                                                     
+[19] "wind_speed"                                                      
+[20] "stressful_events"                                                
+[21] "visitors"                                                        
+[22] "fishing"                                                         
+[23] "collecting"                                                      
+[24] "what_collecting"                                                 
+[25] "method"                                                          
+[26] "total_number_of_transect_lines"                                  
+[27] "length_of_transect_line"                                         
+[28] "longest_t_m"                                                     
+[29] "total_number_of_transect_points"                                 
+[30] "dist_between_t_pts_for_q"                                        
+[31] "quad_t"                                                          
+[32] "n_quadrats_per_transect"                                         
+[33] "point_spacing"                                                   
+[34] "quadrat_location_m"                                              
+[35] "quadrat_total_points"                                            
+[36] "p1_or_p2"                                                        
+[37] "organism_or_substrate_type"                                      
+[38] "category"                                                        
+[39] "count"                                                           
+[40] "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only"
+[41] "sediment_depth"                                                  
+[42] "notes"                                                           
+[43] "transect_id"                                                     
+[44] "quadrat_id"                                                      
+[45] "point_id"             
+```
+
+**Claude:**
+
+
+I wrote `reorder_columns_45.R` for this 45-column list. It leaves the earlier `reorder_columns.R` unchanged.
+
+```r
+source("reorder_columns_45.R")
+df <- reorder_columns(df)
+```
+
+The columns are now arranged in this order:
+
+1. **When and where:** date, year, start/stop time, site name, latitude, longitude
+2. **Who:** school, field group, group, team members, team lead/recorder, data entry
+3. **Site conditions and activity:** tide, weather, rain, waves, wind, stressful events, visitors, fishing, collecting
+4. **Survey design:** method, transect line and point counts, quadrat spacing, point spacing
+5. **Sample location:** `transect_id`, `quadrat_id`, `point_id`, then quadrat location, total points, and `p1_or_p2`
+6. **Observations:** organism or substrate type, category, count, the Mamala Bay proximity column, sediment depth
+7. **Notes:** always last
+
+This list differs from your first one. It no longer has `transect_number`, `quadrat`, or `position_on_transect_m`, and the new ID columns replace `transect_col`, `quadrat_col`, and `point_col`. I checked that all 45 of your column names appear in the script exactly once.
+
+Notes stays at the very end, since the cleaning scripts append to it. Any column the script doesn't recognize, such as `organism_or_substrate_type_original` if you use `keep_original = TRUE`, goes just before `notes`, and the script prints a message saying so.
+
+I couldn't run R here, so this is untested, but it only uses basic indexing. To change the order, edit the `col_order` vector at the top of the function.
+
+:::
+
+
+
+
+```{r}
+
+#' Reorder dataframe columns into logical groups:
+#'   when/where -> who -> conditions -> survey design -> sample location
+#'   (transect > quadrat > point) -> observations -> notes
+#'
+#' Base R only. Columns missing from the dataframe are skipped, and any columns
+#' not listed here are kept and placed just before "notes" (so nothing is ever
+#' dropped and notes stays last).
+
+reorder_columns <- function(df) {
+
+  col_order <- c(
+    # --- When and where ---------------------------------------------------
+    "date", "year", "start_time", "stop_time",
+    "site_name", "latitude", "longitude",
+
+    # --- Who --------------------------------------------------------------
+    "name_of_school", "in_field_group", "group", "team_members",
+    "team_lead_or_recorder", "data_entry_by",
+
+    # --- Site conditions and activity -------------------------------------
+    "low_tide_time", "low_tide_height",
+    "weather", "rain_events", "wave_height", "wind_speed",
+    "stressful_events", "visitors", "fishing", "collecting", "what_collecting",
+
+    # --- Survey design ----------------------------------------------------
+    "method",
+    "total_number_of_transect_lines", "length_of_transect_line", "longest_t_m",
+    "total_number_of_transect_points", "dist_between_t_pts_for_q",
+    "quad_t", "n_quadrats_per_transect", "point_spacing",
+
+    # --- Location of each sample (transect > quadrat > point) -------------
+    "transect_id", "quadrat_id", "point_id",
+    "quadrat_location_m", "quadrat_total_points", "p1_or_p2",
+
+    # --- Observations -----------------------------------------------------
+    "organism_or_substrate_type", "category", "count",
+    "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only",
+    "sediment_depth"
+  )
+
+  last_col <- "notes"
+
+  present <- col_order[col_order %in% names(df)]
+  extras  <- setdiff(names(df), c(col_order, last_col))
+  end     <- last_col[last_col %in% names(df)]
+
+  missing <- setdiff(c(col_order, last_col), names(df))
+  if (length(missing) > 0) {
+    message("Not found in dataframe (skipped): ", paste(missing, collapse = ", "))
+  }
+  if (length(extras) > 0) {
+    message("Not in the order list (placed before 'notes'): ",
+            paste(extras, collapse = ", "))
+  }
+
+  df[, c(present, extras, end), drop = FALSE]
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- reorder_columns(df)
+#
+# With dplyr you could instead write:
+#   df <- dplyr::select(df, dplyr::any_of(col_order), dplyr::everything())
+
+
+
+
+cleaned_standardized_data_and_sites |> 
+  reorder_columns() -> final_output_dataframe
+
+# unfortunately the okina and kahako are glitching when importing into csv, which will make manipulation in R a bit difficult. Let's try to fix it
+
+
+```
+
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+Write me a script that removes Okinas and Kahakos from a dataframe
+
+**Claude:**
+
+I wrote `remove_okina_kahako.R`, which strips okinas and kahakō from every text column in a dataframe.
+
+```r
+source("remove_okina_kahako.R")
+df <- remove_okina_kahako(df)
+```
+
+It removes:
+- **Okina:** the real okina (ʻ) and the characters commonly typed in its place, which are curly quotes (‘ ’), the modifier apostrophe (ʼ), a backtick, and the plain apostrophe (').
+- **Kahakō:** macron vowels ā ē ī ō ū and their capitals become plain a e i o u. Separate combining macron marks are removed too.
+
+So `Lēʻahi` becomes `Leahi`, `Hulopo'e Bay` becomes `Hulopoe Bay`, and `Pālahalaha` becomes `Palahalaha`. Missing values stay missing, and the script prints how many values changed in each column.
+
+**Options**
+- **Plain apostrophes are removed by default**, because your data uses them for okinas (like `Lē'ahi`). That would also strip English apostrophes, such as "don't" in the notes column. Use `straight_apostrophe = FALSE` to keep them, or limit the cleaning with `cols = c("site_name", "organism_or_substrate_type")`.
+- **Column names are left alone.** Add `clean_colnames = TRUE` to clean the headers too.
+- **Factor columns** are cleaned too, and any levels that become identical are merged.
+
+If you run this after the organism or site name scripts, it will strip the okinas and macrons from the labels they produce, such as `Waipuʻilani`. It will also change the original names saved in the notes column, so if you want to keep those exactly as entered, run this one first or leave `notes` out of `cols`.
+
+I couldn't run R here, so this is untested. There's a small test line at the bottom of the file you can try.
+
+
+**Kat:**
+
+Error in if (straight_apostrophe) marks <- paste0(marks, "'") :
+argument is not interpretable as logical
+
+**Claude:**
+
+I've updated `remove_okina_kahako.R` to fix this, but I'm guessing at the cause because I can't see your call. That error means something other than TRUE or FALSE ended up in the `straight_apostrophe` slot. The most likely cause is a call like `remove_okina_kahako(df, "site_name", "notes")`. In my first version the third position was `straight_apostrophe`, so `"notes"` landed there.
+
+The new version accepts column names in either of these ways, so those calls now work:
+
+```r
+source("remove_okina_kahako.R")
+df <- remove_okina_kahako(df, "site_name", "notes")        # several names
+df <- remove_okina_kahako(df, c("site_name", "notes"))     # or one vector
+df <- remove_okina_kahako(df)                              # all text columns
+```
+
+`straight_apostrophe` and `clean_colnames` now have to be written by name, e.g. `straight_apostrophe = FALSE`, so a column name can't land in the wrong place. If either gets a bad value, you now get a plain error message saying it must be TRUE or FALSE.
+
+If the error still shows up after you re-source the file, paste the exact line you ran and I'll track it down. I couldn't run R here, so this fix is untested.
+
+
+:::
+
+
+
+
+```{r}
+
+#' Remove okina and kahakō (macrons) from a dataframe
+#'
+#'   Okina:   ʻ (U+02BB) plus the look-alikes often typed in its place:
+#'            ʼ (U+02BC), ‘ and ’ (curly quotes), ` (backtick), and,
+#'            optionally, the plain straight apostrophe '
+#'   Kahakō: ā ē ī ō ū and capitals Ā Ē Ī Ō Ū  ->  a e i o u A E I O U
+#'            (also removes stand-alone "combining macron" marks, U+0304)
+#'
+#' Example: "Lēʻahi" -> "Leahi",  "Hulopo'e Bay" -> "Hulopoe Bay",
+#'          "Pālahalaha" -> "Palahalaha"
+#'
+#' Base R only; no packages needed.
+
+.strip_hawaiian_marks <- function(x, straight_apostrophe = TRUE) {
+  marks <- "\u02bb\u02bc\u2018\u2019`"
+  if (straight_apostrophe) marks <- paste0(marks, "'")
+
+  x <- gsub(paste0("[", marks, "]"), "", x, perl = TRUE)
+  x <- chartr("\u0101\u0113\u012b\u014d\u016b\u0100\u0112\u012a\u014c\u016a",
+              "aeiouAEIOU", x)
+  gsub("\u0304", "", x, perl = TRUE)
+}
+
+#' @param df                   dataframe
+#' @param ...                  columns to clean, given as names, either several
+#'                             separate strings or one vector, e.g.
+#'                             "site_name", "notes"  or  c("site_name", "notes").
+#'                             Leave empty to clean every text (character or
+#'                             factor) column.
+#' @param cols                 same as ..., as a named argument (optional)
+#' @param straight_apostrophe  TRUE (default): also remove the plain ' character,
+#'                             since it is often typed instead of an okina.
+#'                             Set FALSE if your text has English apostrophes
+#'                             you want to keep (e.g. "don't" in a notes column).
+#'                             Must be written by name.
+#' @param clean_colnames       TRUE: also clean the column names (default FALSE).
+#'                             Must be written by name.
+remove_okina_kahako <- function(df, ..., cols = NULL, straight_apostrophe = TRUE,
+                                clean_colnames = FALSE) {
+
+  if (!is.logical(straight_apostrophe) || length(straight_apostrophe) != 1 ||
+      is.na(straight_apostrophe)) {
+    stop("'straight_apostrophe' must be TRUE or FALSE. To choose columns, pass ",
+         "their names as strings, e.g. remove_okina_kahako(df, \"site_name\").")
+  }
+
+  cols <- c(unlist(list(...)), cols)
+  if (is.null(cols)) {
+    cols <- names(df)[vapply(df, function(z) is.character(z) || is.factor(z),
+                             logical(1))]
+  }
+  missing <- setdiff(cols, names(df))
+  if (length(missing) > 0) stop("Column(s) not found: ", paste(missing, collapse = ", "))
+
+  for (cn in cols) {
+    old <- as.character(df[[cn]])
+    new <- .strip_hawaiian_marks(old, straight_apostrophe)
+    n_changed <- sum(!is.na(old) & old != new)
+
+    if (is.factor(df[[cn]])) {
+      df[[cn]] <- factor(new)
+    } else {
+      df[[cn]] <- new
+    }
+    if (n_changed > 0) message("'", cn, "': ", n_changed, " value(s) changed.")
+  }
+
+  if (clean_colnames) {
+    names(df) <- .strip_hawaiian_marks(names(df), straight_apostrophe)
+  }
+
+  df
+}
+
+# ---- Example usage ---------------------------------------------------------
+# df <- read.csv("your_data.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+#
+# df <- remove_okina_kahako(df)                              # all text columns
+# df <- remove_okina_kahako(df, "site_name", "organism_or_substrate_type")
+# df <- remove_okina_kahako(df, c("site_name", "organism_or_substrate_type"))
+# df <- remove_okina_kahako(df, straight_apostrophe = FALSE) # keep plain '
+# df <- remove_okina_kahako(df, clean_colnames = TRUE)       # also clean headers
+#
+# Quick test:
+# remove_okina_kahako(data.frame(x = c("Lēʻahi", "Hulopo'e Bay", "Pālahalaha", NA)))
+
+
+final_output_dataframe <- remove_okina_kahako(final_output_dataframe, cols = "site_name", "organism_or_substrate_type")
+
+
+
+```
+
+And then save the file.
+
+```{r}
+
+final_output_dataframe |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-08_final_output_dataframe.csv"))
+
+
+
+final_output_dataframe |> 
+  colnames() -> data_dictionary_base
+
+data.frame(col_names = data_dictionary_base) |> 
+  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-08_data_dictionary.csv"))
+
+
+```
+
+
+
+
+
+
+For copy/pasting:
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log 
+
+**Kat:**
+
+
+
+**Claude:**
+
+
+:::
+
+
+
+
+
+
+

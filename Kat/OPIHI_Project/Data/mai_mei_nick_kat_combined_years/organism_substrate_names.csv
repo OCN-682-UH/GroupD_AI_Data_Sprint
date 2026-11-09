@@ -1,0 +1,553 @@
+organism_or_substrate_type,n
+turf_sp,1434
+padina_sp,1269
+Turf algae,1008
+turf_spp,869
+crustose_coralline_algae,849
+Padina spp.,599
+Crustose Coralline Algae,494
+padina_spp,478
+Acanthophora spicifera,434
+Padina spp,368
+turbinaria_ornata,368
+Laurencia spp,360
+laurencia_sp,344
+bare_rock,316
+Sargassum spp,315
+dictyota_sp,306
+acanthophora_spicifera,299
+Turf spp,272
+turf,266
+sand,256
+dictyosphaeria_sp,244
+hypnea_sp,242
+lyngbya_majuscula,242
+sargassum_sp,240
+jania_sp,200
+Unknown Red,197
+Sand,193
+Brown Crust,189
+Cyanobacteria spp,187
+brown_crust,185
+echinometra_mathaei,183
+sargassum_aquifolium,178
+Rock,168
+sargassum_spp,168
+microdictyon_setchellianum,163
+cca,162
+articulated_corallines,160
+Lyngbya majuscula,145
+Dictyota spp,138
+laurencia_spp,133
+bornetella_sphaerica,127
+dictyosphaeria_versluysii,125
+dictyosphaeria_spp,119
+Gracilaria salicornia,116
+halimeda_discoidea,112
+gracilaria_salicornia,110
+thylacodes_variabilis,107
+Cladophora or Cladophoropsis spp,105
+cyanobacteria_sp,105
+Echinometra mathaei,103
+hole,101
+microdictyon_sp,99
+neomeris_sp,99
+Articulated Corallines,98
+avrainvillea_lacerata,98
+dendropoma_gregaria,98
+Turbinaria ornata,97
+laurencia_mcdermidiae,94
+Dictyosphaeria versluysii,93
+codium_sp,89
+dictyota_sandvicensis,89
+avrainvillea_amadelpha,88
+CCA,87
+Microdictyon setchellianum,87
+Padina sp.,84
+Ulva fasciata,83
+Turf,80
+cladophora_or_cladophoropsis_sp,80
+cladophora_sp,79
+Coral spp,75
+pterocladiella_sp,75
+rubble,74
+sargassum_polyphyllum,74
+Dictyosphaeria spp,69
+lobophora_obscura,68
+Dendropoma gregarium,65
+colpomenia_sp,64
+gelidiella_acerosa,63
+Barnacles spp,61
+bornatella_sphaerica,61
+spyridia_filamentosa,61
+Siphonaria normalis,59
+Nerita picea,57
+liagora_sp,56
+codium_edule,55
+coral_sp,54
+dictyosphaeria_cavernosa,54
+echinometra_oblonga,53
+dictyota_acutiloba,52
+dictyota_spp,51
+gracilaria_salicronia,51
+isognomon_californicum,51
+Codium spp,50
+Thylacodes variabilis,50
+sphacelaria_sp,50
+limestone,49
+Dictyota acutiloba,48
+colpomenia_sinuosa,47
+littoraria_pintado,47
+Neomeris,46
+Hypnea musciformis,45
+Lobophora variegata,45
+palisada_parvipapillata,45
+Halimeda discoidea,44
+Laurencia mcdermidiae,44
+Tube snail,44
+ulva_sp,44
+cladophora_or_cladophoropsis_spp,42
+valonia_sp,42
+codium_spp,41
+laurencia_dendroidea,41
+codium_arabicum,40
+echinometra_sp,40
+lyngbya_sp,39
+rock,39
+Sargassum sp.,38
+pterocladiella_caerulescens,38
+Dictyota sandvicensis,37
+Echinolittorina hawaiiensis,37
+Hypnea spp,37
+nerita_picea,37
+Ahnfeltiopsis concinna,36
+asparagopsis_taxiformis,36
+pebble,35
+ulva_spp,33
+Echinometra oblonga,32
+Lyngbya sp,32
+coral_spp,32
+Dictyosphaeria sp.,31
+Sphacelaria spp,31
+siphonaria_normalis,31
+Asparagopsis taxiformis,30
+asteronema_breviarticulatum,30
+astronema_sp,30
+coral,30
+cyanobacteria_spp,30
+galaxaura_sp,30
+hypnea_spp,30
+Pterocladiella caerulescens,29
+Pterocladiella spp,29
+snail_dendropoma_gregarium,29
+unknown_species,29
+Colpomenia sinuosa,28
+Littoraria pintado,28
+Neomeris spp.,28
+Halimeda sp,27
+bleached_coral,27
+unknown_red,27
+Dendropoma gregaria,26
+Dictyota sp,26
+Hypnea sp.,26
+bryopsis_sp,26
+unknown,26
+Bornetella sphaerica,25
+Dictyosphaeria cavernosa,25
+actinopyga_varians,25
+amansia_glomerata,25
+ulva_flexuosa,25
+Asteronema breviarticulatum,24
+Brown/Orange Crust,23
+Isognomon californicum,23
+Laurencia sp.,23
+Pterocladiella capillacea,23
+dichtyopterous,23
+tube_snail,23
+unknown_brown,23
+Padina,22
+Snail- Littoraria,22
+coelothrix_irregularis,22
+neomeris_spp,22
+sphacelaria_spp,22
+ulva_fasciata,22
+Unknown Polychaete,21
+ahnfeltiopsis_concinna,21
+articulated_coralline,21
+hermit_crab,21
+sphaecelaria_sp,21
+Basalt,20
+Colpomenia sp.,20
+Jania pumila,20
+halimeda_sp,20
+liagora_spp,20
+Chaetomorpha basiretrorsa,19
+Codium edule,19
+Codium sp,19
+Gelidiella acerosa,19
+Jania sp,19
+Sargassum aquifolium,19
+pocillopora_damicornis,19
+Brown Colored Crust,18
+Porites lobata,18
+Spyridia filamentosa,18
+leptolyngbya_crosbyana,18
+Morula granulata,17
+holothuria_atra,17
+snail_spp,17
+unknown_green,17
+Hypnea cervicornis,16
+chaetomorpha_antennina,16
+chnoospora_minima,16
+laurencia_majuscula,16
+Gelid spp,15
+anthopleura_nigrescens,15
+barnacles_sp,15
+pennaria_disticha,15
+Dictyopteris spp,14
+Tripneustes gratilla,14
+caulerpa_sertularioides,14
+gelidium_pusillum,14
+pterocladiella,14
+unknown_cyanobacteria,14
+Brachidontes crebristriatus,13
+Coral,13
+SAND,13
+colobocentrotus_atratus,13
+hypnea_chordacea,13
+Holothuria atra,12
+Sponge spp,12
+Turf Algae,12
+centroceras_clavulatum,12
+griffithsia_sp,12
+morula_granulata,12
+snail_siphonaria_normalis,12
+Chaetomorpha antennina,11
+Ulva flexuosa,11
+Wrangelia elegantissima,11
+astronema_breviarticulatum,11
+chaetomorpha_basiretrorsa,11
+crab_sp,11
+echinothrix_spp,11
+galaxaura_spp,11
+hypnea_cervicornis,11
+Boodlea composita,10
+Chnoospora minima,10
+Hydroclathrus clathratus,10
+Montipora capitata,10
+Peasiella tantilla,10
+Symploca hydnoides,10
+gelid_sp,10
+lobophora_sp,10
+pocillopora_sp,10
+snail_sp,10
+Ahnfeltiopsis flabelliformis,9
+Asparagopsis sp,9
+Avrainvillea amadelpha,9
+Bleached Coral,9
+Brown crust,9
+Liagora spp,9
+Snail- Siphonaria normalis,9
+nesochthamalus_intertextus,9
+porites_lobata,9
+pterocladiella_spp,9
+sponge,9
+unknown_fuzzy,9
+zoanthid_sp,9
+Botryocladia sp.,8
+Cyanobacteria,8
+Liagora sp,8
+Microdictyon sp.,8
+Pocillopora damicornis,8
+Pterocladiella,8
+Sargassum polyphyllum,8
+Sphaecelaria sp,8
+Urchin,8
+brittle_star,8
+caulerpa_racemosa,8
+cerramium_sp,8
+crab_spp,8
+diadema_paucispinum,8
+drupa_morum,8
+hydroclathrus_clathratus,8
+morula_uva,8
+pterocladiella_capillacea,8
+Avrainvillea sp.,7
+Bornatella sphaerica,7
+Bryopsis spp,7
+Caulerpa racemosa,7
+Codium arabicum,7
+Colobocentrotus atratus,7
+Cucumber- Actinopyga,7
+Dichtyopterous,7
+Holothuria cinerascens,7
+Lobophora obscura,7
+Monetaria caputserpentis,7
+Snail- Dendropoma gregarium,7
+boodlea_composita,7
+bryopsis_spp,7
+cellana_sandwicensis,7
+gelidiopsis_intricata,7
+portieria,7
+3,6
+Actinopyga varians,6
+Ahnfeltiopsis sp,6
+Amansia sp.,6
+Anthopleura nigrescens,6
+Articulated Coralline,6
+Astronema breviarticulatum,6
+Astronema sp.,6
+Avrainvillea lacerata,6
+Bare Rock,6
+Brittle Star,6
+Bryopsis sp.,6
+CORAL,6
+Calcinus laevimanus,6
+Cerramium sp,6
+Chnoospora sp,6
+Cladophora sp,6
+Codium reediae,6
+Crab,6
+Cucumber- Holothuria,6
+Dasya iridescens,6
+Dichotomaria marginata,6
+Echinometra,6
+Gelidiella sp,6
+Gracilaria salicronia,6
+Gracilaria sp.,6
+Grateloupia spp,6
+Haminoea cymbalum - green snail,6
+Hermet crab,6
+Laurencia majuscula,6
+Laurencia nidifica,6
+Limestone,6
+Limpet,6
+Pennaria disticha (christmas tree hydroid),6
+Portieria,6
+Sea Star,6
+Snail - Nerite,6
+Snail- Serpulorbis,6
+Symploca hypnoides,6
+Trichogloea sp,6
+Ulva,6
+Ulva reticulata,6
+Valonia sp.,6
+Wrangelia,6
+amansia_sp,6
+calcinus_laevimanus,6
+cellana_exarata,6
+cerracia,6
+echinolittorina_hawaiiensis,6
+lobophora_variegata,6
+morula_sp,6
+peasiella_tantilla,6
+tripneustes_gratilla,6
+Akalaphycus setchelliae,5
+Amansia glomerata,5
+Crustose Coralline Algae (CCA),5
+Dictyota spp.,5
+Laurencia crustiformans,5
+Lyngbya Magmuscula,5
+caulerpa_spp,5
+cyanobacteria,5
+holothuria_spp,5
+laurencia_dotyi,5
+montipora_capitata,5
+symploca_hypnoides,5
+trichogloea_sp,5
+unknown_bulbous_algae,5
+Bryopsis,4
+Galaxaura spp,4
+Gelidium pusillum,4
+ORANGE CRUST,4
+Padina Sp.,4
+Palisada parvipapillata,4
+Shallow Rock,4
+Snail spp,4
+"Turf, Fuzzy algae <2 mm tall",4
+Zoanthid spp,4
+caulerpa_sp,4
+dasya_sp,4
+dichotomaria_marginata,4
+echinothrix_sp,4
+holothuria_pardalis,4
+hypnea_musciformis,4
+limu ʻeleʻele,4
+ophiocoma_erinaceus,4
+porites_sp,4
+sponge_sp,4
+symploca_hydnoides,4
+unknown_polychaete,4
+urchin,4
+Calcinus seurati,3
+Cladophora/Cladophoropsis,3
+Coelothrix irregularis,3
+Conus ebraeus,3
+Dictyopteris plagiogramma,3
+Dictyota,3
+Echinothrix spp,3
+Hermit crab,3
+Holothurdoidea,3
+Laurencia,3
+Laurencia spp.,3
+Neritapicea,3
+ROCK,3
+Rock / Sand,3
+Sargassum,3
+Sargassum aquifolium Sargassum polyphyllum,3
+Ulva spp,3
+asparagopsis_sp,3
+avrainvillea_sp,3
+bare rock,3
+chnoospora_sp,3
+chondria_sp,3
+codium_reediae,3
+conus_sp,3
+dictyopteris_sp,3
+dictyopteris_spp,3
+echinometra,3
+galaxaura_or_liagora_sp,3
+gelidiella_sp,3
+haminoea_cymbalum,3
+isognomon_perna,3
+jania_pumila,3
+montipora_sp,3
+snail_nerite,3
+substrate,3
+ulva,3
+zoanthid_spp,3
+Acanthophora,2
+Cca,2
+Cladophora,2
+Conus spp,2
+Crab spp,2
+Galaxaura,2
+Gracilaria coronopifolia,2
+Gracilaria parvispora,2
+Hypnea,2
+Isognomon perna,2
+LIMU ʻELE ʻELE,2
+Leptolyngbya crosbyana,2
+Limu (Algae),2
+Lyngbia,2
+Morula,2
+Neomeris spp,2
+Nesochthamalus intertextus,2
+Ophiocoma,2
+Ophiocoma erinaceus,2
+Protopalythoa spp,2
+Pterocladiella capillacea caerulescens,2
+Pālahalaha,2
+Stomatopod spp,2
+Stylocheilus striatus,2
+Trichogloea spp,2
+Turbinariaornata,2
+aplysia_sp,2
+basalt,2
+brachidontes_crebristriatus,2
+calcinus_seurati,2
+champia_parvula,2
+cucumber_actinopyga,2
+cucumber_holothuria,2
+dasya_iridescens,2
+gelidiopsis_spp,2
+gracilaria_sp,2
+haminoea_cymbalum_green_snail,2
+holothuria_sp,2
+holothuria_whitmaei,2
+limu kohu,2
+loimia_medusa,2
+monetaria_caputserpentis,2
+palythoa_caesia,2
+pennaria_disticha_christmas_tree_hydroid,2
+portieria_hornemannii,2
+rhodymenia_sp,2
+sponge_spp,2
+Amphipod spp,1
+Articulated Coralines,1
+Bleached coral,1
+Bornatella,1
+Botryocladia skottsbergii,1
+Bryopsis pennata,1
+CORALʻSAND,1
+Calcinus elegans,1
+Cellana exarata,1
+Cement slab,1
+Codium Edule,1
+Cypraea tigris,1
+Dasya spp,1
+Dictyosphaeria spp.,1
+Dictyota Sp.,1
+Drupa morum,1
+Dry Rock (Above Water),1
+Fireworm spp,1
+Gelidiopsis intricata,1
+Halimeda Discoidea,1
+Halimida,1
+Hermit Crab,1
+Holothuria difficilis,1
+Hypnea Spp,1
+Hypnea chordacea,1
+Laurencia dendrodea,1
+Liagora,1
+Lime pālahalaha,1
+Limu Kohu,1
+Limu pālahalaha,1
+Lyngbya,1
+Martensia spp,1
+Mauritia mauritiana,1
+Morula uva,1
+Nerita polita,1
+Onchidium verruculatum,1
+Patina sp.,1
+Rock & Sand,1
+Rock (manmade),1
+"Rock, Ophiocoma spp",1
+Sand/Rock,1
+Sargassum Sp.,1
+Sea Urchin Echinodermata Mathaei,1
+Smaragdinella calyculata,1
+Snails - Dendropoma gregarium,1
+Sphacelaria,1
+Sphacelaria spp.,1
+Spirobranchus giganteus,1
+Spyridia fligmentosa,1
+Trochus intextus,1
+Turf Alfae,1
+Unidentified,1
+Unknown fish,1
+Unknown snail,1
+Urchin - Echinometra,1
+Urchin - Ophiocoma,1
+Wana (purple),1
+acanthophora,1
+ahnfeltiopsis_flabelliformis,1
+aiptasia_pulchella,1
+articulated corrallines,1
+barnacles_spp,1
+broken shell,1
+brown color crust,1
+brown crust,1
+crab,1
+dasya_spp,1
+gelid_spp,1
+grapsus_tenuicrustatus,1
+grateloupia_sp,1
+hermet_crab,1
+holothuria_hilla,1
+hypnea,1
+lipoa,1
+martensia_sp,1
+mud/silt,1
+nerita_polita,1
+onchidium_verruculatum,1
+ophiocoma_brevipes,1
+opihi awa,1
+parvocaulis_parvulus,1
+sand & turf,1
+spirobranchus_giganteus,1
+turf & substrate,1
+turf <2cm Jania,1
+valonia_spp,1
+wana,1
+wrangelia_elegantissima,1
