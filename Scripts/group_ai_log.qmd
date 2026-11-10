@@ -1,0 +1,111 @@
+---
+title: "Group AI Developer Log"
+author: "Mei Iwamoto"
+format: 
+  html: 
+    code-fold: true              # code hidden by default, with a toggle button
+    code-summary: "show my hard work"    # customize the button label
+editor: visual
+execute:
+  warning: false   # suppress warnings in all chunks
+  message: false   # suppress package loading messages
+  eval: true       # run all chunks (the default)
+---
+
+## Group AI Developer Log
+
+Our group used a number of different AI models to clean our datasets as we had each taken on a few years of data to clean separately. The bulk of our cleaning and any further AI usage are detailed in our individual cleaning scripts that are linked in our repositoryʻs README.
+
+Here are some examples of AI usage below with comments provided to avoid throwing all the times we used AI because it was a lot.
+
+### Fixing Species names using Gemini 
+
+I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets together. I did not provide any of the actual data to Gemini, only the column names. Specifically, I asked Gemini to identify any columns (namely for the different species counts) that may have spelling differences but refer to the same species/genus. I did ask Gemini to preserve any individual species instead of combining together into genus.
+
+User prompt: can you identify any columns that might have spelling differences but refer to the same thing (after providing all said columns of datasheet)
+
+### ---Gemini Outputs (ai-generated)---
+
+```{r}
+# 3. Clean typos, name formats, and metadata in df2 without losing specific species
+#df2_standardized <- df2 %>%
+#rename(
+# --- Metadata Column Standardizations ---
+#stop_time = end_time,
+#num_of_t = x_t,
+#num_of_quad_t = x_quad_t,
+#pt_spacing = dist_between_t_pts_for_q,
+#transect_length = longest_t_m,
+
+# --- Typo Fixes ---
+#bornetella_sphaerica = bornatella_sphaerica,
+#gracilaria_salicornia = gracilaria_salicronia,
+#hermit_crab = hermet_crab,
+#symploca_hydnoides = symploca_hypnoides,
+#dictyopteris_spp = dichtyopterous,
+#ceramium_sp = cerramium_sp,
+#sphacelaria_spp = sphaecelaria_sp,
+
+# --- Common Name / Prefix Standardizations (Matching df1 Naming Scheme) ---
+#dendropoma_gregaria = snail_dendropoma_gregarium,
+#haminoea_cymbalum = haminoea_cymbalum_green_snail,
+#pennaria_disticha = pennaria_disticha_christmas_tree_hydroid,
+#siphonaria_normalis = snail_siphonaria_normalis,
+#actinopyga_varians = cucumber_actinopyga,
+#holothuria_spp = cucumber_holothuria,
+#sponge_spp = sponge,
+#articulated_corallines = articulated_coralline,
+#pterocladiella_spp = pterocladiella,
+#portieria_hornemannii = portieria)
+```
+
+### **1. Species Name Variations & Typo Differences**
+
+| **Dataset 1 (df1)** | **Dataset 2 (df2)** | **Discrepancy Details** |
+|----|----|----|
+| ahnfeltiopsis_concinna / ahnfeltiopsis_flabelliformis | ahnfeltiopsis_sp | df1 identifies down to species level; df2 uses genus level (\_sp). |
+| amansia_glomerata | amansia_sp | df1 specifies glomerata; df2 uses genus level. |
+| articulated_corallines | articulated_coralline | Plural (...corallines) vs. Singular (...coralline). |
+| asparagopsis_taxiformis | asparagopsis_sp | df1 specifies species; df2 uses genus level. |
+| astronema_breviarticulatum | astronema_breviarticulatum / astronema_sp | df2 contains both the specific species and a genus-level column (astronema_sp). |
+| avrainvillea_amadelpha | avrainvillea_sp / avrainvillea_lacerata | Different species listed (amadelpha vs lacerata) along with genus level (\_sp). |
+| bornetella_sphaerica | bornatella_sphaerica | Typo in df2: bornatella instead of bornetella. |
+| bryopsis_spp | bryopsis_sp | df1 uses spp (plural species); df2 uses sp (singular species). |
+| ceramium_sp (from raw image) | cerramium_sp | Typo in df2: extra 'r' (cerramium). |
+| chaetomorpha_antennina | chaetomorpha_basiretrorsa | Different species under the same genus. |
+| chnoospora_minima | chnoospora_sp | Species level vs. genus level. |
+| dictyopteris_spp | dichtyopterous | Typo/naming variation in df2 (dichtyopterous). |
+| gelidiella_acerosa | gelidiella_sp | Species level vs. genus level. |
+| gracilaria_salicornia | gracilaria_salicronia | Typo in df2: salicronia instead of salicornia. |
+| hermit_crab | hermet_crab | Typo in df2: hermet instead of hermit. |
+| hypnea_cervicornis / hypnea_musciformis / hypnea_spp | hypnea_sp | Species breakdown vs. genus level. |
+| laurencia_mcdermidiae / laurencia_spp | laurencia_majuscula / laurencia_nidifica / laurencia_sp | Different specific species listed across both datasets. |
+| portieria_hornemannii | portieria | df1 includes full binomial name; df2 truncated to genus. |
+| pterocladiella_spp | pterocladiella | Plural genus designation vs. plain genus name. |
+| sphaecelaria_sp (from raw image) | sphacelaria_spp | Typo in image/dataset: sphaecelaria vs sphacelaria. |
+| symploca_hydnoides | symploca_hypnoides | Typo in df2: hypnoides instead of hydnoides. |
+| cyanobacteria_spp / unknown_cyanobacteria | cyanobacteria | df1 splits cyanobacteria into general/unknown categories; df2 groups under cyanobacteria. |
+
+### **2. Common Names vs. Scientific Names**
+
+| **Dataset 1 (df1)** | **Dataset 2 (df2)** | **Discrepancy Details** |
+|----|----|----|
+| actinopyga_varians | cucumber_actinopyga | Common descriptor (cucumber\_) added in df2. |
+| holothuria_spp (and individual Holothuria species) | cucumber_holothuria | Common descriptor (cucumber\_) added in df2. |
+| dendropoma_gregaria | snail_dendropoma_gregarium | Prefix snail\_ added and slight species ending mismatch (gregaria vs gregarium). |
+| haminoea_cymbalum | haminoea_cymbalum_green_snail | Descriptive common name (green_snail) appended in df2. |
+| pennaria_disticha | pennaria_disticha_christmas_tree_hydroid | Common name appended in df2. |
+| siphonaria_normalis | snail_siphonaria_normalis | Prefix snail\_ added in df2. |
+| sponge_spp | sponge | General group (sponge_spp vs sponge). |
+
+### **3. Survey & Metadata Field Names**
+
+| **Dataset 1 (df1)** | **Dataset 2 (df2)** | **Meaning** |
+|----|----|----|
+| num_of_t | x_t / x_t_lines | Number of transects (# T). |
+| transect_length | longest_t_m / position_on_transect_m | Transect distance/length metrics. |
+| pt_spacing | dist_between_t_pts_for_q | Distance/spacing between transect points. |
+| num_of_quad_t | x_quad_t | Number of quadrat transects (# Quad T). |
+| stop_time | end_time | Survey conclusion time. |
+
+### End of Gemini Outputs
