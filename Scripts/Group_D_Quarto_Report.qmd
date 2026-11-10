@@ -136,7 +136,7 @@ To test the function, I used the opihi_2024 data that Mei cleaned as a master te
 
 ```{r}
 #| label: Function code
-#| results: hide
+#| results: markup
 
 #raw data sheet for given year
 OPIHI_2018_raw_data <- here("Nick","Data","OPIHI_data_2018.xlsx")

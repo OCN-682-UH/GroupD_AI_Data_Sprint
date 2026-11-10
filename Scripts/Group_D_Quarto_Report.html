@@ -2726,14 +2726,190 @@ Function
 <span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a><span class="co">#check on functionality for 2018 data</span></span>
-<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>OPIHI_2018_new_species <span class="ot">&lt;-</span> <span class="fu">New_Species_Check</span>(OPIHI_2018_raw_data,sheet,OPIHI_master_template)</span>
-<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a><span class="co">#check on functionality for 2017 data</span></span>
-<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>OPIHI_2017_raw_data <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Nick"</span>,<span class="st">"Data"</span>,<span class="st">"OPIHI_data_2017.xlsx"</span>)</span>
-<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>sheet2 <span class="ot">&lt;-</span> <span class="st">"OPIHI data 2017"</span></span>
-<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>OPIHI_2017_new_species <span class="ot">&lt;-</span> <span class="fu">New_Species_Check</span>(OPIHI_2017_raw_data,sheet2,OPIHI_master_template)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>OPIHI_2018_new_species <span class="ot">&lt;-</span> <span class="fu">New_Species_Check</span>(OPIHI_2018_raw_data,sheet,OPIHI_master_template)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== SPECIES CHECK COMPLETED ===
+Forms scanned: 34
+Total unique species found in Excel: 111
+⚠️ ALERT: Found 87 BRAND NEW species names not in your Master List:
+ [1] "crustose_coralline_algae"        "turf_sp"                        
+ [3] "actinopyga_varians"              "asparagopsis_taxiformis"        
+ [5] "coral_sp"                        "crab_sp"                        
+ [7] "cyanobacteria_sp"                "drupa_morum"                    
+ [9] "echinometra_mathaei"             "morula_granulata"               
+[11] "thylacodes_variabilis"           "tripneustes_gratilla"           
+[13] "ulva_sp"                         "unknown_species"                
+[15] "articulated_corallines"          "gelidiella_acerosa"             
+[17] "gelidium_pusillum"               "lyngbya_majuscula"              
+[19] "chaetomorpha_antennina"          "ulva_flexuosa"                  
+[21] "barnacles_sp"                    "bleached_coral"                 
+[23] "brittle_star"                    "calcinus_laevimanus"            
+[25] "cladophora_or_cladophoropsis_sp" "echinometra_oblonga"            
+[27] "hermit_crab"                     "isognomon_californicum"         
+[29] "nerita_picea"                    "ophiocoma_erinaceus"            
+[31] "pterocladiella_sp"               "siphonaria_normalis"            
+[33] "sphacelaria_sp"                  "tube_snail"                     
+[35] "ulva_fasciata"                   "unknown_brown"                  
+[37] "unknown_red"                     "bornetella_sphaerica"           
+[39] "chnoospora_minima"               "dendropoma_gregaria"            
+[41] "galaxaura_or_liagora_sp"         "halimeda_discoidea"             
+[43] "hypnea_cervicornis"              "microdictyon_setchellianum"     
+[45] "anthopleura_nigrescens"          "dictyopteris_sp"                
+[47] "echinothrix_sp"                  "amansia_glomerata"              
+[49] "asteronema_breviarticulatum"     "caulerpa_sp"                    
+[51] "morula_sp"                       "pterocladiella_caerulescens"    
+[53] "holothuria_atra"                 "laurencia_dendroidea"           
+[55] "littoraria_pintado"              "echinometra_sp"                 
+[57] "leptolyngbya_crosbyana"          "conus_sp"                       
+[59] "symploca_hydnoides"              "galaxaura_sp"                   
+[61] "brachidontes_crebristriatus"     "cellana_exarata"                
+[63] "hypnea_chordacea"                "laurencia_dotyi"                
+[65] "nesochthamalus_intertextus"      "unknown_cyanobacteria"          
+[67] "avrainvillea_amadelpha"          "gelid_sp"                       
+[69] "pterocladiella_capillacea"       "snail_sp"                       
+[71] "morula_uva"                      "cellana_sandwicensis"           
+[73] "coelothrix_irregularis"          "unknown_fuzzy"                  
+[75] "gracilaria_salicornia"           "ahnfeltiopsis_concinna"         
+[77] "spyridia_filamentosa"            "calcinus_seurati"               
+[79] "montipora_capitata"              "porites_sp"                     
+[81] "spirobranchus_giganteus"         "sponge_sp"                      
+[83] "caulerpa_sertularioides"         "griffithsia_sp"                 
+[85] "haminoea_cymbalum"               "pennaria_disticha"              
+[87] "peasiella_tantilla"             
+================================</code></pre>
+</div>
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check on functionality for 2017 data</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>OPIHI_2017_raw_data <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Nick"</span>,<span class="st">"Data"</span>,<span class="st">"OPIHI_data_2017.xlsx"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>sheet2 <span class="ot">&lt;-</span> <span class="st">"OPIHI data 2017"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>OPIHI_2017_new_species <span class="ot">&lt;-</span> <span class="fu">New_Species_Check</span>(OPIHI_2017_raw_data,sheet2,OPIHI_master_template)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== SPECIES CHECK COMPLETED ===
+Forms scanned: 57
+Total unique species found in Excel: 132
+⚠️ ALERT: Found 104 BRAND NEW species names not in your Master List:
+  [1] "articulated_corallines"          "asteronema_breviarticulatum"    
+  [3] "centroceras_clavulatum"          "champia_parvula"                
+  [5] "cladophora_or_cladophoropsis_sp" "coral_sp"                       
+  [7] "crustose_coralline_algae"        "cyanobacteria_sp"               
+  [9] "dendropoma_gregaria"             "echinometra_mathaei"            
+ [11] "echinometra_oblonga"             "gelid_sp"                       
+ [13] "gelidiella_acerosa"              "gelidiopsis_intricata"          
+ [15] "gelidium_pusillum"               "gracilaria_salicornia"          
+ [17] "grateloupia_sp"                  "holothuria_sp"                  
+ [19] "hypnea_chordacea"                "hypnea_musciformis"             
+ [21] "palisada_parvipapillata"         "palythoa_caesia"                
+ [23] "pterocladiella_caerulescens"     "pterocladiella_sp"              
+ [25] "symploca_hydnoides"              "turf_sp"                        
+ [27] "ulva_fasciata"                   "amansia_glomerata"              
+ [29] "avrainvillea_amadelpha"          "bornetella_sphaerica"           
+ [31] "chondria_sp"                     "griffithsia_sp"                 
+ [33] "halimeda_discoidea"              "hypnea_cervicornis"             
+ [35] "laurencia_dendroidea"            "laurencia_dotyi"                
+ [37] "lobophora_variegata"             "lyngbya_majuscula"              
+ [39] "microdictyon_setchellianum"      "portieria_hornemannii"          
+ [41] "snail_sp"                        "sphacelaria_sp"                 
+ [43] "spyridia_filamentosa"            "thylacodes_variabilis"          
+ [45] "wrangelia_elegantissima"         "ahnfeltiopsis_flabelliformis"   
+ [47] "boodlea_composita"               "coelothrix_irregularis"         
+ [49] "galaxaura_sp"                    "hermit_crab"                    
+ [51] "leptolyngbya_crosbyana"          "parvocaulis_parvulus"           
+ [53] "unknown_polychaete"              "barnacles_sp"                   
+ [55] "porites_lobata"                  "holothuria_atra"                
+ [57] "unknown_red"                     "actinopyga_varians"             
+ [59] "isognomon_californicum"          "unknown_green"                  
+ [61] "dasya_sp"                        "sponge_sp"                      
+ [63] "ulva_sp"                         "unknown_species"                
+ [65] "asparagopsis_taxiformis"         "siphonaria_normalis"            
+ [67] "ulva_flexuosa"                   "chaetomorpha_antennina"         
+ [69] "diadema_paucispinum"             "unknown_brown"                  
+ [71] "chnoospora_minima"               "loimia_medusa"                  
+ [73] "isognomon_perna"                 "ahnfeltiopsis_concinna"         
+ [75] "bleached_coral"                  "unknown_fuzzy"                  
+ [77] "grapsus_tenuicrustatus"          "holothuria_pardalis"            
+ [79] "holothuria_whitmaei"             "littoraria_pintado"             
+ [81] "monetaria_caputserpentis"        "nerita_picea"                   
+ [83] "rhodymenia_sp"                   "caulerpa_sp"                    
+ [85] "holothuria_hilla"                "pennaria_disticha"              
+ [87] "cellana_exarata"                 "morula_granulata"               
+ [89] "pterocladiella_capillacea"       "aplysia_sp"                     
+ [91] "cellana_sandwicensis"            "unknown_cyanobacteria"          
+ [93] "ophiocoma_brevipes"              "echinolittorina_hawaiiensis"    
+ [95] "martensia_sp"                    "zoanthid_sp"                    
+ [97] "brittle_star"                    "morula_uva"                     
+ [99] "nesochthamalus_intertextus"      "onchidium_verruculatum"         
+[101] "tube_snail"                      "aiptasia_pulchella"             
+[103] "caulerpa_sertularioides"         "anthopleura_nigrescens"         
+================================</code></pre>
+</div>
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(OPIHI_2018_new_species)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "acanthophora_spicifera"          "actinopyga_varians"             
+  [3] "ahnfeltiopsis_concinna"          "amansia_glomerata"              
+  [5] "anthopleura_nigrescens"          "articulated_corallines"         
+  [7] "asparagopsis_taxiformis"         "asteronema_breviarticulatum"    
+  [9] "avrainvillea_amadelpha"          "barnacles_sp"                   
+ [11] "bleached_coral"                  "bornetella_sphaerica"           
+ [13] "brachidontes_crebristriatus"     "brittle_star"                   
+ [15] "brown_crust"                     "bryopsis_sp"                    
+ [17] "calcinus_laevimanus"             "calcinus_seurati"               
+ [19] "caulerpa_racemosa"               "caulerpa_sertularioides"        
+ [21] "caulerpa_sp"                     "cellana_exarata"                
+ [23] "cellana_sandwicensis"            "chaetomorpha_antennina"         
+ [25] "chnoospora_minima"               "cladophora_or_cladophoropsis_sp"
+ [27] "codium_arabicum"                 "codium_edule"                   
+ [29] "codium_sp"                       "coelothrix_irregularis"         
+ [31] "colpomenia_sinuosa"              "conus_sp"                       
+ [33] "coral_sp"                        "crab_sp"                        
+ [35] "crustose_coralline_algae"        "cyanobacteria_sp"               
+ [37] "dendropoma_gregaria"             "dictyopteris_sp"                
+ [39] "dictyosphaeria_cavernosa"        "dictyosphaeria_sp"              
+ [41] "dictyosphaeria_versluysii"       "dictyota_acutiloba"             
+ [43] "dictyota_sandvicensis"           "dictyota_sp"                    
+ [45] "drupa_morum"                     "echinometra_mathaei"            
+ [47] "echinometra_oblonga"             "echinometra_sp"                 
+ [49] "echinothrix_sp"                  "galaxaura_or_liagora_sp"        
+ [51] "galaxaura_sp"                    "gelid_sp"                       
+ [53] "gelidiella_acerosa"              "gelidium_pusillum"              
+ [55] "gracilaria_salicornia"           "griffithsia_sp"                 
+ [57] "halimeda_discoidea"              "haminoea_cymbalum"              
+ [59] "hermit_crab"                     "holothuria_atra"                
+ [61] "hypnea_cervicornis"              "hypnea_chordacea"               
+ [63] "hypnea_sp"                       "isognomon_californicum"         
+ [65] "laurencia_dendroidea"            "laurencia_dotyi"                
+ [67] "laurencia_mcdermidiae"           "laurencia_sp"                   
+ [69] "leptolyngbya_crosbyana"          "liagora_sp"                     
+ [71] "littoraria_pintado"              "lyngbya_majuscula"              
+ [73] "microdictyon_setchellianum"      "montipora_capitata"             
+ [75] "morula_granulata"                "morula_sp"                      
+ [77] "morula_uva"                      "neomeris_sp"                    
+ [79] "nerita_picea"                    "nesochthamalus_intertextus"     
+ [81] "ophiocoma_erinaceus"             "padina_sp"                      
+ [83] "peasiella_tantilla"              "pennaria_disticha"              
+ [85] "pocillopora_damicornis"          "porites_sp"                     
+ [87] "pterocladiella_caerulescens"     "pterocladiella_capillacea"      
+ [89] "pterocladiella_sp"               "sargassum_aquifolium"           
+ [91] "sargassum_sp"                    "siphonaria_normalis"            
+ [93] "snail_sp"                        "sphacelaria_sp"                 
+ [95] "spirobranchus_giganteus"         "sponge_sp"                      
+ [97] "spyridia_filamentosa"            "symploca_hydnoides"             
+ [99] "thylacodes_variabilis"           "tripneustes_gratilla"           
+[101] "tube_snail"                      "turbinaria_ornata"              
+[103] "turf_sp"                         "ulva_fasciata"                  
+[105] "ulva_flexuosa"                   "ulva_sp"                        
+[107] "unknown_brown"                   "unknown_cyanobacteria"          
+[109] "unknown_fuzzy"                   "unknown_red"                    
+[111] "unknown_species"                </code></pre>
+</div>
 </div>
 
 </main>
