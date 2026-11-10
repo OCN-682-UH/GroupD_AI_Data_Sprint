@@ -1,46 +1,46 @@
-col_names
-date
-year
-start_time
-stop_time
-site_name
-latitude
-longitude
-name_of_school
-in_field_group
-group
-team_members
-team_lead_or_recorder
-data_entry_by
-low_tide_time
-low_tide_height
-weather
-rain_events
-wave_height
-wind_speed
-stressful_events
-visitors
-fishing
-collecting
-what_collecting
-method
-total_number_of_transect_lines
-length_of_transect_line
-longest_t_m
-total_number_of_transect_points
-dist_between_t_pts_for_q
-quad_t
-n_quadrats_per_transect
-point_spacing
-transect_id
-quadrat_id
-point_id
-quadrat_location_m
-quadrat_total_points
-p1_or_p2
-organism_or_substrate_type
-category
-count
-within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only
-sediment_depth
-notes
+col_names,description
+date,The date the sampling event took place.
+year,The year the sampling event took place (some rows only have this for date information).
+start_time,The start time of the sampling event.
+stop_time,The end time of the sampling event.
+site_name,The name of the site the sampling event took place at
+latitude,Latitude
+longitude,Longitude
+name_of_school,The name of the school participating in the sampling event
+in_field_group,(uncertain) The group number during some sampling events
+group,(uncertain) The group number during some sampling events
+team_members,Names of the participants in the group that recorded this observation
+team_lead_or_recorder,Name of the team leader or recorder in the group that recorded this observation
+data_entry_by,Name of the person recording the data in the original spreadshet
+low_tide_time,The time of the low tide
+low_tide_height,The height of the low tide
+weather,"Observable weather at the event (cloudy, sunny, etc.)"
+rain_events,Did it rain during sampling? Yes = there were rain events during the sampling time; No = there were no rain events
+wave_height,The height of the waves
+wind_speed,The speed of the wind
+stressful_events,(uncertain -- what is a stressful event?) Were there events that may have caused stress? Yes = stressful events were present; No = no stressful events were present
+visitors,"(uncertain -- what is a ""visitor""?) How many visitors were present?"
+fishing,How many people were fishing at the site?
+collecting,(uncertain -- what is meant by collecting?) How many people were collecting at the site?
+what_collecting,What is being collected from the site?
+method,(uncertain) Is this record from a transect or a quadrat?
+total_number_of_transect_lines,(uncertain) The total number of transect lines during the sampling event
+length_of_transect_line,The length of the transect line being sampled from
+longest_t_m,(uncertain) The longest transect line in the group in meters (?)
+total_number_of_transect_points,The total number of transect points in this transect
+dist_between_t_pts_for_q,(uncertain)
+quad_t,(uncertain)
+n_quadrats_per_transect,The number of quadrats per transect
+point_spacing,(uncertain) The space between each point
+transect_id,The transect number the organism/substrate observation was recorded
+quadrat_id,The quadrat number the organism/substrate observation was recorded
+point_id,The point number the organism/substrate observation was recorded
+quadrat_location_m,(uncertain) The location of the quadrat in meters (?)
+quadrat_total_points,The total number of quadrat points 
+p1_or_p2,(uncertain)
+organism_or_substrate_type,The name of the organism or substrate type observed by this row.
+category,Is the observation an organism or a substrate?
+count,The number of the organisms or substrate types observed by this row.
+within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only,(uncertain)
+sediment_depth,(uncertain) Depth of sediment at the site
+notes,Notes -- also contains original location and organism ID names.

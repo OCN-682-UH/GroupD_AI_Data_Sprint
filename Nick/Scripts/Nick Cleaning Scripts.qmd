@@ -1,0 +1,688 @@
+---
+title: "Cleaning Scripts Used"
+author: "Nick Mattson"
+editor: visual
+format:
+  html:
+    code-fold: true
+    code-summary: "Show code"
+theme: yeti
+execute:
+  warning: false
+  message: false
+---
+
+<h4>Appendix of Scripts Used</h4>
+
+<h3>Nick</h3>
+
+Below is the complete script utilized to convert raw data from 2017 and 2018 to a shared wide data format. This script was developed by using Google Gemini AI. In addition to Tidyverse functions, I also used the "openxlsx" package to read data directly from Excel workbooks. Key features of the script are:
+
+- Dynamically anchors on word "Date" since that appears in the top-left cell of every sheet. Every time "Date" appears marks the start of new sheet. Returns message with exact tally of calculated sheets.
+
+- Metadata from rows 1-11 of the raw data are assigned to columns in final table
+
+- Creates a running list of data from all the separate sheets in its working memory.
+
+- Reads species count data and pivots this to a long table that contains organism name, quadrat and point information, and total count.
+
+- Uses regular expressions to identify and isolate transect and point numbers, then returns these to columns. Each new observation point along a transect gets a new row.
+
+- Cleans species names by converting any value with white spaces to underscores.
+
+- Drops "junk" species columns that are just numeric strings as well as any value with the word "total" in it.
+
+- Identifies any species not contained in master list and adds these as new species, which are sorted into new columns alphabetically. This makes it easy to run across the output csv and determine if species duplicates exist, then make manual determinations.
+
+- Converts excel format date strings into readable MM-DD-YYYY format.
+
+```{r}
+#| label: Mattson Data Cleaner Code
+#| results: hide
+
+#Load Libraries
+library(openxlsx)
+library(here)
+library(tidyverse)
+library(ggplot2)
+library(kableExtra)
+library(lubridate)
+library(readxl) 
+library(janitor)
+
+# --- CONFIGURATION ---
+# here() locates your R Project root folder automatically.
+FILE_PATH       <- here::here("Nick","Data", "OPIHI_data_2018.xlsx")   
+SHEET_NAME      <- "OPIHI data 2018"               
+MASTER_CSV_PATH <- here::here("Nick","Outputs","output_data_2018_sorted.csv")     
+
+# Row definitions inside your Excel sheet
+METADATA_ANCHOR_ROW <- 1    # The exact row where the word "Date" sits as a label
+ORGANISM_HEADER_ROW <- 13   # Row containing "transect-1 quadrat-1..."
+ORGANISM_START_ROW  <- 14   # First row of organism names
+ORGANISM_END_ROW    <- 60   # Safe buffer row past your last organism row
+
+# Mapping metadata row numbers (assuming METADATA_ANCHOR_ROW is row 1)
+METADATA_ROWS <- list(
+  "date"                     = 1,
+  "start_time"               = 2,
+  "end_time"                 = 3,
+  "x_t_lines"                = 4,
+  "longest_t_m"              = 5,
+  "dist_between_t_pts_for_q" = 6,
+  "x_quad_t"                 = 7,
+  "location"                 = 8,
+  "latitude"                 = 9,
+  "longitude"                = 10,
+  "school"                   = 11   
+)
+
+# ----------------------------------------------------------------------------
+# 1. DYNAMICALLY DETECT FORM START COLUMNS
+# ----------------------------------------------------------------------------
+wb <- loadWorkbook(FILE_PATH)
+
+entire_anchor_row <- readWorkbook(wb, sheet = SHEET_NAME, rows = METADATA_ANCHOR_ROW, 
+                                  colNames = FALSE, skipEmptyCols = FALSE)
+
+form_label_cols <- which(as.character(entire_anchor_row[1, ]) == "Date")
+
+if (length(form_label_cols) == 0) {
+  stop("Could not find the word 'Date' in the anchor row. Please check METADATA_ANCHOR_ROW.")
+}
+
+start_columns <- form_label_cols + 1
+cat(sprintf("Found %d data forms dynamically based on 'Date' locations.\n", length(start_columns)))
+
+# ----------------------------------------------------------------------------
+# 2. RUN EXTRACTION LOOP
+# ----------------------------------------------------------------------------
+all_quadrats_list <- list()
+
+for (idx in 1:length(start_columns)) {
+  
+  current_form_start_col <- start_columns[idx]
+  
+  if (idx < length(start_columns)) {
+    next_form_label_col <- form_label_cols[idx + 1]
+    end_col <- next_form_label_col - 1 
+  } else {
+    header_row_vals <- readWorkbook(wb, sheet = SHEET_NAME, rows = ORGANISM_HEADER_ROW, 
+                                    colNames = FALSE, skipEmptyCols = FALSE)
+    end_col <- max(which(!is.na(header_row_vals[1, ]) & header_row_vals[1, ] != ""))
+  }
+  
+  matrix_cols <- (current_form_start_col - 1):end_col
+  
+  # --- EXTRACT METADATA ---
+  meta_data <- list()
+  for (meta_field in names(METADATA_ROWS)) {
+    val <- suppressWarnings(readWorkbook(wb, sheet = SHEET_NAME, 
+                                         rows = METADATA_ROWS[[meta_field]], cols = current_form_start_col, 
+                                         colNames = FALSE, rowNames = FALSE))
+    meta_data[[meta_field]] <- if(length(val) == 0 || is.na(val)) NA else as.character(val)
+  }
+  meta_df <- as.data.frame(meta_data, stringsAsFactors = FALSE)
+  
+  # --- EXTRACT SPECIES GRIDS ---
+  raw_grid <- suppressWarnings(readWorkbook(wb, sheet = SHEET_NAME, 
+                                            rows = ORGANISM_HEADER_ROW:ORGANISM_END_ROW, 
+                                            cols = matrix_cols, 
+                                            colNames = FALSE, rowNames = FALSE))
+  
+  if (is.null(raw_grid) || length(raw_grid) == 0 || nrow(raw_grid) <= 1) {
+    next 
+  }
+  
+  # Grab raw column headers
+  raw_headers <- as.character(raw_grid[1, ])
+  raw_headers[1] <- "Organism" # Only rename the FIRST column, keep the quadrat names!
+  
+  # Clean and isolate ONLY columns that have real names
+  valid_col_indices <- which(!is.na(raw_headers) & raw_headers != "" & raw_headers != "NA")
+  
+  if (length(valid_col_indices) <= 1) {
+    next 
+  }
+  
+  counts_df <- raw_grid[-1, valid_col_indices, drop = FALSE]
+  colnames(counts_df) <- raw_headers[valid_col_indices]
+  
+  # Filter out rows where the Organism name is missing
+  counts_df <- counts_df %>% filter(!is.na(Organism) & Organism != "")
+  
+  if (nrow(counts_df) == 0) {
+    next
+  }
+  
+  # --- RESHAPE WIDE GRID TO LONG ROWS ---
+  long_counts <- counts_df %>%
+    pivot_longer(cols = -Organism, names_to = "quadrat_raw", values_to = "count") %>%
+    mutate(
+      count = ifelse(is.na(count) | count == "", NA, as.numeric(count)),
+      clean_organism = str_to_lower(Organism) %>% 
+        str_replace_all(" ", "_") %>% 
+        str_replace_all("-", "_") %>%
+        str_replace_all("spp", "sp"),
+      
+      # Standardize strings to lowercase dashes to make parsing bulletproof
+      normalized_quadrat = str_to_lower(quadrat_raw) %>% str_replace_all(" ", "-"),
+      
+      # Strict Look-behind Regex matching to keep column extraction separate
+      transect_number = str_extract(normalized_quadrat, "(?<=transect-)\\d+"),
+      position_on_transect_m = str_extract(normalized_quadrat, "(?<=point-)\\d+\\.\\d+|(?<=point-)\\d+")
+    )
+  
+  # Group duplicates and summarize counts
+  long_counts_clean <- long_counts %>%
+    filter(!is.na(transect_number) & !is.na(position_on_transect_m)) %>%
+    group_by(transect_number, position_on_transect_m, clean_organism) %>%
+    summarise(count = sum(count, na.rm = TRUE), .groups = 'drop')
+  
+  if (nrow(long_counts_clean) == 0) next
+  
+  # Pivot organisms back out horizontally into row columns
+  wide_quadrats <- long_counts_clean %>%
+    pivot_wider(names_from = clean_organism, values_from = count)
+  
+  # Merge metadata onto the rows
+  combined_df <- cbind(meta_df, wide_quadrats)
+  all_quadrats_list[[length(all_quadrats_list) + 1]] = combined_df
+}
+
+# Bind all variable forms into one vertical table frame
+if (length(all_quadrats_list) == 0) {
+  stop("The script skipped all forms. Please double-check your row indices and worksheet layout.")
+}
+
+# Coerce columns to character format uniformly before stacking to avoid bind errors
+df_extracted <- bind_rows(map(all_quadrats_list, ~ .x %>% mutate(across(everything(), as.character))))
+
+# ----------------------------------------------------------------------------
+# 3. ALIGN, SORT SPECIES ALPHABETICALLY, AND ADJUST COLS LEFT
+# ----------------------------------------------------------------------------
+master_headers <- c(
+  "date", "location", "data_entry_by", "school", "transect_number", "position_on_transect_m",
+  "acanthophora_spicifera", "amansia_sp", "articulated_coralline", "asparagopsis_sp",
+  "astronema_breviarticulatum", "astronema_sp", "ahnfeltiopsis_sp", "avrainvillea_sp",
+  "avrainvillea_lacerata", "bryopsis_sp", "bornatella_sphaerica", "caulerpa_racemosa",
+  "cca", "cerramium_sp", "cerracia", "chaetomorpha_basiretrorsa", "chnoospora_sp",
+  "cladophora_sp", "codium_sp", "codium_arabicum", "codium_edule", "codium_reediae",
+  "colpomenia_sp", "colpomenia_sinuosa", "cyanobacteria", "dasya_iridescens",
+  "dichotomaria_marginata", "dictyosphaeria_cavernosa", "dictyosphaeria_versluysii",
+  "dictyosphaeria_sp", "dictyota_sp", "dictyota_acutiloba", "dictyota_sandvicensis",
+  "dichtyopterous", "gelidiella_sp", "gracilaria_sp", "gracilaria_salicronia",
+  "halimeda_sp", "hydroclathrus_clathratus", "ulva", "hypnea_sp", "jania_pumila",
+  "jania_sp", "laurencia_sp", "laurencia_majuscula", "laurencia_mcdermidiae",
+  "laurencia_nidifica", "liagora_sp", "lobophora_sp", "lobophora_obscura",
+  "lyngbya_sp", "microdictyon_sp", "neomeris_sp", "portieria", "pterocladiella",
+  "padina_sp", "sargassum_sp", "sargassum_aquifolium", "sargassum_polyphyllum",
+  "sphaecelaria_sp", "symploca_hypnoides", "trichogloea_sp", "turbinaria_ornata",
+  "valonia_sp", "turf", "cucumber_actinopyga", "hermet_crab", "crab", "echinometra",
+  "snail_dendropoma_gregarium", "urchin", "cucumber_holothuria", "haminoea_cymbalum_green_snail",
+  "pennaria_disticha_christmas_tree_hydroid", "pocillopora_damicornis", "sea_star",
+  "snail_littoraria", "snail_nerite", "snail_serpulorbis", "snail_siphonaria_normalis",
+  "sponge", "sand", "limestone", "bare_rock", "rubble", "pebble", "hole",
+  "brown_crust", "unknown", "total_points", "x_x",
+  "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only", "sediment_depth",
+  "unknown_bulbous_algae", "team_leader", "team_members", "stressful_events",
+  "low_tide_time", "low_tide_height", "x_in_field_group", "x_t_lines", "longest_t_m",
+  "dist_between_t_pts_for_q", "x_quad_t", "start_time", "end_time", "weather",
+  "rain_events", "wave_height", "wind_speed", "x_visitors", "x_fishing",
+  "x_collecting", "what_collecting", "notes"
+)
+
+left_metadata_headers <- c(
+  "date", "location", "latitude", "longitude", 
+  "data_entry_by", "school", "transect_number", "position_on_transect_m"
+)
+
+right_survey_headers <- c(
+  "x_x", "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only", "sediment_depth",
+  "unknown_bulbous_algae", "team_leader", "team_members", "stressful_events",
+  "low_tide_time", "low_tide_height", "x_in_field_group", "x_t_lines", "longest_t_m",
+  "dist_between_t_pts_for_q", "x_quad_t", "start_time", "end_time", "weather",
+  "rain_events", "wave_height", "wind_speed", "x_visitors", "x_fishing",
+  "x_collecting", "what_collecting", "notes"
+)
+
+df_template <- as.data.frame(matrix(ncol = length(master_headers), nrow = 0), stringsAsFactors = FALSE)
+colnames(df_template) <- master_headers
+df_template[] <- lapply(df_template, as.character)
+
+names(df_extracted) <- trimws(names(df_extracted))
+raw_only_cols <- setdiff(names(df_extracted), master_headers)
+
+# FIX: Corrected double assignment typo that was breaking column evaluations
+is_numeric_col <- !is.na(suppressWarnings(as.numeric(raw_only_cols)))
+is_total_col   <- str_detect(str_to_lower(raw_only_cols), "total")
+junk_columns   <- raw_only_cols[is_numeric_col | is_total_col]
+real_new_species <- setdiff(raw_only_cols, junk_columns)
+
+df_extracted_clean <- df_extracted %>% select(-any_of(junk_columns))
+df_final_master    <- bind_rows(df_template, df_extracted_clean)
+
+all_current_cols <- colnames(df_final_master)
+organism_pool    <- setdiff(all_current_cols, c(left_metadata_headers, right_survey_headers))
+sorted_species_columns <- sort(organism_pool)
+
+final_column_ordering <- c(left_metadata_headers, sorted_species_columns, right_survey_headers)
+
+df_final_master <- df_final_master %>%
+  select(all_of(intersect(final_column_ordering, names(.))))
+
+# --- FIX EXCEL SERIAL FORMATS & EXECUTE DYNAMIC ZERO-TO-NA CONVERSION ---
+df_final_master <- df_final_master %>%
+  mutate(
+    date = if_else(str_detect(date, "^\\d+$"), 
+                   as.character(openxlsx::convertToDate(as.numeric(date))), 
+                   date),
+    
+    start_time = if_else(str_detect(start_time, "^0\\.\\d+|^\\d+\\.\\d+"),
+                         format(openxlsx::convertToDateTime(as.numeric(start_time)), "%H:%M:%S"),
+                         start_time),
+    
+    end_time = if_else(str_detect(end_time, "^0\\.\\d+|^\\d+\\.\\d+"),
+                       format(openxlsx::convertToDateTime(as.numeric(end_time)), "%H:%M:%S"),
+                       end_time),
+    
+    # This step now has a clean list of species columns to evaluate
+    across(all_of(sorted_species_columns), ~ if_else(.x == "0" | .x == 0, NA_character_, .x))
+  )
+# --------------------------------------------------------
+
+write.csv(df_final_master, MASTER_CSV_PATH, row.names = FALSE)
+cat(sprintf("Success! Complete layout compiled. Master CSV written to: %s\n", MASTER_CSV_PATH))
+
+
+```
+
+The 2025 data followed a different format and lacked most of the metadata present in the previous data. Since I did not have that information, I put a placeholder date of 1/1/2025 for all entries. I adapted a script that Mai used on the 2023 data which she shared with me to fit the species counts from this data so they could be stitched in long format to the master file.
+
+```{r}
+#| label: Mattson Data Cleaner Code 2025
+#| results: hide
+
+# 1. File Paths Setup
+opihi_file_in  <- here("Nick", "Data", "OPIHI_data_2025.xlsx") 
+opihi_file_out <- here("Nick", "Outputs", "OPIHI_data_2025_cleaned.xlsx") 
+
+tab_names <- as.character(excel_sheets(opihi_file_in)) 
+
+find_sheet <- function(kind, p) { 
+  up <- str_to_upper(tab_names) 
+  hit <- tab_names[str_detect(up, paste0("^", kind)) & str_detect(up, p)] 
+  if (length(hit) != 1) {
+    stop("Expected exactly 1 match for kind: ", kind, ", pattern: ", p, 
+         ". Tabs in file: ", paste(tab_names, collapse = " | "))
+  }
+  hit 
+} 
+
+sh_t1 <- find_sheet("TRANSECT", "P1") 
+sh_t2 <- find_sheet("TRANSECT", "P2") 
+sh_q1 <- find_sheet("QUADRAT", "P1")  
+sh_q2 <- find_sheet("QUADRAT", "P2")  
+
+
+# 2. Parsing Functions
+
+read_transect <- function(sheet) { 
+  read_excel(opihi_file_in, sheet = sheet, range = "A4:I11") |> 
+    rename(Point = 1, Location_m = 2) |> 
+    mutate(across(everything(), as.character)) |>
+    pivot_longer(-c(Point, Location_m), names_to = "Group", values_to = "Original") |> 
+    filter(!is.na(Original)) |> 
+    filter(!str_detect(str_squish(Original), "^[0-9.]+$")) |> 
+    mutate(
+      Point = as.character(Point),
+      Location_m = suppressWarnings(as.numeric(Location_m)),
+      Original = as.character(Original), 
+      Method = "Transect", 
+      Site = str_sub(Group, 1, 2), 
+      Points = 1
+    ) 
+} 
+
+read_quadrat <- function(sheet) { 
+  read_excel(opihi_file_in, sheet = sheet, range = "A5:H40", 
+             col_types = c("text", rep("guess", 7))) |> 
+    rename(Original = 1) |> 
+    filter(!str_detect(str_to_upper(Original), "TOTAL|PERCENT|%|CHECKER")) |>
+    filter(!is.na(Original)) |> 
+    filter(!str_detect(str_squish(Original), "^[0-9.]+$")) |> 
+    mutate(across(-Original, as.character)) |> 
+    pivot_longer(-Original, names_to = "Group", values_to = "Points") |> 
+    mutate(
+      Points = suppressWarnings(as.numeric(Points)),
+      Points = replace_na(Points, 0)
+    ) |> 
+    filter(Points > 0) |> 
+    mutate(
+      Point = NA_character_,
+      Method = "Quadrat", 
+      Site = str_sub(Group, 1, 2), 
+      Location_m = NA_real_
+    ) 
+} 
+
+
+# 3. Process and Compile Data
+stacked <- bind_rows( 
+  read_transect(sh_t1), 
+  read_transect(sh_t2), 
+  read_quadrat(sh_q1), 
+  read_quadrat(sh_q2) 
+) 
+
+
+# 4. Metadata Parsing (Names & Groups)
+read_names_transect <- function(sheet) { 
+  nm <- read_excel(opihi_file_in, sheet = sheet, range = "C3:I4", col_names = FALSE, col_types = "text") 
+  tibble(
+    Method = "Transect", 
+    Group = as.character(unlist(nm)), 
+    Recorder = as.character(unlist(nm)), 
+    Checker_1 = NA_character_, 
+    Checker_2 = NA_character_
+  ) 
+} 
+
+read_names_quadrat <- function(sheet) { 
+  nm <- read_excel(opihi_file_in, sheet = sheet, range = "B2:H5", col_names = FALSE, col_types = "text") 
+  tibble(
+    Method = "Quadrat", 
+    Group = as.character(unlist(nm)), 
+    Recorder = as.character(unlist(nm)), 
+    Checker_1 = as.character(unlist(nm)), 
+    Checker_2 = as.character(unlist(nm))) 
+} 
+
+names_tbl <- bind_rows( 
+  read_names_transect(sh_t1), 
+  read_names_transect(sh_t2), 
+  read_names_quadrat(sh_q1), 
+  read_names_quadrat(sh_q2) 
+) |> 
+  distinct(Method, Group, .keep_all = TRUE) |> 
+  mutate(across(c(Recorder, Checker_1, Checker_2), str_squish)) 
+
+
+# 5. Taxonomic Group Mapping & Label Cleaning
+clean_map <- c( 
+  "rock" = "Rock", "sand" = "Sand", "turf algae" = "Turf algae", "turf" = "Turf algae", 
+  "padina spp" = "Padina spp.", "padina spp." = "Padina spp.", 
+  "acanthophora spicifera" = "Acanthophora spicifera", "dendropoma gregarium" = "Dendropoma gregarium", 
+  "sargassum polyphylum" = "Sargassum polyphyllum", "sargassum polyphyllum" = "Sargassum polyphyllum", 
+  "saragassum polyphylum" = "Sargassum polyphyllum", "sargassum aquifolium" = "Sargassum aquifolium", 
+  "sr aquifolium" = "Sargassum aquifolium", "turbinaria ornata" = "Turbinaria ornata", 
+  "turbinania ornata" = "Turbinaria ornata", "neomeris" = "Neomeris spp.", 
+  "neomeris spp." = "Neomeris spp.", "beomeris spp" = "Neomeris spp.", 
+  "bornatella sphaerica" = "Bornetella sphaerica", "bornatella spaerica" = "Bornetella sphaerica", 
+  "byropsis pennata" = "Bryopsis pennata", "caiclmus laevimanus" = "Calcinus laevimanus", 
+  "halimeda discoidea" = "Halimeda discoidea", "halimeda discodia" = "Halimeda discoidea", 
+  "avrainvilea sp." = "Avrainvillea sp.", "avrainvillea spp." = "Avrainvillea sp.", 
+  "unknown snail" = "Unknown snail", "unknown fish" = "Unknown fish", "y" = "Unidentified" 
+) 
+
+substrates <- c("Rock", "Sand") 
+
+clean_label <- function(x) { 
+  key <- str_to_lower(str_squish(x)) 
+  out <- unname(clean_map[key]) 
+  if_else(is.na(out), str_squish(x), out) 
+} 
+
+stacked <- stacked |> 
+  mutate(
+    Label = clean_label(Original), 
+    Type = if_else(Label %in% substrates, "Substrate", "Organism")
+  ) |> 
+  filter(!str_detect(str_squish(Label), "^[0-9.]+$"))
+
+
+# 6. Aggregating and Mapping to requested Master File layout
+opihi_long <- bind_rows( 
+  stacked |> filter(Method == "Transect") |> mutate(Count = 1), 
+  stacked |> filter(Method == "Quadrat") |> 
+    group_by(Method, Site, Group, Label, Type) |> 
+    summarise(
+      Count = sum(Points), 
+      Original = paste(unique(Original), collapse = "; "), 
+      Point = NA_character_,
+      Location_m = NA_real_, 
+      .groups = "drop"
+    ) 
+) |> 
+  left_join(names_tbl, by = c("Method", "Group")) |> 
+  arrange(Method, Site, Group, Location_m, Label) |> 
+  
+  # Map variables to match Master File exactly
+  mutate(
+    date               = "2025-01-01",  
+    year               = "2025",
+    start_time         = NA_character_,
+    stop_time          = NA_character_,
+    site_name          = "Diamond Head",
+    latitude           = NA_real_,
+    longitude          = NA_real_,
+    name_of_school     = "X high school",
+    in_field_group     = NA_character_,
+    group              = Group,
+    team_members       = NA_character_,
+    team_lead_or_recorder = Recorder,
+    data_entry_by      = NA_character_,
+    low_tide_time      = NA_character_,
+    low_tide_height    = NA_character_,
+    weather            = NA_character_,
+    rain_events        = NA_character_,
+    wave_height        = NA_character_,
+    wind_speed         = NA_character_,
+    stressful_events   = NA_character_,
+    visitors           = NA_character_,
+    fishing            = NA_character_,
+    collecting         = NA_character_,
+    what_collecting    = NA_character_,
+    method             = Method,
+    total_number_of_transect_lines  = NA_real_,
+    length_of_transect_line         = NA_real_,
+    longest_t_m                     = NA_real_,
+    total_number_of_transect_points = NA_real_,
+    dist_between_t_pts_for_q        = NA_character_,
+    quad_t             = NA_real_,
+    n_quadrats_per_transect         = NA_real_,
+    point_spacing      = NA_character_,
+    transect_id        = NA_character_,
+    quadrat_id         = NA_character_,
+    point_id           = Point,
+    quadrat_location_m = Location_m,
+    quadrat_total_points = NA_real_,
+    p1_or_p2           = str_sub(Group, 1, 2), 
+    organism_or_substrate_type = Label,
+    category           = Type,
+    count              = Count,
+    within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only = NA_character_,
+    sediment_depth     = NA_real_,
+    notes              = paste0("original ID = ", Original)
+  ) |> 
+  
+  # NEW FILTER RULES
+  # 1. Drop rows where organism type is missing or literally text "N/A"
+  filter(!is.na(organism_or_substrate_type), 
+         str_to_upper(str_squish(organism_or_substrate_type)) != "N/A") |> 
+  # 2. Drop rows where the organism entry starts with "P2"
+  filter(!str_detect(organism_or_substrate_type, "^P2")) |> 
+  
+  select(
+    date, year, start_time, stop_time, site_name, latitude, longitude, 
+    name_of_school, in_field_group, group, team_members, team_lead_or_recorder, 
+    data_entry_by, low_tide_time, low_tide_height, weather, rain_events, 
+    wave_height, wind_speed, stressful_events, visitors, fishing, collecting, 
+    what_collecting, method, total_number_of_transect_lines, length_of_transect_line, 
+    longest_t_m, total_number_of_transect_points, dist_between_t_pts_for_q, 
+    quad_t, n_quadrats_per_transect, point_spacing, transect_id, quadrat_id, 
+    point_id, quadrat_location_m, quadrat_total_points, p1_or_p2, 
+    organism_or_substrate_type, category, count, 
+    within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only, 
+    sediment_depth, notes
+  )
+
+glimpse(opihi_long) 
+write_csv(opihi_long, here("Nick", "Data", "OPIHI_2025_long.csv"), na = "")
+
+#bind 2025 data to master
+# UPDATED: Targets your exact master file path
+master_file_path <- here("Data", "Master_Output_Dataframe.csv")
+
+if (file.exists(master_file_path)) {
+  print("Master file found! Preserving original master column structures...")
+  
+  # 1. Read master file letting R detect its native types automatically
+  master_df <- read_csv(master_file_path, show_col_types = FALSE)
+  
+  # 2. Match your new 2025 data types to match the master file exactly, column by column
+  opihi_long_aligned <- opihi_long |> 
+    mutate(across(everything(), as.character)) # Start as character to allow clean type conversion
+  
+  # Loop through columns and match types based on the master file profile
+  for (col_name in names(master_df)) {
+    if (col_name %in% names(opihi_long_aligned)) {
+      
+      # Detect master classes
+      master_classes <- class(master_df[[col_name]])
+      
+      if (any(c("numeric", "integer", "double") %in% master_classes)) {
+        opihi_long_aligned[[col_name]] <- suppressWarnings(as.numeric(opihi_long_aligned[[col_name]]))
+      } else if ("logical" %in% master_classes) {
+        opihi_long_aligned[[col_name]] <- suppressWarnings(as.logical(opihi_long_aligned[[col_name]]))
+      } else if ("Date" %in% master_classes) {
+        opihi_long_aligned[[col_name]] <- suppressWarnings(as.Date(opihi_long_aligned[[col_name]]))
+      } else if (any(c("time", "hms", "difftime") %in% master_classes)) {
+        # Force empty/character time placeholders to match the master's time class structure safely
+        opihi_long_aligned[[col_name]] <- hms::as_hms(suppressWarnings(as.numeric(opihi_long_aligned[[col_name]])))
+      } else {
+        opihi_long_aligned[[col_name]] <- as.character(opihi_long_aligned[[col_name]])
+      }
+    }
+  }
+  
+  # 3. Stack datasets together safely 
+  combined_master <- bind_rows(master_df, opihi_long_aligned)
+  
+  # 4. Save the combined master tracking workbook
+  # UPDATED: Writes output file using na = "NA" so missing blocks preserve explicit literal "NA" text strings
+  write_csv(combined_master, here("Data", "Master_Output_Dataframe.csv"), na = "NA")
+  print("Success! Combined master file written with structural types and NA values perfectly preserved.")
+  
+} else {
+  warning("Could not find the master file at the specified path. Please check the file location.")
+}
+
+```
+
+I also asked AI to help me develop a short piece of code to anonymize the names of individuals in relevant columns. It takes the original master file and converts the unique values in any columns specified to anonymized strings. It then produces an output along with a csv key containing all of the codes linked with the actual names. This csv key can be sent directly to Dr. Philippoff.
+
+```{r}
+#| label: Mattson Name Anonymizer Script
+#| results: hide
+
+# --- CONFIGURATION ---
+INPUT_FILE             <- here("Data","Master_Output_Dataframe.csv")
+ANONYMIZED_OUTPUT_FILE <- here("Data","Master_Output_Dataframe_anonymized.csv")
+MAPPING_KEY_FILE       <- here("Data","OPIHI_mapping_key.csv")
+
+# List the exact column names you want to mask
+COLUMNS_TO_ANONYMIZE   <- c("team_members","team_lead_or_recorder","data_entry_by") 
+
+
+# --- CORE LOGIC ---
+# 1. Load the original CSV
+df <- read_csv(INPUT_FILE)
+
+# Initialize an empty tibble to hold the master lookup map
+master_mapping <- tibble(
+  Column_Source  = character(),
+  Original_Value = character(),
+  Randomized_ID  = character()
+)
+
+# 2. Loop through each column to generate random maps
+for (col in COLUMNS_TO_ANONYMIZE) {
+  if (!col %in% colnames(df)) {
+    warning(paste("Column '", col, "' not found in CSV. Skipping.", sep=""))
+    next
+  }
+  
+  # Extract unique, non-NA values from the targeted column
+  unique_vals <- df %>% 
+    pull(!!sym(col)) %>% 
+    na.omit() %>% 
+    unique()
+  
+  # Generate short, 8-character random alphanumeric IDs
+  # e.g., "ID_A1B2C3D4"
+  random_ids <- replicate(
+    length(unique_vals), 
+    paste0("ID_", toupper(paste(sample(c(0:9, letters[1:6]), 8, replace = TRUE), collapse = "")))
+  )
+  
+  # Ensure IDs are perfectly unique inside this loop iteration
+  while(any(duplicated(random_ids))) {
+    random_ids[duplicated(random_ids)] <- replicate(
+      sum(duplicated(random_ids)), 
+      paste0("ID_", toupper(paste(sample(c(0:9, letters[1:6]), 8, replace = TRUE), collapse = "")))
+    )
+  }
+  
+  # Construct temporary map for this specific column
+  col_map <- tibble(
+    Column_Source  = col,
+    Original_Value = as.character(unique_vals),
+    Randomized_ID  = random_ids
+  )
+  
+  # Append to master mapping key
+  master_mapping <- bind_rows(master_mapping, col_map)
+  
+  # Replace the original column values in the dataframe with their new IDs
+  df <- df %>%
+    left_join(col_map %>% select(Original_Value, Randomized_ID), by = setNames("Original_Value", col)) %>%
+    mutate(!!sym(col) := ifelse(is.na(Randomized_ID), !!sym(col), Randomized_ID)) %>%
+    select(-Randomized_ID)
+}
+
+# 3. Export the processed files
+write_csv(df, ANONYMIZED_OUTPUT_FILE)
+write_csv(master_mapping, MAPPING_KEY_FILE)
+
+cat("Success! Files generated successfully in your working directory.")
+
+```
+
+Lastly, I used this simple script to change the "Year" column in the master file by pulling it from the "Date" column.
+
+```{r}
+#| label: Mattson Year Changer Script
+#| results: hide
+#| 
+# 1. Load the data
+OPIHI_data <- read_csv(here("Data", "Master_Output_Dataframe_anonymized.csv"))
+
+# 2. Fix the character type and fill the years
+OPIHI_data <- OPIHI_data |>
+  mutate(
+    # Force the text "NA" into a true R missing value (NA)
+    year = as.numeric(year),
+    
+    # Extract the 4-digit year from the date string
+    extracted_year = as.numeric(str_extract(date, "\\d{4}")),
+    
+    # Fill in the true NAs with the extracted years
+    year = coalesce(year, extracted_year)
+  ) |>
+  # Remove the temporary column
+  select(-extracted_year)
+
+# 3. Save the updated data back to your CSV
+write_csv(OPIHI_data, file = here("Data", "OPIHI_Master_Output_cleaned_anonymized.csv"))
+```

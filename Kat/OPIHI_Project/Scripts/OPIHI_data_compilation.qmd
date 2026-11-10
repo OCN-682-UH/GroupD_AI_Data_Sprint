@@ -1,5 +1,5 @@
 ---
-title: "Combining All Group Data"
+title: "OPIHI Project - Combining All Group Data"
 author: "Kat Viehl"
 format:
   html:
@@ -14,9 +14,40 @@ execute:
 page-layout: full
 ---
 
+![](opihi_divider.png)
+
+-----------------------------------------------------------------
+
+All OPIHI datasets belong to: **Dr. Joanna Philippoff** - philippo@hawaii.edu
+
+Contents of this Quarto and decisions made within are the responsibility of: **Kat Viehl** - kviehl@hawaii.edu - (I also drew the opihi divider above :) )
+
+---
+
+Created on : 2026-11-07
+
+Last Updated on : 2026-11-09
+
+Note: AI was used for scripting assistance. 
+AI agents used: 
+
+ - Claude Sonnet 5.5 Medium 
+
+---
+
 ### Combining Data from Group Members
 
-My group members and I have compiled data from all the years into similar formats. Now I will take them and stitch them together as best as possible.
+My group members and I have compiled data from all the years into similar formats. Now I will take them and stitch them together as best as possible. Below are a list of the years and who cleaned them:
+
+ - **Mai:** 2006 & 2007 (these two years are in one large file together), 2016, 2023
+ 
+ - **Mei:** 2019, 2020, 2024
+ 
+ - **Nick:** 2017, 2018, 2025 (2025 had no metadata & was highly ambiguous, so it was not included in the master file.)
+ 
+ - **Kat:** 2004, 2005, 2008 (only one sampling day recorded), 2026
+
+**AI Statement:** AI (Claude Sonnet 5.5 Medium) was used to assist in writing code for merging these data sheets. No sensitive information from these data sheets were uploaded to AI, only the column names and specific columns isolated from the main document (such as the place names and organism names) for cleaning and standardizing purposes only.
 
 First, load libraries:
 
@@ -37,22 +68,36 @@ Then, load data:
 
 ```{r}
 
-data_04_05_08 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2004_2005_2008_combined_data.csv"))
+# Kat Data sheet 1
+data_04_05_08 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2004_2005_2008_combined_data.csv"))
 
-data_26 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026_combined_data.csv"))
+# Kat Data sheet 2
+data_26 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026_combined_data.csv"))
 
-data_19_20_24 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "mei_clean_2019-2020-2024.csv"))
+# Mei data sheet (all)
+data_19_20_24 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "mei_clean_2019-2020-2024.csv"))
 
-data_17 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2017_sorted.csv"))
+# Nick data sheet 1
+data_17 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2017_sorted.csv"))
 
-data_18 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2018_sorted.csv"))
+# Nick data sheet 2 
+data_18 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2018_sorted.csv"))
 
-data_06_07_16_23 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "opihi_master_combine.csv"))
+# Mai data sheet (all)
+data_06_07_16_23 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "opihi_master_combine.csv"))
 
+# Note that 2025 is missing as it did not have any metadata present, and we didn't hear back from Johanna via email in time to be able to add it to the list.
 
 
 
 ```
+
+---
+
+![](opihi_divider.png)
+
+
+### Reformatting from Wide to Long
 
 OK- some of these are wide, and some of these are long. Let's make them all long:
 
@@ -85,11 +130,15 @@ data_19_20_24 |>
 ```
 
 
+---
+
+### Combining All Files
+
 Then used AI to write a script to combine all six:
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Combining Files
 
 **Kat:**
 
@@ -147,7 +196,7 @@ If your data frames share specific key columns, such as an ID and a year, tell m
 That gave an error so I copy-pasted it into Claude, which gave me this:
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Error Troubleshooting
 
 **Kat:**
 
@@ -205,7 +254,7 @@ joined <- reduce(dfs, function(x, y) {
 joined <- type_convert(joined)
 
 # 5. Write the result ------------------------------------------------------
-write_csv(joined, here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "allyears_joined_data.csv"))
+write_csv(joined, here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "allyears_joined_data.csv"))
 
 message("Saved ", nrow(joined), " rows and ", ncol(joined),
         " columns to allyears_joined_data.csv")
@@ -214,9 +263,15 @@ message("Saved ", nrow(joined), " rows and ", ncol(joined),
 ```
 
 
+---
+
+### Dataframe Cleaning
+
+OK, now that we have the joined dataframe, we need to clean up the columns. There are many redundant column names. There are also a few columns that have incomprehensible names and appear to be merge artifacts (x_x, X, x_y, x_1, x_2, x_3), so I have removed them at the end.
+
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Dataframe Cleaning
 
 **Kat:**
 
@@ -235,24 +290,27 @@ Replace `df` with the name of your data frame. This creates `column_names.csv` i
 
 :::
 
+I will only be showing the column names once below. I have collapsed the rest of the column name calling functions as they are very very long and make the quarto hard to navigate.
+
 ```{r}
 
 # Pull column names from a data frame and save them to a CSV
 col_names_df <- data.frame(column_name = names(joined))
 
+# arrange alphabetically to see if that helps with interpreting similar columns
 col_names_sorted <- col_names_df |> 
   arrange(column_name)
 
-
+# look at the column names to see if anything is weird
 print(col_names_sorted)
 
 
 col_names_sorted |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "column_names.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "column_names.csv"))
 
 
 joined |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "alljoined_data.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "alljoined_data.csv"))
 
 
 
@@ -261,16 +319,13 @@ joined |>
   select(!c(x_x, X, x_y, x_1, x_2, x_3)) -> all_joined
 
 
-colnames(all_joined)
-
-
 ```
 
 
-Cool, so many things that match up!
+Let's begin by removing the ones with the prefix "meta_" and combining them, as that string is a merge artifact.
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Removing Prefixes in Column Names
 
 **Kat:**
 
@@ -291,6 +346,7 @@ If you only want to remove `"meta_"` when it's at the start of the name, change 
 
 
 ```{r}
+#| collapse: true
 
 # Remove "meta_" from every column name, then merge columns that now share a name
 
@@ -331,10 +387,10 @@ print(names(all_joined_merged))
 
 ```
 
-
+There are also strings of "x_" in front of some column names, so I will remove those below:
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - More Prefix Removal
 
 **Kat:**
 
@@ -353,6 +409,7 @@ I've written `remove_x_merge.R`. It works the same way as the `meta_` version: r
 
 
 ```{r}
+#| collapse: true
 
 # Remove "x_" from every column name, then merge columns that now share a name
 
@@ -397,10 +454,13 @@ print(names(final_df_merged))
 
 ```
 
+Now, let's save a version here in case anything goes wrong down the line:
+
 ```{r}
+#| collapse: true
 
 final_df_merged |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "cleaned_alljoined_data.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "cleaned_alljoined_data.csv"))
 
 
 colnames(final_df_merged)
@@ -408,9 +468,14 @@ colnames(final_df_merged)
 
 ```
 
+![](opihi_divider.png)
+
+---
+
+### Column Consolidation and Cleaning
 
 
-OK, time to unite some columns. So these are columns that need to be joined:
+OK, time to unite some columns. So these are a few columns that need to be joined:
 
  - school + schoolname
  
@@ -418,11 +483,11 @@ OK, time to unite some columns. So these are columns that need to be joined:
  
  - number_of_transect_lines + n_transect_lines
 
-
+But I do not want anything that is overlapping in data. If it overlaps, I do not want to combine the data, as it means they are likely two different measurements instead of the same with different column names.
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Joining Columns Function (Without Overlap!)
 
 **Kat:**
 
@@ -505,37 +570,37 @@ And if both columns can have values in the same row under that definition, you'd
 
 ```{r}
 
-merge_if_no_overlap <- function(df, col1, col2, new_col = "merged",
-                                drop_originals = TRUE) {
-  a <- df[[col1]]
-  b <- df[[col2]]
+#merge_if_no_overlap <- function(df, col1, col2, new_col = "merged",
+#                                drop_originals = TRUE) {
+#  a <- df[[col1]]
+#  b <- df[[col2]]
+#
+#  # Overlap = any row where both columns have a non-NA value
+#  overlap_rows <- which(!is.na(a) & !is.na(b))
+#
+#  if (length(overlap_rows) > 0) {
+#    warning(sprintf(
+#      "Columns '%s' and '%s' overlap in %d row(s) (e.g., row %d). No merge performed.",
+#      col1, col2, length(overlap_rows), overlap_rows[1]
+#    ))
+#    return(df)
+#  }
+#
+#  # No overlap: take whichever value is present (keeps the original data type)
+#  merged <- a
+#  merged[is.na(a)] <- b[is.na(a)]
+#
+#  df[[new_col]] <- merged
+#  if (drop_originals) {
+#    df[, c(col1, col2)] <- NULL
+#  }
+#  df
+#}
+#
+#
+# commenting out the function cause it doesn't work
 
-  # Overlap = any row where both columns have a non-NA value
-  overlap_rows <- which(!is.na(a) & !is.na(b))
-
-  if (length(overlap_rows) > 0) {
-    warning(sprintf(
-      "Columns '%s' and '%s' overlap in %d row(s) (e.g., row %d). No merge performed.",
-      col1, col2, length(overlap_rows), overlap_rows[1]
-    ))
-    return(df)
-  }
-
-  # No overlap: take whichever value is present (keeps the original data type)
-  merged <- a
-  merged[is.na(a)] <- b[is.na(a)]
-
-  df[[new_col]] <- merged
-  if (drop_originals) {
-    df[, c(col1, col2)] <- NULL
-  }
-  df
-}
-
-
-
-
-# this is to remove the random numbers in the school column:
+# this is to remove the random numbers in the school column (the actual names are in the schoolnames column for these ones specifically, school was a redaction artifact) :
 final_df_merged <- final_df_merged |>
   mutate(
     school = if_else(
@@ -551,10 +616,9 @@ final_df_merged <- final_df_merged |>
 # 
 # - number_of_transect_lines + n_transect_lines
 
-# merge school with schoolname:
-final_df_merged <- merge_if_no_overlap(final_df_merged, "school", "schoolname", new_col = "school")
-
-
+####### merge school with schoolname:
+######final_df_merged <- merge_if_no_overlap(final_df_merged, "school", "schoolname", new_col = "school")
+####### Super commented out as it doesn't work
 
 
 
@@ -562,11 +626,11 @@ final_df_merged <- merge_if_no_overlap(final_df_merged, "school", "schoolname", 
 ```
 
 
-Ok so that didn't work because some schools are repeated in school & schoolname.
+Ok so that didn't work because some schools are repeated in school & schoolname. If the values are exactly the same in both columns, it should be fine to merge them. So let me repeat the question:
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Rephrasing
 
 **Kat:**
 
@@ -700,9 +764,10 @@ merge_if_compatible <- function(df, col1, col2, new_col = "merged",
   df
 }
 
-# merge school names:
+# using the new function, merge school names:
 final_df_merged <- merge_if_compatible(final_df_merged, "school", "schoolname", new_col = "name_of_school", allow_agreeing_overlap = TRUE)
 
+# other ones to merge:
 # - transect_number + transect
 # 
 # - number_of_transect_lines + n_transect_lines
@@ -717,7 +782,10 @@ final_df_merged <- merge_if_compatible(final_df_merged, "number_of_transect_line
 ```
 
 
-So it looks like the column "unknown_bulbous_algae" is completely NA's, so I will remove it:
+Now we have a working merge function that we can keep using for the rest of the columns.
+
+
+Next, it looks like the column "unknown_bulbous_algae" is completely NA's, so I will remove it:
 
 ```{r}
 
@@ -729,11 +797,14 @@ final_df_merged |>
 ```
 
 
-OK, more merging and cleaning:
+OK, more merging and cleaning (see code comments for more details)
 
 ```{r}
 
+
+# merging total_transect_n and t_lines as they are the same
 final_df_merged <- merge_if_compatible(final_df_merged, "total_transect_n", "t_lines", new_col = "number_of_transect_lines", allow_agreeing_overlap = TRUE)
+
 
 # I am going to remove a few columns that are unnecessary:
 # source file is only present for a few of the files, so it doesn't help identify data any more than the date does.
@@ -743,7 +814,6 @@ final_df_merged <- merge_if_compatible(final_df_merged, "total_transect_n", "t_l
 # position_m also seems broken, random true/false
 # match_status and matched_names are artifacts from previous merges
 # metadata_row is also a merge artifact
-
 final_df_merged |> 
   select(!c(source_file, 
             sheet, 
@@ -754,10 +824,10 @@ final_df_merged |>
             matched_names, 
             metadata_row)) -> final_df_merged
 
-
+# merging site and location:
 final_df_merged <- merge_if_compatible(final_df_merged, "site", "location", new_col = "site_name", allow_agreeing_overlap = TRUE)
 
-
+# merging stop_time and end_time:
 final_df_merged <- merge_if_compatible(final_df_merged, "stop_time", "end_time", new_col = "time_end", allow_agreeing_overlap = TRUE)
 
 
@@ -770,9 +840,11 @@ final_df_merged |>
             checker_2)) -> final_df_merged
 
 
+# merging team leader and recorder as these do not overlap and seem very similar
 final_df_merged <- merge_if_compatible(final_df_merged, "team_leader", "recorder", new_col = "team_lead_or_recorder", allow_agreeing_overlap = TRUE)
 
 
+# merging total points 
 final_df_merged <- merge_if_compatible(final_df_merged, "total_points", "transect_points", new_col = "total_transect_points", allow_agreeing_overlap = TRUE)
 
 # fixing some weird column names
@@ -782,13 +854,14 @@ final_df_merged |>
   rename(total_number_of_transect_lines = number_of_transect_lines) |> 
   rename(transect_number = transect_n) -> final_df_merged
 
+# merge length of transect lines and transect line length
 final_df_merged <- merge_if_compatible(final_df_merged, "length_of_transect_lines", "transect_line_length", new_col = "length_of_transect_line", allow_agreeing_overlap = TRUE)
 
+# merge quadrats per transect
 final_df_merged <- merge_if_compatible(final_df_merged, "number_of_quadrats_per_transect", "quadrats_per_transect", new_col = "n_quadrats_per_transect", allow_agreeing_overlap = TRUE)
 
 
 # removing "original_labels" column as it is redundant
-
 final_df_merged |> 
   select(!original_labels) -> final_df_merged
 
@@ -796,6 +869,7 @@ final_df_merged |>
 final_df_merged |> 
   select(!type) -> final_df_merged
 
+# merging organism and organism_substrate to have all the IDs in one place
 final_df_merged <- merge_if_compatible(final_df_merged, "organism", "organism_substrate", new_col = "organism_or_substrate_type", allow_agreeing_overlap = TRUE)
 
 
@@ -805,17 +879,19 @@ final_df_merged <- merge_if_compatible(final_df_merged, "organism", "organism_su
 Ok, so now we are down to 49 columns. These columns are as follows:
 
 ```{r}
+#| collapse: true
 
 colnames(final_df_merged)
 
+
 ```
 
-Let me rearrange the columns
+Let me rearrange the columns to make a bit more sense.
 
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Rearranging Columns (Again)
 
 **Kat:**
 
@@ -971,16 +1047,17 @@ final_df_merged <- final_df_merged |>
 ```
 
 
-Nice! Okay, after looking at the re-ordered file, I have identified more columns that can be joined.
+Nice! Okay, after looking at the re-ordered file, I have identified more columns that can be joined:
 
 ```{r}
 
+# these two are the same and do not overlap:
 final_df_merged <- merge_if_compatible(final_df_merged, "position_on_transect_m", "point_m", new_col = "point_on_transect_m", allow_agreeing_overlap = TRUE)
 
+# these two are the same and do not overlap:
 final_df_merged <- merge_if_compatible(final_df_merged, "point_on_transect_m", "points", new_col = "position_on_transect_m", allow_agreeing_overlap = TRUE)
 
 # point_spacing_m seems pointless (pun intended), point_spacing says it already, but needs to have the units removed.
-
 final_df_merged |> 
   select(!point_spacing_m) -> final_df_merged
   
@@ -988,11 +1065,11 @@ final_df_merged |>
 ```
 
 
-Now I need to convert the "point_spacing" column to numbers so the units and fractions do not mess up figuremaking.
+Now I need to convert the "point_spacing" column to numbers so the units and fractions do not mess up figure making.
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Fixing/Removing Units in Column
 
 **Kat:**
 
@@ -1076,34 +1153,39 @@ OK, save progress as I must pause for tonight:
 ```{r}
 
 final_df_merged |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-07_clean_combined.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-07_clean_combined.csv"))
 
 
 ```
 
 
+---
 
-Back at it today! 
+![](opihi_divider.png)
 
-So we need to do the following things:
 
- 1. 
+### The Next Day
+
+First thing I need to do is separate out the quadrat_sample column, as it contains 3 different values in one cell: (quadrat, transect, and point number)
+
+
 
 ```{r}
 
+# pulling that column and all possible entries
 final_df_merged |> 
   count(quadrat_sample, sort = TRUE) -> to_be_separated
 
-
+# saving the result to upload to AI
 to_be_separated |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "to_separate.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "to_separate.csv"))
 
 ```
 
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Splitting the quadrat_sample Column
 
 **Kat:**
 
@@ -1139,6 +1221,7 @@ If your column has a different name, pass it as the second argument: `separate_q
 
 
 ```{r}
+#| collapse: true
 
 #' Split a "quadrat_sample" column into transect, quadrat, and point columns
 #'
@@ -1207,23 +1290,23 @@ separate_quadrat_sample <- function(df, col = "quadrat_sample") {
 # separate_quadrat_sample(test)
 
 
-
+# run the new function
 final_df_merged_test <- separate_quadrat_sample(final_df_merged)
 
-
+# remove the original column now that the data is separated into three new columns:
 final_df_merged_test |> 
   select(!quadrat_sample) -> final_df_toclean
 
-
+# Look at the column names
 colnames(final_df_toclean)
 
 
 ```
 
-
+Alright, that added the separated values to the end of the columns. I will once again have AI reorder them in a better way.
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Rearranging Columns (Again, again)
 
 **Kat:**
 
@@ -1366,10 +1449,12 @@ reorder_columns <- function(df) {
 # With dplyr you could instead write:
 #   df <- dplyr::select(df, dplyr::any_of(col_order), dplyr::everything())
 
-
+# reorder with the function
 final_df_toclean |>
   reorder_columns() -> reordered_data
 
+
+# merge the new columns with the existing columns containing the same values
 reordered_data |> 
   merge_if_compatible("transect_number", "transect_col", new_col = "transect_id", allow_agreeing_overlap = TRUE) |>
   merge_if_compatible("quadrat", "quadrat_col", new_col = "quadrat_id", allow_agreeing_overlap = TRUE) |> 
@@ -1380,9 +1465,14 @@ reordered_data |>
 
 ```
 
+---
+
+### Fix Dates
+
+Next issue: Dates! The date column has a few different formats in the base file: YYYY-MM-DD, M/D/YY, and MM/DD/YYYY. I will have AI write a script to fix these.
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Fix Dates
 
 **Kat:**
 
@@ -1413,7 +1503,7 @@ If you want to keep the original text, add `keep_original = TRUE` and it will sa
 
 I couldn't run R here, so this is untested. If you paste in the unique values from your date column, as you did with `quadrat_sample`, I can check them against the patterns.
 
-_(**Kat Note:** I was worried the script would flip days with months, so I asked again)_
+_(**Kat Note:** I was worried the script would flip days with months, so I asked again with more specifics)_
 
 **Kat:**
 
@@ -1509,7 +1599,7 @@ standardize_dates <- function(df, col = "date") {
 # standardize_dates(test)
 # Expected: 2024-04-06, 2005-04-22, 2018-05-16, 1999-12-01, NA
 
-
+# run the new function
 reordered_data_clean |> 
   standardize_dates() -> reordered_data_dates_clean
 
@@ -1518,30 +1608,32 @@ reordered_data_clean |>
 
 ```
 
+---
+
+### Organism/Place Name Standardization and Consolidation
 
 Alright! Let's now fix the organism name column to make them all match each other.
 
-First, I'm going to extract the organism name column in order to give it to claude for fixing.
+First, I'm going to extract the organism name column in order to give it to Claude for fixing.
 
 
 ```{r}
 
+# list all possible entries in the column
 reordered_data_dates_clean |> 
   count(organism_or_substrate_type, sort = "TRUE") -> organism_substrate_names
 
-
+# save to upload to Claude
 organism_substrate_names |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "organism_substrate_names.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "organism_substrate_names.csv"))
 
 ```
 
 
 
 
-
-
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Standardize Organism Names
 
 **Kat:**
 
@@ -1847,7 +1939,7 @@ organism_name_map <- function(df, col = "organism_or_substrate_type") {
 # View(organism_name_map(df))
 # write.csv(organism_name_map(df), "organism_name_map.csv", row.names = FALSE)
 
-
+# run script
 standardize_organism_names(reordered_data_dates_clean) -> cleaned_standardized_data
 
 
@@ -1859,11 +1951,13 @@ Great! Now I need to do the same thing with the location.
 
 ```{r}
 
+# list all possible locations:
 cleaned_standardized_data |> 
   count(site_name, sort = TRUE) -> site_names_toclean
 
+# save to upload to AI:
 site_names_toclean |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "site_names_toclean.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "site_names_toclean.csv"))
 
 ```
 
@@ -1872,7 +1966,7 @@ site_names_toclean |>
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Standardize Place Names
 
 **Kat:**
 
@@ -1923,6 +2017,7 @@ I couldn't run R here, so the script is untested. I built the same logic in Pyth
 
 
 ```{r}
+#| collapse: true
 
 #' Standardize location (site) names
 #'
@@ -2059,21 +2154,22 @@ site_name_map <- function(df, col = "site_name") {
 # To inspect the groupings first:
 # View(site_name_map(df))
 
-
+# run the function
 cleaned_standardized_data |> 
   standardize_site_names() -> cleaned_standardized_data_and_sites
 
 
-#finally, one last sorting script:
+#finally, we just need one last sorting script:
 
 cleaned_standardized_data_and_sites |> 
   colnames()
 
 ```
 
+Due to the edits, columns are disorderly again. I want to reorder the columns again to be in a nice format.
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Rearranging Columns (Again, again, again)
 
 **Kat:**
 
@@ -2234,7 +2330,7 @@ reorder_columns <- function(df) {
 
 
 
-
+# run function
 cleaned_standardized_data_and_sites |> 
   reorder_columns() -> final_output_dataframe
 
@@ -2243,9 +2339,12 @@ cleaned_standardized_data_and_sites |>
 
 ```
 
+---
+
+Next, I need to remove the ʻokina and kahakō from the location dataset, as when opened in certain programs it causes a bunch of special characters to appear that may cause data analysis issue.
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log 
+## AI Chat Log - Removing Diacritical Marks
 
 **Kat:**
 
@@ -2392,7 +2491,7 @@ remove_okina_kahako <- function(df, ..., cols = NULL, straight_apostrophe = TRUE
 # Quick test:
 # remove_okina_kahako(data.frame(x = c("Lēʻahi", "Hulopo'e Bay", "Pālahalaha", NA)))
 
-
+# run the function on the two columns containing hawaiian diacritical marks that need consistency:
 final_output_dataframe <- remove_okina_kahako(final_output_dataframe, cols = "site_name", "organism_or_substrate_type")
 
 
@@ -2403,42 +2502,39 @@ And then save the file.
 
 ```{r}
 
-final_output_dataframe |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-08_final_output_dataframe.csv"))
+## finally save the output: (commented out to avoid overwriting file later)
+#final_output_dataframe |> 
+#  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", #"2026-11-08_final_output_dataframe.csv"))
 
 
-
+# pull column names to make a data dictionary base:
 final_output_dataframe |> 
   colnames() -> data_dictionary_base
 
-data.frame(col_names = data_dictionary_base) |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-08_data_dictionary.csv"))
+## save to edit the data dictionary info:
+#data.frame(col_names = data_dictionary_base) |> 
+#  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-08_data_dictionary.csv"))
+#
+## commented out as I don't want to accidentally overwrite the data dictionary edits.
 
+```
+
+And that's it! We now have a decently clean master data file, and the base of a data dictionary. The data dictionary has been manually edited to reflect the identities of each column in the spreadsheet. 
+
+```{r}
+
+head(final_output_dataframe)
 
 ```
 
 
+```{r}
+
+print(data_dictionary_base)
+
+```
 
 
+---
 
-
-For copy/pasting:
-
-::: {.callout-warning collapse="true"}
-## AI Chat Log 
-
-**Kat:**
-
-
-
-**Claude:**
-
-
-:::
-
-
-
-
-
-
-
+![](opihi_divider.png)

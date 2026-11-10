@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mei Iwamoto">
+
+<title>Mei - Opihi Data Cleaning (2019, 2020, 2024)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="mei_cleaning_files/libs/clipboard/clipboard.min.js"></script>
+<script src="mei_cleaning_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="mei_cleaning_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="mei_cleaning_files/libs/quarto-html/popper.min.js"></script>
+<script src="mei_cleaning_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="mei_cleaning_files/libs/quarto-html/anchor.min.js"></script>
+<link href="mei_cleaning_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="mei_cleaning_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="mei_cleaning_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="mei_cleaning_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="mei_cleaning_files/libs/bootstrap/bootstrap-917079515d91bccb85b543faf8aa8bb6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Mei - Opihi Data Cleaning (2019, 2020, 2024)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mei Iwamoto </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<hr>
+<section id="cleaning-opihi-data---mei" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-opihi-data---mei">Cleaning Opihi Data - Mei</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#import opihi 2024 quadrat and metadata data, master file </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>metadata_2024 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2024_metadata.csv"</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>quadrat_2024 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2024_quadrat.csv"</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>master <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"mei_master.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="cleaning-data" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-data">Cleaning data</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#before joining metadata to survey data, have to clean data so everything matches</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>quadrat_2024 <span class="ot">&lt;-</span> quadrat_2024 <span class="sc">|&gt;</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Date=</span><span class="fu">mdy</span>(Date), </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Location=</span><span class="fu">recode</span>(Location, <span class="st">"ʻEwa"</span><span class="ot">=</span><span class="st">"Ewa"</span>, <span class="st">"`Ewa"</span><span class="ot">=</span><span class="st">"Ewa"</span>, <span class="st">"Leʻahi"</span><span class="ot">=</span><span class="st">"Leahi"</span>, <span class="st">"Lēʻahi"</span><span class="ot">=</span><span class="st">"Leahi"</span>, <span class="st">"Mamala Bay"</span><span class="ot">=</span><span class="st">"Mamala"</span>)) <span class="co">#removed Hawaiian diacriticals (for now, will re-edit to correct Hawaiian names for figures, etc) </span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#clean metadata</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>metadata_2024 <span class="ot">&lt;-</span> metadata_2024 <span class="sc">|&gt;</span> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Date=</span><span class="fu">mdy</span>(Date),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Location=</span><span class="fu">recode</span>(Location, <span class="st">"ʻEwa"</span><span class="ot">=</span><span class="st">"Ewa"</span>, <span class="st">"`Ewa"</span><span class="ot">=</span><span class="st">"Ewa"</span>, <span class="st">"Le'ahi"</span><span class="ot">=</span><span class="st">"Leahi"</span>, <span class="st">"Lē'ahi"</span><span class="ot">=</span><span class="st">"Leahi"</span>, <span class="st">"Mamala Bay"</span><span class="ot">=</span><span class="st">"Mamala"</span>, <span class="st">"Ewa Beach"</span><span class="ot">=</span><span class="st">"Ewa"</span>, <span class="st">"Kalealoa"</span><span class="ot">=</span><span class="st">"Kalaeloa"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="using-gemini-for-code" class="level3">
+<h3 class="anchored" data-anchor-id="using-gemini-for-code">Using Gemini for code</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I used Google Gemini to generate code to help join my metadata and quadrat datasets together. I did not provide any of the actual data to Gemini, only the column names shared by both datasets</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>opihi_2024 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(quadrat_2024, metadata_2024, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Date"</span>, <span class="st">"Location"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">transect_number =</span> x_t</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2024.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#mei-generated, not ai</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>master <span class="ot">&lt;-</span> master <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Date=</span><span class="fu">mdy</span>(Date),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Location=</span><span class="fu">recode</span>(Location, <span class="st">"Kahalu'u Bay "</span><span class="ot">=</span><span class="st">"Kahaluʻu Bay"</span>, <span class="st">"Ewa Beach"</span><span class="ot">=</span><span class="st">"Ewa"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">School=</span><span class="fu">recode</span>(School, <span class="st">"OPIHI Coordinator"</span><span class="ot">=</span><span class="st">"OPIHI"</span>, <span class="st">"OPIHI  "</span><span class="ot">=</span><span class="st">"OPIHI"</span>, <span class="st">"Kilauea. "</span><span class="ot">=</span><span class="st">"Kilauea School"</span>, <span class="st">"Kilauea"</span><span class="ot">=</span><span class="st">"Kilauea School"</span>, <span class="st">"Farrington High school"</span><span class="ot">=</span><span class="st">"Farrington High School"</span>, <span class="st">"University of Hawaii at Manoa"</span> <span class="ot">=</span> <span class="st">"UH Manoa"</span>, <span class="st">"Hongwanji MIssion School"</span><span class="ot">=</span><span class="st">"Hongwanji Mission School"</span>, <span class="st">"Highlands Intermediate  "</span><span class="ot">=</span> <span class="st">"Highlands Intermediate School"</span>, <span class="st">"Hilo Union School"</span><span class="ot">=</span><span class="st">"Hilo Union Elementary"</span>, <span class="st">"Hawaii Technology Academy PCS"</span><span class="ot">=</span><span class="st">"Hawaii Technology Academy"</span>,<span class="st">"Kilauea  "</span><span class="ot">=</span> <span class="st">"Kilauea School"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="gemini-round-2" class="level3">
+<h3 class="anchored" data-anchor-id="gemini-round-2">Gemini Round 2</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets together. I did not provide any of the actual data to Gemini, only the column names. Specifically, I asked Gemini to identify any columns (namely for the different species counts) that may have spelling differences but refer to the same species/genus. I did ask Gemini to preserve any individual species instead of combining together into genus. </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#add link to google doc that saved Gemini output </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#ai-generated code below, fyi I havenʻt run it yet! I wanted to still double check that all the things it suggested were correct </span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Clean typos, name formats, and metadata in df2 without losing specific species</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#df2_standardized &lt;- df2 %&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#rename(</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Metadata Column Standardizations ---</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">#stop_time = end_time,</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#num_of_t = x_t,</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#num_of_quad_t = x_quad_t,</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#pt_spacing = dist_between_t_pts_for_q,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#transect_length = longest_t_m,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Typo Fixes ---</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#bornetella_sphaerica = bornatella_sphaerica,</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#gracilaria_salicornia = gracilaria_salicronia,</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#hermit_crab = hermet_crab,</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#symploca_hydnoides = symploca_hypnoides,</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#dictyopteris_spp = dichtyopterous,</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#ceramium_sp = cerramium_sp,</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#sphacelaria_spp = sphaecelaria_sp,</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Common Name / Prefix Standardizations (Matching df1 Naming Scheme) ---</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co">#dendropoma_gregaria = snail_dendropoma_gregarium,</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#haminoea_cymbalum = haminoea_cymbalum_green_snail,</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">#pennaria_disticha = pennaria_disticha_christmas_tree_hydroid,</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">#siphonaria_normalis = snail_siphonaria_normalis,</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">#actinopyga_varians = cucumber_actinopyga,</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#holothuria_spp = cucumber_holothuria,</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">#sponge_spp = sponge,</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="co">#articulated_corallines = articulated_coralline,</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co">#pterocladiella_spp = pterocladiella,</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="co">#portieria_hornemannii = portieria)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="cleaning-opihi-2020-data-with-gemini" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-opihi-2020-data-with-gemini">Cleaning Opihi 2020 data with Gemini</h3>
+<p>I used Gemini to clean the OPIHI 2020 data - specifically, I asked it to combine all the data in the csv file into one clean dataset with all the same column names, while retaining all the different species counts that had occurred throughout the multiple field trips. Prior to uploading a csv file to Gemini, I redacted all the school names and coded them by number instead.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#this whole chunk is ai-generated code</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Read the raw unheadered CSV file</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2020_ai.csv"</span>), <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Identify the starting column index for each survey block</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (Blocks begin where row 1 contains "Date" or row 8 contains "Location")</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>block_start_cols <span class="ot">&lt;-</span> <span class="fu">which</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  raw_data[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span> <span class="sc">|</span> raw_data[<span class="dv">8</span>, ] <span class="sc">==</span> <span class="st">"Location"</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define column boundaries for each survey block</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">ncol</span>(raw_data)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>block_ranges <span class="ot">&lt;-</span> <span class="fu">map2</span>(</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  block_start_cols,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(block_start_cols[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, num_cols),</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">c</span>(.x, .y)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Function to parse an individual survey block</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>parse_survey_block <span class="ot">&lt;-</span> <span class="cf">function</span>(start_col, end_col) {</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  meta_label_col <span class="ot">&lt;-</span> start_col</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  meta_val_col   <span class="ot">&lt;-</span> start_col <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract metadata values (rows 1 to 11)</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  meta_keys <span class="ot">&lt;-</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  meta_vals <span class="ot">&lt;-</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_val_col][[<span class="dv">1</span>]]</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">key =</span> meta_keys, <span class="at">val =</span> meta_vals) <span class="sc">%&gt;%</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(key), key <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> key, <span class="at">values_from =</span> val)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure standard metadata names are present</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  standard_meta <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> standard_meta) {</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>m <span class="sc">%in%</span> <span class="fu">names</span>(meta_df)) meta_df[[m]] <span class="ot">&lt;-</span> <span class="cn">NA_character_</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find row where "Organisms" header is located (rows 12-20)</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  org_row_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">12</span><span class="sc">:</span><span class="dv">20</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">==</span> <span class="st">"Organisms"</span>) <span class="sc">+</span> <span class="dv">11</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(org_row_idx) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract quadrat sample header names (e.g. transect-1 quadrat-1 at point 0.00)</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> meta_val_col<span class="sc">:</span>end_col</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> raw_data[org_row_idx, quadrat_cols] <span class="sc">%&gt;%</span> <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  valid_quad_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(quadrat_names) <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_quad_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> quadrat_cols[valid_quad_indices]</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> quadrat_names[valid_quad_indices]</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract species count rows</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> (org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span><span class="fu">nrow</span>(raw_data)</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> raw_data[species_rows, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  valid_spec_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(species_names) <span class="sc">&amp;</span> species_names <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_spec_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> species_rows[valid_spec_indices]</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> species_names[valid_spec_indices]</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build count matrix for this block</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  counts_mat <span class="ot">&lt;-</span> raw_data[species_rows, quadrat_cols]</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(counts_mat) <span class="ot">&lt;-</span> quadrat_names</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>  counts_mat<span class="sc">$</span>Organism <span class="ot">&lt;-</span> species_names</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Reshape to long format (quadrat sample x organism count)</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>  long_counts <span class="ot">&lt;-</span> counts_mat <span class="sc">%&gt;%</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">cols =</span> <span class="sc">-</span>Organism, </span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">names_to =</span> <span class="st">"Quadrat_Sample"</span>, </span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Count =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(Count)), <span class="at">Count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Count), <span class="dv">0</span>, Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Organism, <span class="at">values_from =</span> Count, <span class="at">values_fn =</span> max, <span class="at">values_fill =</span> <span class="dv">0</span>)</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Combine metadata with organism counts</span></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(meta_df, long_counts)</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Process all blocks and combine into one spreadsheet</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(block_ranges, <span class="sc">~</span> <span class="fu">parse_survey_block</span>(.x[<span class="dv">1</span>], .x[<span class="dv">2</span>]))</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Fill missing values (NAs) in species count columns with 0</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>metadata_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span>, <span class="st">"Quadrat_Sample"</span></span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>species_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(combined_dataset), metadata_cols)</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> combined_dataset <span class="sc">%&gt;%</span></span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(metadata_cols), <span class="fu">sort</span>(species_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(species_cols), <span class="sc">~</span> <span class="fu">replace_na</span>(<span class="fu">as.numeric</span>(.), <span class="dv">0</span>)))</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Save consolidated CSV</span></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(combined_dataset, <span class="fu">here</span>(<span class="st">"Mei"</span>, <span class="st">"Data"</span>,<span class="st">"opihi_2020_combined.csv"</span>))</span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a><span class="co"># View structure</span></span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(combined_dataset)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 161
+Columns: 43
+$ Date                              &lt;chr&gt; "3/11/20", "3/11/20", "3/11/20", "3/…
+$ `Start Time`                      &lt;chr&gt; "9:01:00", "9:01:00", "9:01:00", "9:…
+$ `Stop Time`                       &lt;chr&gt; "10:00:00", "10:00:00", "10:00:00", …
+$ `Number of Transect Lines`        &lt;chr&gt; "5", "5", "5", "5", "5", "5", "5", "…
+$ `Length of Transect Lines`        &lt;chr&gt; "40", "40", "40", "40", "40", "40", …
+$ `Point Spacing`                   &lt;chr&gt; "2.5 meters", "2.5 meters", "2.5 met…
+$ `Number of Quadrats per transect` &lt;chr&gt; "5", "5", "5", "5", "5", "5", "5", "…
+$ Location                          &lt;chr&gt; "Baby Makapuu", "Baby Makapuu", "Bab…
+$ latitude                          &lt;chr&gt; "21.316488", "21.316488", "21.316488…
+$ longitude                         &lt;chr&gt; "-157.664261", "-157.664261", "-157.…
+$ School                            &lt;chr&gt; "2", "2", "2", "2", "2", "2", "2", "…
+$ Quadrat_Sample                    &lt;chr&gt; "transect-1 quadrat-1 at point 0.00"…
+$ `1/10/20`                         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `1/9/20`                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `2/21/20`                         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `2/24/20`                         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `2/7/20`                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `3/11/20`                         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `3/3/20`                          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Acanthophora spicifera`          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Ahnfeltiopsis concinna`          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Asteronema breviarticulatum`     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Avrainvillea amadelpha`          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Bryopsis spp`                    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Codium spp`                      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Crustose Coralline Algae`        &lt;dbl&gt; 98, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 12…
+$ `Dictyosphaeria spp`              &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Dictyota spp`                    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Echinometra mathaei`             &lt;dbl&gt; 7, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Galaxaura spp`                   &lt;dbl&gt; 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, …
+$ `Hermit Crab`                     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Holothuria spp`                  &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Hypnea spp`                      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Laurencia spp`                   &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Littoraria pintado`              &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Padina spp`                      &lt;dbl&gt; 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Sphacelaria spp`                 &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Thylacodes variabilis`           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `TOTALS:`                         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Turbinaria ornata`               &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Turf spp`                        &lt;dbl&gt; 257, 10, 7, 12, 6, 12, 11, 23, 25, 1…
+$ `Ulva spp`                        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ `Unknown species`                 &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …</code></pre>
+</div>
+</div>
+<p>After looking through the code it generated and the outputs, it added some unnecessary columns and some of the numbers were wrong because I think it got confused with some of the totals columns. I tried again by asking Gemini to ignore everything under Totals:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ai-generated code</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Read raw CSV</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#raw_data &lt;- read_csv(here("Mei","Data","opihi_2020_ai.csv"), col_names = FALSE, show_col_types = FALSE)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Identify start column of each survey block</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>block_start_cols <span class="ot">&lt;-</span> <span class="fu">which</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  raw_data[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span> <span class="sc">|</span> raw_data[<span class="dv">8</span>, ] <span class="sc">==</span> <span class="st">"Location"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">ncol</span>(raw_data)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>block_ranges <span class="ot">&lt;-</span> <span class="fu">map2</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  block_start_cols,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(block_start_cols[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, num_cols),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">c</span>(.x, .y))</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Block parser function (stops before 'TOTALS:')</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>parse_survey_block <span class="ot">&lt;-</span> <span class="cf">function</span>(start_col, end_col) {</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  meta_label_col <span class="ot">&lt;-</span> start_col</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  meta_val_col   <span class="ot">&lt;-</span> start_col <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract metadata values (rows 1 to 11)</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  meta_keys <span class="ot">&lt;-</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  meta_vals <span class="ot">&lt;-</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_val_col][[<span class="dv">1</span>]]</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">key =</span> meta_keys, <span class="at">val =</span> meta_vals) <span class="sc">%&gt;%</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(key), key <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> key, <span class="at">values_from =</span> val)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  standard_meta <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> standard_meta) {</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>m <span class="sc">%in%</span> <span class="fu">names</span>(meta_df)) meta_df[[m]] <span class="ot">&lt;-</span> <span class="cn">NA_character_</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Locate 'Organisms' row header</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  org_row_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">12</span><span class="sc">:</span><span class="dv">20</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">==</span> <span class="st">"Organisms"</span>) <span class="sc">+</span> <span class="dv">11</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(org_row_idx) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Locate 'TOTALS:' row index to ignore everything below it</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  all_col_labels <span class="ot">&lt;-</span> raw_data[(org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span><span class="fu">nrow</span>(raw_data), meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>()</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  totals_rel_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(all_col_labels), <span class="st">"TOTALS"</span>))</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(totals_rel_idx) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    max_species_row <span class="ot">&lt;-</span> org_row_idx <span class="sc">+</span> totals_rel_idx[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    max_species_row <span class="ot">&lt;-</span> <span class="fu">nrow</span>(raw_data)</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract quadrat sample header names</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> meta_val_col<span class="sc">:</span>end_col</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> raw_data[org_row_idx, quadrat_cols] <span class="sc">%&gt;%</span> <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>  valid_quad_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(quadrat_names) <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_quad_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> quadrat_cols[valid_quad_indices]</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> quadrat_names[valid_quad_indices]</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract raw individual quadrat species rows (stopping before TOTALS:)</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> (org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>max_species_row</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> raw_data[species_rows, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  valid_spec_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(species_names) <span class="sc">&amp;</span> species_names <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(species_names), <span class="st">"TOTALS"</span>))</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_spec_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> species_rows[valid_spec_indices]</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> species_names[valid_spec_indices]</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build count matrix for individual quadrats</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>  counts_mat <span class="ot">&lt;-</span> raw_data[species_rows, quadrat_cols]</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(counts_mat) <span class="ot">&lt;-</span> quadrat_names</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>  counts_mat<span class="sc">$</span>Organism <span class="ot">&lt;-</span> species_names</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Reshape to wide quadrat table</span></span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>  long_counts <span class="ot">&lt;-</span> counts_mat <span class="sc">%&gt;%</span></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>      <span class="at">cols =</span> <span class="sc">-</span>Organism, </span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>      <span class="at">names_to =</span> <span class="st">"Quadrat_Sample"</span>, </span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>      <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Count =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(Count)), <span class="at">Count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Count), <span class="dv">0</span>, Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Organism, <span class="at">values_from =</span> Count, <span class="at">values_fn =</span> max, <span class="at">values_fill =</span> <span class="dv">0</span>)</span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(meta_df, long_counts)</span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Process blocks into a single clean dataset</span></span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(block_ranges, <span class="sc">~</span> <span class="fu">parse_survey_block</span>(.x[<span class="dv">1</span>], .x[<span class="dv">2</span>]))</span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Fill missing values across species columns with 0</span></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a>metadata_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span>, <span class="st">"Quadrat_Sample"</span></span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>species_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(combined_dataset), metadata_cols)</span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> combined_dataset <span class="sc">%&gt;%</span></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(metadata_cols), <span class="fu">sort</span>(species_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(species_cols), <span class="sc">~</span> <span class="fu">replace_na</span>(<span class="fu">as.numeric</span>(.), <span class="dv">0</span>)))</span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Save final dataset</span></span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(combined_dataset, <span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2020_combined_no_totals.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>It looks better now! Finally, I realized there was some unknown data at the very end of the sheet that has no associated metadata with it at all - I asked gemini to ignore that data when combining everything together. I also asked it to delete the columns M-S that it had added when cleaning the sheet.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Read raw CSV</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#raw_data &lt;- read_csv(here("Mei","Data","opihi_2020_ai.csv"), col_names = FALSE, show_col_types = FALSE)</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Limit raw dataset columns up to column FN (Column 170 in R)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>max_col_fn <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">ncol</span>(raw_data), <span class="dv">170</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> raw_data[, <span class="dv">1</span><span class="sc">:</span>max_col_fn]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Identify start column of each survey block within the raw data</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>block_start_cols <span class="ot">&lt;-</span> <span class="fu">which</span>(</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  raw_data[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span> <span class="sc">|</span> raw_data[<span class="dv">8</span>, ] <span class="sc">==</span> <span class="st">"Location"</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">ncol</span>(raw_data)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>block_ranges <span class="ot">&lt;-</span> <span class="fu">map2</span>(</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  block_start_cols,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(block_start_cols[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, num_cols),</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">c</span>(.x, .y)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Block parser function (stops before 'TOTALS:')</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>parse_survey_block <span class="ot">&lt;-</span> <span class="cf">function</span>(start_col, end_col) {</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  meta_label_col <span class="ot">&lt;-</span> start_col</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  meta_val_col   <span class="ot">&lt;-</span> start_col <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract metadata values (rows 1 to 11)</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  meta_keys <span class="ot">&lt;-</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  meta_vals <span class="ot">&lt;-</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_val_col][[<span class="dv">1</span>]]</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">key =</span> meta_keys, <span class="at">val =</span> meta_vals) <span class="sc">%&gt;%</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(key), key <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> key, <span class="at">values_from =</span> val)</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  standard_meta <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> standard_meta) {</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>m <span class="sc">%in%</span> <span class="fu">names</span>(meta_df)) meta_df[[m]] <span class="ot">&lt;-</span> <span class="cn">NA_character_</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Locate 'Organisms' row header</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  org_row_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">12</span><span class="sc">:</span><span class="dv">20</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">==</span> <span class="st">"Organisms"</span>) <span class="sc">+</span> <span class="dv">11</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(org_row_idx) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Locate 'TOTALS:' row index to ignore everything below it</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>  all_col_labels <span class="ot">&lt;-</span> raw_data[(org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span><span class="fu">nrow</span>(raw_data), meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>()</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>  totals_rel_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(all_col_labels), <span class="st">"TOTALS"</span>))</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(totals_rel_idx) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    max_species_row <span class="ot">&lt;-</span> org_row_idx <span class="sc">+</span> totals_rel_idx[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    max_species_row <span class="ot">&lt;-</span> <span class="fu">nrow</span>(raw_data)</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract quadrat sample header names</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> meta_val_col<span class="sc">:</span>end_col</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> raw_data[org_row_idx, quadrat_cols] <span class="sc">%&gt;%</span> <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>  valid_quad_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(quadrat_names) <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_quad_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> quadrat_cols[valid_quad_indices]</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> quadrat_names[valid_quad_indices]</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract individual quadrat species rows (stopping before TOTALS:)</span></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> (org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>max_species_row</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> raw_data[species_rows, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>  valid_spec_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(species_names) <span class="sc">&amp;</span> species_names <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(species_names), <span class="st">"TOTALS"</span>))</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_spec_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> species_rows[valid_spec_indices]</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> species_names[valid_spec_indices]</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build count matrix for individual quadrats</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>  counts_mat <span class="ot">&lt;-</span> raw_data[species_rows, quadrat_cols]</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(counts_mat) <span class="ot">&lt;-</span> quadrat_names</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>  counts_mat<span class="sc">$</span>Organism <span class="ot">&lt;-</span> species_names</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Reshape to wide quadrat table</span></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>  long_counts <span class="ot">&lt;-</span> counts_mat <span class="sc">%&gt;%</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(</span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>      <span class="at">cols =</span> <span class="sc">-</span>Organism, </span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>      <span class="at">names_to =</span> <span class="st">"Quadrat_Sample"</span>, </span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>      <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Count =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(Count)), <span class="at">Count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Count), <span class="dv">0</span>, Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Organism, <span class="at">values_from =</span> Count, <span class="at">values_fn =</span> max, <span class="at">values_fill =</span> <span class="dv">0</span>)</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(meta_df, long_counts)</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Process blocks into a single clean dataset</span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(block_ranges, <span class="sc">~</span> <span class="fu">parse_survey_block</span>(.x[<span class="dv">1</span>], .x[<span class="dv">2</span>]))</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Organize metadata and species columns, filling NAs with 0</span></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>metadata_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span>, <span class="st">"Quadrat_Sample"</span></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>species_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(combined_dataset), metadata_cols)</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> combined_dataset <span class="sc">%&gt;%</span></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(metadata_cols), <span class="fu">sort</span>(species_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(species_cols), <span class="sc">~</span> <span class="fu">replace_na</span>(<span class="fu">as.numeric</span>(.), <span class="dv">0</span>)))</span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. REMOVE COLUMNS M THROUGH S (Columns 13:19) FROM THE FINAL COMBINED DATASET</span></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a><span class="co"># (Columns 1 to 12 are metadata + Quadrat_Sample; columns 13 to 19 are species columns M:S)</span></span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>combined_dataset <span class="ot">&lt;-</span> combined_dataset <span class="sc">%&gt;%</span></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">13</span><span class="sc">:</span><span class="dv">19</span>))</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a><span class="co"># 8. Save final dataset</span></span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(combined_dataset, <span class="fu">here</span>(<span class="st">"Mei"</span>, <span class="st">"Data"</span>,<span class="st">"clean_opihi_2020_ai.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>With that, OPIHI 2020 looks cleaner and easier to join with the rest of the years and all the data looks correct to me.</p>
+</section>
+<section id="cleaning-opihi-2019-data-with-gemini" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-opihi-2019-data-with-gemini">Cleaning OPIHI 2019 data with Gemini</h3>
+<p>Once again, I redacted all school names and coded them with numbers instead. I will put the school names back at the end when I am working in R myself. With the redacted data sheet, I asked Gemini to once again clean all the separate field trip entries into one clean datasheet with an R script. I asked it to ignore all data after row 54, which is when there are some rows for totals per species and not raw data itself.</p>
+<p>Turns out I forgot to redact one of the schools :( changed that after I noticed it!</p>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ai-generated code</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Read the raw 2019 CSV dataset</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2019_ai.csv"</span>), <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Identify all survey block starting column indices (where row 1 == "Date")</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>block_start_cols <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">ncol</span>(raw_data)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>block_ranges <span class="ot">&lt;-</span> <span class="fu">map2</span>(</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  block_start_cols,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(block_start_cols[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, num_cols),</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">c</span>(.x, .y)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Block parser function that strictly caps row reading at row 54</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>parse_survey_block_2019 <span class="ot">&lt;-</span> <span class="cf">function</span>(start_col, end_col) {</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  meta_label_col <span class="ot">&lt;-</span> start_col</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  meta_val_col   <span class="ot">&lt;-</span> start_col <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Extract Metadata (Rows 1 to 11) ---</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Handle cases where Location key/val might be in adjacent columns</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">key =</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(),</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">val =</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_val_col][[<span class="dv">1</span>]]</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(key), key <span class="sc">!=</span> <span class="st">""</span>, key <span class="sc">!=</span> <span class="st">"NA"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> key, <span class="at">values_from =</span> val, <span class="at">values_fn =</span> first)</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check if location is recorded in nearby cell if omitted in key column</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"Location"</span> <span class="sc">%in%</span> <span class="fu">names</span>(meta_df) <span class="sc">||</span> <span class="fu">is.na</span>(meta_df<span class="sc">$</span>Location)) {</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    loc_val <span class="ot">&lt;-</span> raw_data[<span class="dv">8</span>, meta_val_col <span class="sc">+</span> <span class="dv">1</span>][[<span class="dv">1</span>]]</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(loc_val) <span class="sc">&amp;&amp;</span> <span class="fu">str_trim</span>(loc_val) <span class="sc">!=</span> <span class="st">""</span>) {</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>      meta_df<span class="sc">$</span>Location <span class="ot">&lt;-</span> <span class="fu">as.character</span>(loc_val)</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>  standard_meta <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> standard_meta) {</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>m <span class="sc">%in%</span> <span class="fu">names</span>(meta_df)) meta_df[[m]] <span class="ot">&lt;-</span> <span class="cn">NA_character_</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Locate 'Organisms' header row (typically row 13)</span></span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>  org_row_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">12</span><span class="sc">:</span><span class="dv">20</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">==</span> <span class="st">"Organisms"</span>) <span class="sc">+</span> <span class="dv">11</span></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(org_row_idx) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Cap reading strictly to Row 54 ---</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>  max_row_limit <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">nrow</span>(raw_data), <span class="dv">54</span>)</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract quadrat header names (e.g. T-1 Q-1 at point 0.00)</span></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> meta_val_col<span class="sc">:</span>end_col</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> raw_data[org_row_idx, quadrat_cols] <span class="sc">%&gt;%</span> <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>  valid_quad_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(quadrat_names) <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">"NA"</span>)</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_quad_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> quadrat_cols[valid_quad_indices]</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> quadrat_names[valid_quad_indices]</span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract species rows from (org_row_idx + 1) up to row 54</span></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> (org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>max_row_limit</span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> raw_data[species_rows, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>  valid_spec_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(species_names) <span class="sc">&amp;</span> species_names <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> species_names <span class="sc">!=</span> <span class="st">"NA"</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(species_names), <span class="st">"TOTALS"</span>))</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_spec_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> species_rows[valid_spec_indices]</span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> species_names[valid_spec_indices]</span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build species count matrix for this block</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>  counts_mat <span class="ot">&lt;-</span> raw_data[species_rows, quadrat_cols]</span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(counts_mat) <span class="ot">&lt;-</span> quadrat_names</span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>  counts_mat<span class="sc">$</span>Organism <span class="ot">&lt;-</span> species_names</span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Reshape long format to wide quadrat sample table</span></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>  long_counts <span class="ot">&lt;-</span> counts_mat <span class="sc">%&gt;%</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>      <span class="at">cols =</span> <span class="sc">-</span>Organism, </span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a>      <span class="at">names_to =</span> <span class="st">"Quadrat_Sample"</span>, </span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a>      <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Count =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(Count)), <span class="at">Count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Count), <span class="dv">0</span>, Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Organism, <span class="at">values_from =</span> Count, <span class="at">values_fn =</span> max, <span class="at">values_fill =</span> <span class="dv">0</span>)</span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(meta_df, long_counts)</span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Parse all blocks and stack into a single unified dataframe</span></span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a>combined_dataset_2019 <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(block_ranges, <span class="sc">~</span> <span class="fu">parse_survey_block_2019</span>(.x[<span class="dv">1</span>], .x[<span class="dv">2</span>]))</span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Order metadata columns and alphabetically sort all species columns</span></span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a>metadata_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span>, <span class="st">"Quadrat_Sample"</span></span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>species_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(combined_dataset_2019), metadata_cols)</span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a>combined_dataset_2019 <span class="ot">&lt;-</span> combined_dataset_2019 <span class="sc">%&gt;%</span></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(metadata_cols), <span class="fu">sort</span>(species_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(species_cols), <span class="sc">~</span> <span class="fu">replace_na</span>(<span class="fu">as.numeric</span>(.), <span class="dv">0</span>)))</span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Save the consolidated spreadsheet to CSV</span></span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(combined_dataset_2019, <span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"clean_opihi_2019_ai.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Some notes - most of the data looks good here but the Location is not filled in for some of the field trips because the columns were off by 1, I may manually change that myself and re run it.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ai-generated code</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Read raw CSV dataset</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2019_ai.csv"</span>), <span class="at">col_names =</span> <span class="cn">FALSE</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Identify all survey block starting column indices (where row 1 == "Date")</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>block_start_cols <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">1</span>, ] <span class="sc">==</span> <span class="st">"Date"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>num_cols <span class="ot">&lt;-</span> <span class="fu">ncol</span>(raw_data)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>block_ranges <span class="ot">&lt;-</span> <span class="fu">map2</span>(</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  block_start_cols,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(block_start_cols[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, num_cols),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="fu">c</span>(.x, .y)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Block parser function that strictly caps row reading at row 54</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>parse_survey_block_2019 <span class="ot">&lt;-</span> <span class="cf">function</span>(start_col, end_col) {</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  meta_label_col <span class="ot">&lt;-</span> start_col</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  meta_val_col   <span class="ot">&lt;-</span> start_col <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Extract Metadata (Rows 1 to 11) ---</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  meta_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">key =</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(),</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">val =</span> raw_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">11</span>, meta_val_col][[<span class="dv">1</span>]]</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(key), key <span class="sc">!=</span> <span class="st">""</span>, key <span class="sc">!=</span> <span class="st">"NA"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> key, <span class="at">values_from =</span> val, <span class="at">values_fn =</span> first)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure location value is captured if offset by a column</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"Location"</span> <span class="sc">%in%</span> <span class="fu">names</span>(meta_df) <span class="sc">||</span> <span class="fu">is.na</span>(meta_df<span class="sc">$</span>Location)) {</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    loc_val <span class="ot">&lt;-</span> raw_data[<span class="dv">8</span>, meta_val_col <span class="sc">+</span> <span class="dv">1</span>][[<span class="dv">1</span>]]</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(loc_val) <span class="sc">&amp;&amp;</span> <span class="fu">str_trim</span>(loc_val) <span class="sc">!=</span> <span class="st">""</span>) {</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>      meta_df<span class="sc">$</span>Location <span class="ot">&lt;-</span> <span class="fu">as.character</span>(loc_val)</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  standard_meta <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> standard_meta) {</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>m <span class="sc">%in%</span> <span class="fu">names</span>(meta_df)) meta_df[[m]] <span class="ot">&lt;-</span> <span class="cn">NA_character_</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Locate 'Organisms' header row (typically row 13)</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>  org_row_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(raw_data[<span class="dv">12</span><span class="sc">:</span><span class="dv">20</span>, meta_label_col][[<span class="dv">1</span>]] <span class="sc">==</span> <span class="st">"Organisms"</span>) <span class="sc">+</span> <span class="dv">11</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(org_row_idx) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- Cap reading strictly to Row 54 ---</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>  max_row_limit <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">nrow</span>(raw_data), <span class="dv">54</span>)</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract quadrat header names (e.g. T-1 Q-1 at point 0.00)</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> meta_val_col<span class="sc">:</span>end_col</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> raw_data[org_row_idx, quadrat_cols] <span class="sc">%&gt;%</span> <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>  valid_quad_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(quadrat_names) <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> quadrat_names <span class="sc">!=</span> <span class="st">"NA"</span>)</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_quad_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>  quadrat_cols <span class="ot">&lt;-</span> quadrat_cols[valid_quad_indices]</span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>  quadrat_names <span class="ot">&lt;-</span> quadrat_names[valid_quad_indices]</span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract individual quadrat species rows from (org_row_idx + 1) up to row 54</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> (org_row_idx <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>max_row_limit</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> raw_data[species_rows, meta_label_col][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">as.character</span>() <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>()</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>  valid_spec_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(species_names) <span class="sc">&amp;</span> </span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>      species_names <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> </span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>      species_names <span class="sc">!=</span> <span class="st">"NA"</span> <span class="sc">&amp;</span> </span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(species_names), <span class="st">"TOTALS"</span>)</span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(valid_spec_indices) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>  species_rows <span class="ot">&lt;-</span> species_rows[valid_spec_indices]</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>  species_names <span class="ot">&lt;-</span> species_names[valid_spec_indices]</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build count matrix for individual quadrats</span></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>  counts_mat <span class="ot">&lt;-</span> raw_data[species_rows, quadrat_cols]</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(counts_mat) <span class="ot">&lt;-</span> quadrat_names</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>  counts_mat<span class="sc">$</span>Organism <span class="ot">&lt;-</span> species_names</span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Reshape long format to wide quadrat sample table</span></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>  long_counts <span class="ot">&lt;-</span> counts_mat <span class="sc">%&gt;%</span></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>      <span class="at">cols =</span> <span class="sc">-</span>Organism, </span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>      <span class="at">names_to =</span> <span class="st">"Quadrat_Sample"</span>, </span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>      <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Count =</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(Count)), <span class="at">Count =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Count), <span class="dv">0</span>, Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Organism, <span class="at">values_from =</span> Count, <span class="at">values_fn =</span> max, <span class="at">values_fill =</span> <span class="dv">0</span>)</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(meta_df, long_counts)</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Process all blocks into a single combined dataframe</span></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>combined_dataset_2019_2 <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(block_ranges, <span class="sc">~</span> <span class="fu">parse_survey_block_2019</span>(.x[<span class="dv">1</span>], .x[<span class="dv">2</span>]))</span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Arrange metadata columns first, followed by alphabetically sorted species columns</span></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>metadata_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Date"</span>, <span class="st">"Start Time"</span>, <span class="st">"Stop Time"</span>, <span class="st">"Number of Transect Lines"</span>,</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Length of Transect Lines"</span>, <span class="st">"Point Spacing"</span>, <span class="st">"Number of Quadrats per transect"</span>,</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Location"</span>, <span class="st">"latitude"</span>, <span class="st">"longitude"</span>, <span class="st">"School"</span>, <span class="st">"Quadrat_Sample"</span></span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>species_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(combined_dataset_2019_2), metadata_cols)</span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>combined_dataset_2019_2 <span class="ot">&lt;-</span> combined_dataset_2019_2 <span class="sc">%&gt;%</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(metadata_cols), <span class="fu">sort</span>(species_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(species_cols), <span class="sc">~</span> <span class="fu">replace_na</span>(<span class="fu">as.numeric</span>(.), <span class="dv">0</span>)))</span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Save consolidated CSV file</span></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(combined_dataset_2019_2, <span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>, <span class="st">"clean_opihi_2019_ai.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Output looks pretty good now!</p>
+</section>
+<section id="joining-opihi-data-years-2019-2020-and-2024" class="level3">
+<h3 class="anchored" data-anchor-id="joining-opihi-data-years-2019-2020-and-2024">Joining OPIHI data years 2019, 2020, and 2024</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#import clean datasheets</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>clean_2019 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"clean_opihi_2019_ai.csv"</span>))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>clean_2020 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"clean_opihi_2020_ai.csv"</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>clean_2024 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"clean_opihi_2024.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#manually clean them up a bit more</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>clean_2019 <span class="ot">&lt;-</span> clean_2019 <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">schoolname =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Molokai High School"</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Ka Umeke Kaeo PCS"</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Highlands Intermediate"</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">"St. Anthony High School"</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">"UH Manoa"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">6</span> <span class="sc">~</span> <span class="st">"Stevenson Middle School"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="st">"Hawaii Academy of Arts and Science"</span> <span class="sc">~</span> <span class="st">"Hawaii Academy of Arts and Science"</span>, <span class="co">#somehow missed redacting this :( </span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="st">"Kilauea"</span> <span class="sc">~</span> <span class="st">"Kilauea"</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="st">"Waianae High School"</span> <span class="sc">~</span> <span class="st">"Waianae High School"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Saint Louis School"</span>,</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">11</span> <span class="sc">~</span> <span class="st">"Hawaii Technology Academy"</span>,</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">12</span> <span class="sc">~</span> <span class="st">"Hilo Union Elementary"</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">13</span> <span class="sc">~</span> <span class="st">"Waipahu High School"</span>,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">14</span> <span class="sc">~</span> <span class="st">"Voyager Public Charter School"</span>,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">15</span> <span class="sc">~</span> <span class="st">"Waimanalo School"</span>,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">16</span> <span class="sc">~</span> <span class="st">"Waipahu High School"</span>,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">17</span> <span class="sc">~</span> <span class="st">"Waimea High School"</span>,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">18</span> <span class="sc">~</span> <span class="st">"West Hawaii Explorations Academy PCS"</span>,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">19</span> <span class="sc">~</span> <span class="st">"Hongwanji Mission School"</span>,</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">20</span> <span class="sc">~</span> <span class="st">"Waimea Canyon Middle School"</span>,</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">21</span> <span class="sc">~</span> <span class="st">"Mare Ike"</span>)) <span class="co">#I probably could have done a for loop or something haha</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#manually clean 2020 data</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>clean_2020 <span class="ot">&lt;-</span> clean_2020 <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">schoolname =</span> <span class="fu">case_when</span>(</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Hawaii School for the Deaf and the Blind"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Waimanalo School"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Waipahu High School"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">"UH Manoa"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    school <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">"West Hawaii Explorations Academy PCS"</span>))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>clean_2020<span class="sc">$</span>school <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(clean_2020<span class="sc">$</span>school) <span class="co">#to join the school columns together below, both school columns have to be the same class</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#join 2020 and 2019 data together! </span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>clean1920 <span class="ot">&lt;-</span> <span class="fu">full_join</span>(clean_2019, clean_2020)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Joining 2019-2020 data with 2024 data!</p>
+<div class="cell">
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(clean_2024)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "X"                                                               
+  [2] "date"                                                            
+  [3] "location"                                                        
+  [4] "data_entry_by"                                                   
+  [5] "transect_number"                                                 
+  [6] "position_on_transect_m"                                          
+  [7] "acanthophora_spicifera"                                          
+  [8] "amansia_sp"                                                      
+  [9] "articulated_coralline"                                           
+ [10] "asparagopsis_sp"                                                 
+ [11] "astronema_breviarticulatum"                                      
+ [12] "astronema_sp"                                                    
+ [13] "ahnfeltiopsis_sp"                                                
+ [14] "avrainvillea_sp"                                                 
+ [15] "avrainvillea_lacerata"                                           
+ [16] "bryopsis_sp"                                                     
+ [17] "bornatella_sphaerica"                                            
+ [18] "caulerpa_racemosa"                                               
+ [19] "cca"                                                             
+ [20] "cerramium_sp"                                                    
+ [21] "cerracia"                                                        
+ [22] "chaetomorpha_basiretrorsa"                                       
+ [23] "chnoospora_sp"                                                   
+ [24] "cladophora_sp"                                                   
+ [25] "codium_sp"                                                       
+ [26] "codium_arabicum"                                                 
+ [27] "codium_edule"                                                    
+ [28] "codium_reediae"                                                  
+ [29] "colpomenia_sp"                                                   
+ [30] "colpomenia_sinuosa"                                              
+ [31] "cyanobacteria"                                                   
+ [32] "dasya_iridescens"                                                
+ [33] "dichotomaria_marginata"                                          
+ [34] "dictyosphaeria_cavernosa"                                        
+ [35] "dictyosphaeria_versluysii"                                       
+ [36] "dictyosphaeria_sp"                                               
+ [37] "dictyota_sp"                                                     
+ [38] "dictyota_acutiloba"                                              
+ [39] "dictyota_sandvicensis"                                           
+ [40] "dichtyopterous"                                                  
+ [41] "gelidiella_sp"                                                   
+ [42] "gracilaria_sp"                                                   
+ [43] "gracilaria_salicronia"                                           
+ [44] "halimeda_sp"                                                     
+ [45] "hydroclathrus_clathratus"                                        
+ [46] "ulva"                                                            
+ [47] "hypnea_sp"                                                       
+ [48] "jania_pumila"                                                    
+ [49] "jania_sp"                                                        
+ [50] "laurencia_sp"                                                    
+ [51] "laurencia_majuscula"                                             
+ [52] "laurencia_mcdermidiae"                                           
+ [53] "laurencia_nidifica"                                              
+ [54] "liagora_sp"                                                      
+ [55] "lobophora_sp"                                                    
+ [56] "lobophora_obscura"                                               
+ [57] "lyngbya_sp"                                                      
+ [58] "microdictyon_sp"                                                 
+ [59] "neomeris_sp"                                                     
+ [60] "portieria"                                                       
+ [61] "pterocladiella"                                                  
+ [62] "padina_sp"                                                       
+ [63] "sargassum_sp"                                                    
+ [64] "sargassum_aquifolium"                                            
+ [65] "sargassum_polyphyllum"                                           
+ [66] "sphaecelaria_sp"                                                 
+ [67] "symploca_hypnoides"                                              
+ [68] "trichogloea_sp"                                                  
+ [69] "turbinaria_ornata"                                               
+ [70] "valonia_sp"                                                      
+ [71] "turf"                                                            
+ [72] "cucumber_actinopyga"                                             
+ [73] "hermet_crab"                                                     
+ [74] "crab"                                                            
+ [75] "echinometra"                                                     
+ [76] "snail_dendropoma_gregarium"                                      
+ [77] "urchin"                                                          
+ [78] "cucumber_holothuria"                                             
+ [79] "haminoea_cymbalum_green_snail"                                   
+ [80] "pennaria_disticha_christmas_tree_hydroid"                        
+ [81] "pocillopora_damicornis"                                          
+ [82] "sea_star"                                                        
+ [83] "snail_littoraria"                                                
+ [84] "snail_nerite"                                                    
+ [85] "snail_serpulorbis"                                               
+ [86] "snail_siphonaria_normalis"                                       
+ [87] "sponge"                                                          
+ [88] "sand"                                                            
+ [89] "limestone"                                                       
+ [90] "bare_rock"                                                       
+ [91] "rubble"                                                          
+ [92] "pebble"                                                          
+ [93] "hole"                                                            
+ [94] "brown_crust"                                                     
+ [95] "unknown"                                                         
+ [96] "total_points"                                                    
+ [97] "x_x"                                                             
+ [98] "within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only"
+ [99] "sediment_depth"                                                  
+[100] "unknown_bulbous_algae"                                           
+[101] "team_leader"                                                     
+[102] "team_members"                                                    
+[103] "stressful_events"                                                
+[104] "low_tide_time"                                                   
+[105] "low_tide_height"                                                 
+[106] "x_in_field_group"                                                
+[107] "x_t_lines"                                                       
+[108] "longest_t_m"                                                     
+[109] "dist_between_t_pts_for_q"                                        
+[110] "x_quad_t"                                                        
+[111] "start_time"                                                      
+[112] "end_time"                                                        
+[113] "weather"                                                         
+[114] "rain_events"                                                     
+[115] "wave_height"                                                     
+[116] "wind_speed"                                                      
+[117] "x_visitors"                                                      
+[118] "x_fishing"                                                       
+[119] "x_collecting"                                                    
+[120] "what_collecting"                                                 
+[121] "notes"                                                           
+[122] "x_y"                                                             
+[123] "x_1"                                                             
+[124] "x_2"                                                             
+[125] "x_3"                                                             </code></pre>
+</div>
+<details class="code-fold">
+<summary>show my hard work</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#rename column names to match to 2024</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>clean1920 <span class="ot">&lt;-</span> clean1920 <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#"end_time" = "stop_time",  #already ran this at first to test out my code, pulls an error if i try to run it again</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x_t_lines"</span> <span class="ot">=</span> <span class="st">"number_of_transect_lines"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"longest_t_m"</span> <span class="ot">=</span> <span class="st">"length_of_transect_lines"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x_quad_t"</span> <span class="ot">=</span> <span class="st">"number_of_quadrats_per_transect"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>clean1920<span class="sc">$</span>x_quad_t <span class="ot">&lt;-</span> <span class="fu">as.character</span>(clean1920<span class="sc">$</span>x_quad_t) <span class="co">#to be able to join with other column, needs to be the same class </span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>mei_allyears <span class="ot">&lt;-</span> <span class="fu">full_join</span>(clean_2024, clean1920)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(mei_allyears, <span class="fu">here</span>(<span class="st">"Mei"</span>,<span class="st">"Data"</span>,<span class="st">"mei_allyears.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="section" class="level3">
+<h3 class="anchored" data-anchor-id="section"></h3>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

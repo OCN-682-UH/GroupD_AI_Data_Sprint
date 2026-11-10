@@ -21,6 +21,18 @@ library(tidyverse)
 library(here)
 library(ggplot2)
 library(kableExtra)
+library(ggthemr)
+library(lubridate)
+library(openxlsx)
+```
+
+```{r}
+#save functions here
+#plotting function
+opihiplot <- function(data, x, y, z) {
+  ggplot(data, aes(x={{x}}, y={{y}}, color={{z}})) +
+    geom_point() 
+}
 ```
 
 <h3>Question</h3>
@@ -31,10 +43,11 @@ Our group was tasked with analyzing the possible effect of different data collec
 
 <h3>Data Cleaning Approach</h3>
 
-In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](Appendix%20link%20here). (I will upload a separate file here).
+In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our cleaning scripts.
 
-After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat's section here)
+After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. In order to do this, wide files were pivoted longer to match the others. Merge artifact columns were removed (e.g. "x_x, X, x_y, x_1, x_2, x_3"), column names were cleaned and columns that obviously contained the same kind of data in different places were merged. ("school" and "schoolname", for example.) Columns that were not clear on data contents, or if the contents of the columns overlapped with different data (indicating they were two different measurements), they were not merged. Columns that contained multiple sets of information (for example, quadrat_sample contained data like "T-1 Q-4 Point 3.00", which were separated into a transect column, a quadrat column, and a point column with each of those associated values.) Dates, organism names, and place names were standardized, and diacritical marks were removed from the main columns to avoid issues in data processing down the line. (These diacritical marks were kept in the notes alongside the original IDs.) Finally, columns were reordered to be in a more intuitive arrangement, grouping the where, when, who, what, and how's together as much as possible. The column names were then pulled to create the data dictionary, which was manually filled out. Any uncertain columns were flagged with (uncertain) in the data dictionary.
 
+<<<<<<< HEAD
 After Kat shared this master file with us, Mai and Nick conducted small edits to the sheet to further clean small details:
 
 1.  *transect points* still included texts such *"1/2 meters" or "2 meters"* in the row. Created function to convert the fraction to decimal values and remove the "meters" text and keep only the values.
@@ -42,6 +55,9 @@ After Kat shared this master file with us, Mai and Nick conducted small edits to
 2.  *quad_t* read some points as dates *"13-Dec" or "11-Oct"* in the row when it was supposed to be numeric values. Used *case_when* to sort the data, then the *str_detect* and *str_extract* to detect and extract the text and keep the value.
 
 Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names and school names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
+=======
+After Kat shared this master file with us, Nick conducted small edits to further clean the data. Nick created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
+>>>>>>> 39f41e82e758b5e4202d882fbeb5f15ad8b6e853
 
 A snippet of the final output csv is shown below:
 
@@ -49,17 +65,70 @@ A snippet of the final output csv is shown below:
 #| label: example dataframe
 #| out-width: "150%"
 #| tbl-cap: Table 1
+#| message: false
+#| warning: false
+
+OPIHI_table_example <- read_csv(here("Data","OPIHI_Master_Output_cleaned_anonymized.csv")) |> 
+  head(50)
+
+kable(OPIHI_table_example, "html", caption = "First 50 Rows of CSV Data") |>
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    font_size = 14
+  ) |>
+  scroll_box(
+    width = "100%", 
+    height = "400px" # Keeps the table compact with a vertical scrollbar
+  )
+
 ```
 
 With the data now collected on one master csv, we are able to analyze the data visually.
 
-<h3>First Figure</h3>
+<h3>Sampling Consistency Across Different Schools in 2019</h3>
+
+To answer this research question, we attempted to evaluate sampling consistency per school by looking at the total number of transects done each year. If schools/teams are more consistently going to the field and running transects, they may be improving over time at coordinating these field trips and field protocols even if the students doing the transects are different per field trip. Although we thought about looking at sampling efforts as the number of field trips conducted per school each year, the amount of sampling effort expended on each field differed based on the day and the number of students there at the time. Therefore, we went with the total number of transects run as a hopefully better metric of sampling effort.
+
+```{r}
+#plot
+ggthemr("dust") #change plot theme
+
+opihi_master <- read_csv(here("Data","OPIHI_Master_Output_cleaned_anonymized.csv"))
+
+#plot only a subset of data (2019) to do a better comparison of schools, also subsetted to the top 7 schools that did the most sampling for a cleaner looking plot 
+opihi_summary <- opihi_master |> 
+  mutate(calc_year=year(date)) |> 
+  group_by(calc_year) |> 
+  count(name_of_school)
+
+opihi_2019 <- opihi_summary |> 
+  filter(calc_year=="2019",
+         n>99)
+
+#set levels to the schools so that the data goes from most number of transects to least
+opihi_2019[2] <- factor(opihi_2019$name_of_school, levels=c("UH Manoa","Saint Louis School","Highlands Intermediate","Hilo Union Elementary","Waipahu High School","Molokai High School","Kilauea"))
+
+```
 
 ```{r}
 #| label: figure-1
 #| out-width: "150%"
 #| fig-cap: Figure 1
+
+#use plotting function to plot data 
+opihiplot(opihi_2019, name_of_school, n) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(
+    title = "OPIHI Sampling Efforts per School in 2019",
+    x="School Name",
+    y="Total number of transects done"
+  ) 
+
+ggsave(here("Outputs","Consistencyplot.png"))
+
 ```
+
+For the following plot, we decided to subset the survey efforts from 2019 only to focus on a year that had a larger range of schools participating with more consistent field trips. Here, UH Manoa has by far the greatest number of transects done with over 1600 in 2019, followed by Saint Louis High School at 396 and Highlands Intermediate with 215. Based on this, we could infer that UH Manoa may be a "better" team in terms of sampling consistency, which could translate to having a more established OPIHI Project presence and protocol compared to other schools that did not have as high of a sampling effort (shown here as the number of transects completed in 2019).
 
 <h3>Second Figure</h3>
 
@@ -67,16 +136,136 @@ With the data now collected on one master csv, we are able to analyze the data v
 #| label: figure-2
 #| out-width: "150%"
 #| fig-cap: Figure 2
+
+plot_d <- site_pairs |>
+  mutate(site_lab = paste0(site_name, " (", n_school, " vs ", n_coord, ")"),
+         site_lab = fct_reorder(site_lab, diff)) |>
+  pivot_longer(c(school, coord), names_to = "who", values_to = "effort") |>
+  mutate(who = recode(who, school = "K-12 schools", coord = "Coordinator"))
+
+p_effort_sites <- ggplot(plot_d, aes(x = effort, y = site_lab)) +
+  geom_vline(xintercept = 100, linetype = "dashed", colour = "grey60") +
+  geom_line(aes(group = site_lab), colour = "grey75", linewidth = 1) +
+  geom_point(aes(colour = who), size = 3.5) +
+  scale_colour_manual(values = c("K-12 schools" = "grey35",
+                                 "Coordinator"  = "darkorange")) +
+  scale_x_continuous(limits = c(0, 100), labels = function(x) paste0(x, "%")) +
+  labs(x = "Planned quadrats actually sampled (mean per site)",
+       y = NULL, colour = NULL,
+       title = "Effort completeness at sites sampled by both groups",
+       subtitle = paste0("Short lines = similar effort. Paired Wilcoxon across ",
+                         nrow(site_pairs), " shared sites: ", p_txt),
+       caption = paste0("Numbers in brackets: school surveys vs Coordinator surveys ",
+                        "at that site (2016–2020).\nEffort capped at 100% per survey.")) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top", plot.title = element_text(face = "bold"))
+
+print(p_effort_sites)
+
 ```
+
+For the following plot, we decided to look at the survey effort completeness from 2017-2020. The figure looked at 10 shared sites, schools sampled on average 39.8% of planned quadrats vs 33.3% for the Coordinator; schools were lower at Sand Island, Waipuilani, Diamond Head,Sandy Beach, Ewa Beach of 10 sites, with the largest gaps at Barbers Point, Maili Beach, Old Airport, Waipouli. (paired Wilcoxon, p = 0.2622). Based on this, we could infer that schools did. complete their sampled sites as planned. Some other reasons why the bigger gap between the sampling probably had to do with environmental factors (e.g. tides, weather) hence other had more sampling done compared to others.
 
 <h3>Function</h3>
 
-(Nick's section)
+This function is called New_Species_Check, and it is designed to compare the species logged in a given year's data (for the data format up to 2020) with a master template of all the species collected across all years. It identifies unique species values by recognizing that they appear in lines 14-62 in the same column as the word "Date", which anchors each individual form. All of the species IDs are tallied across the forms, and this list is compared against the species columns present in the master template. The output lists the total number of unique species detected, how many are new and not found on the master, and lists all the new species. As a diagnostic tool, it would be useful to quickly glance at whether new values are indeed new unlisted species, or are previously logged species that were not entered the same.
+
+To test the function, I used the opihi_2024 data that Mei cleaned as a master template, but any file containing columns for known species would work. I tested the output by entering both the 2017 and 2018 raw data to ensure that the outputs made sense and were different.
 
 ```{r}
 #| label: Function code
 #| results: hide
 
+#raw data sheet for given year
+OPIHI_2018_raw_data <- here("Nick","Data","OPIHI_data_2018.xlsx")
 
+#sheet name
+sheet <- "OPIHI data 2018"
+
+#master template sheet
+OPIHI_master_template <- here("Nick","Data","opihi_2024.csv")
+
+New_Species_Check <- function(excel_file_path, sheet_name, master_template_path) {
+  
+  wb <- loadWorkbook(excel_file_path)
+  
+  # Read the master blueprint file headers exactly as written
+  master_df <- read_csv(master_template_path, name_repair = "minimal", show_col_types = FALSE)
+  master_species <- colnames(master_df)
+  
+  # Find every column coordinate where Row 1 is exactly "Date"
+  entire_anchor_row <- readWorkbook(wb, sheet = sheet_name, rows = 1, colNames = FALSE, skipEmptyCols = FALSE)
+  date_columns      <- which(as.character(entire_anchor_row) == "Date")
+  
+  if (length(date_columns) == 0) {
+    stop("Could not find the word 'Date' in Row 1. Check your worksheet layout.")
+  }
+  
+  # Read rows 14 to 62 for EVERY column on the sheet at the exact same time.
+  huge_grid <- readWorkbook(
+    wb, 
+    sheet         = sheet_name, 
+    rows          = 14:62, 
+    colNames      = FALSE, 
+    skipEmptyCols = FALSE, 
+    skipEmptyRows = FALSE  
+  )
+  
+  # Pull only the columns that had "Date" written in row 1
+  selected_grid <- huge_grid[, date_columns, drop = FALSE]
+  
+  # Convert to a raw matrix first, then flatten to a character vector.
+  # This completely breaks the data frame structure and guarantees separate text lines.
+  all_found_organisms <- as.character(as.matrix(selected_grid))
+  
+  # Standardize and clean all extracted species text strings
+  clean_found_organisms <- all_found_organisms %>%
+    str_trim() %>%                           
+    str_to_lower() %>%                       
+    str_replace_all(" ", "_") %>%            
+    str_replace_all("-", "_") %>%            
+    str_replace_all("spp", "sp")             
+  
+  # Strip out worksheet layout text fillers and numeric tracking flags
+  clean_found_organisms <- clean_found_organisms[
+    !is.na(clean_found_organisms) & 
+      clean_found_organisms != "" & 
+      clean_found_organisms != "na" &
+      clean_found_organisms != "organism" & 
+      clean_found_organisms != "unknown" & 
+      clean_found_organisms != "totals:" &
+      !str_detect(clean_found_organisms, "^\\d+\\.\\d+$") & 
+      !str_detect(clean_found_organisms, "^\\d+$")          
+  ]
+  
+  # Condense down to a single unique pool of species across ALL forms at once
+  clean_found_organisms <- unique(clean_found_organisms)
+  
+  # Evaluate what is in the Excel file versus your Master CSV blueprint
+  new_species_discovered <- setdiff(clean_found_organisms, master_species)
+  
+  cat("\n=== SPECIES CHECK COMPLETED ===\n")
+  cat(sprintf("Forms scanned: %d\n", length(date_columns)))
+  cat(sprintf("Total unique species found in Excel: %d\n", length(clean_found_organisms)))
+  
+  if (length(new_species_discovered) > 0) {
+    cat(sprintf("⚠️ ALERT: Found %d BRAND NEW species names not in your Master List:\n", length(new_species_discovered)))
+    print(new_species_discovered)
+  } else {
+    cat("✅ SUCCESS: All species match your current Master List layout perfectly.\n")
+  }
+  cat("================================\n\n")
+  
+  return(sort(clean_found_organisms))
+}
+
+#check on functionality for 2018 data
+OPIHI_2018_new_species <- New_Species_Check(OPIHI_2018_raw_data,sheet,OPIHI_master_template)
+
+#check on functionality for 2017 data
+OPIHI_2017_raw_data <- here("Nick","Data","OPIHI_data_2017.xlsx")
+sheet2 <- "OPIHI data 2017"
+
+OPIHI_2017_new_species <- New_Species_Check(OPIHI_2017_raw_data,sheet2,OPIHI_master_template)
 
 ```
