@@ -42,7 +42,7 @@ Our group was tasked with analyzing the possible effect of different data collec
 
 <h3>Data Cleaning Approach</h3>
 
-In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](I will upload link to appendix when we publish it).
+In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](I%20will%20upload%20link%20to%20appendix%20when%20we%20publish%20it).
 
 After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat's section here)
 
@@ -61,7 +61,7 @@ A snippet of the final output csv is shown below:
 #| message: false
 #| warning: false
 
-OPIHI_table_example <- read_csv(here("Outputs","cleaner_opihi_anonymized.csv")) |> 
+OPIHI_table_example <- read_csv(here("Data","OPIHI_Master_Output_cleaned_anonymized.csv")) |> 
   head(50)
 
 kable(OPIHI_table_example, "html", caption = "First 50 Rows of CSV Data") |>
