@@ -1,0 +1,200 @@
+---
+title: "2023 - OPIHI"
+author: "Fuamai Tago"
+date: today
+date-format: long
+title-block-banner: true
+format:
+  html:
+    toc: true 
+    toc-depth: 3
+    code-fold: true
+    code-summary: "show code"
+    theme:
+      dark: cosmo
+execute:
+  warning: false
+  message: false
+---
+
+# 2023 Data Organizing 
+
+```{r}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(readr)
+library(here)
+```
+
+
+```{r}
+#bring in file 
+opihi_file_in <- ("~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/OPIHI2023-p1-p2.xlsx")
+opihi_file_out <- here("Mai", "data","opihi23_data.xlsx")
+
+#read excel 
+excel_sheets(opihi_file_in)
+```
+
+
+```{r}
+# (named tab_names, not "sheets": openxlsx has its own sheets() function, which causes clashes)
+tab_names <- as.character(excel_sheets(opihi_file_in))
+print(tab_names)   # the tab names R actually sees
+
+find_sheet <- function(kind, p) {
+  up  <- str_to_upper(tab_names) 
+  hit <- tab_names[str_detect(up, paste0("^", kind)) & str_detect(up, p)]
+  if (length(hit) != 1)
+    stop("Expected exactly 1 '", kind, " ... ", p, "' tab, found ", length(hit),
+         ". Tabs in file: ", paste(tab_names, collapse = " | "))
+  hit
+}
+
+sh_t1 <- "TRANSECT PT INTERCEPT (P1)"
+sh_t2 <- "TRANSECT PT INTERCEPT (P2)"
+sh_q1 <- "QUADRAT PT INTERCEPT (P1)"
+sh_q2 <- "QUADRAT PT INTERCEPT (P2)"
+ 
+# Raw Data
+# Transect sheets: header on row 4, 7 points on rows 5-11, columns A:I.
+# Everything right of column I is compiled/summary data, so it is skipped.
+read_transect <- function(sheet) {
+  read_excel(opihi_file_in, sheet = sheet, range = "A4:I11") |>
+    rename(Point = 1, Location_m = 2) |>
+    pivot_longer(-c(Point, Location_m), names_to = "Group", values_to = "Original") |>
+    filter(!is.na(Original)) |>
+    mutate(Original = as.character(Original),
+           Method = "Transect", Site = str_sub(Group, 1, 2), Points = 1)
+}
+
+# Quadrat sheets: header on row 5, organisms start row 6, columns A:H.
+# Stop at the "TOTAL Points" row; the TOTALS column (I) and % columns (J:K) are never read.
+read_quadrat <- function(sheet) {
+  df <- read_excel(opihi_file_in, sheet = sheet, range = "A5:H40") |> rename(Original = 1)
+  stop_at <- which(str_detect(df$Original, "TOTAL Points"))[1]
+  df[seq_len(stop_at - 1), ] |>
+    filter(!is.na(Original)) |>                      # drop empty template rows
+    pivot_longer(-Original, names_to = "Group", values_to = "Points") |>
+    mutate(Points = replace_na(as.numeric(Points), 0))|>
+    filter(Points > 0) |>                            # blank = 0 points
+    mutate(Method = "Quadrat", Site = str_sub(Group, 1, 2), Location_m = NA_real_)
+}
+
+
+# 'GROUP DATA' is an empty template and 'P1 & P2 TRANSECT' is all formulas,
+#bind_rows puts tables on top of each other and matches columns by name.
+# so neither has raw data.
+stacked <- bind_rows( 
+  read_transect(sh_t1),
+  read_transect(sh_t2),
+  read_quadrat(sh_q1),
+  read_quadrat(sh_q2)
+)
+```
+
+```{r}
+# Transect sheets: NAME in row 3 (C:I), group codes in row 4.
+# Quadrat sheets:  NAME / CHECKER #1 / CHECKER #2 in rows 2-4 (B:H), group codes in row 5.
+#function to read transect names
+read_names_transect <- function(sheet) {
+  nm <- read_excel(opihi_file_in, sheet = sheet, range = "C3:I4", col_names = FALSE, col_types = "text")
+  tibble(Method = "Transect",
+         Group = as.character(unlist(nm[2, ])),
+         Recorder = as.character(unlist(nm[1, ])),
+         Checker_1 = NA_character_, Checker_2 = NA_character_)
+}
+
+#function to read the quadrat names 
+read_names_quadrat <- function(sheet) {
+  nm <- read_excel(opihi_file_in, sheet = sheet, range = "B2:H5", col_names = FALSE, col_types = "text")
+  tibble(Method = "Quadrat",
+         Group = as.character(unlist(nm[4, ])),
+         Recorder = as.character(unlist(nm[1, ])),
+         Checker_1 = as.character(unlist(nm[2, ])),
+         Checker_2 = as.character(unlist(nm[3, ])))
+}
+
+#table names of transect and quadrats
+names_tbl <- bind_rows(
+  read_names_transect(sh_t1),
+  read_names_transect(sh_t2),
+  read_names_quadrat(sh_q1),
+  read_names_quadrat(sh_q2)
+) |> mutate(across(c(Recorder, Checker_1, Checker_2), str_squish))
+
+```
+
+
+Clean Labels
+```{r}
+# Lookup key = trimmed, lower-case original. Edit this map to change any decision.
+clean_map <- c(
+  "rock" = "Rock", "sand" = "Sand",
+  "turf algae" = "Turf algae", "turf" = "Turf algae",
+  "padina spp" = "Padina spp.", "padina spp." = "Padina spp.",
+  "acanthophora spicifera" = "Acanthophora spicifera",
+  "dendropoma gregarium" = "Dendropoma gregarium",
+  "sargassum polyphylum" = "Sargassum polyphyllum",
+  "sargassum polyphyllum" = "Sargassum polyphyllum",
+  "saragassum polyphylum" = "Sargassum polyphyllum",
+  "sargassum aquifolium" = "Sargassum aquifolium",
+  "sr aquifolium" = "Sargassum aquifolium",  # assumed: Sr = Sargassum
+  "turbinaria ornata" = "Turbinaria ornata",
+  "turbinania ornata" = "Turbinaria ornata",
+  "neomeris" = "Neomeris spp.", "neomeris spp." = "Neomeris spp.",
+  "bornatella sphaerica" = "Bornetella sphaerica",
+  "bornatella spaerica" = "Bornetella sphaerica",
+  "byropsis pennata" = "Bryopsis pennata",
+  "caiclmus laevimanus" = "Calcinus laevimanus", # assumed typo (hermit crab)
+  "halimeda discoidea" = "Halimeda discoidea",
+  "halimeda discodia" = "Halimeda discoidea",
+  "avrainvilea sp." = "Avrainvillea sp.",
+  "unknown snail" = "Unknown snail",
+  "unknown fish" = "Unknown fish",
+  "y" = "Unidentified"  # stray entry, not guessed
+)
+
+substrates <- c("Rock","Sand")
+ 
+clean_label <- function(x) {
+  key <- str_to_lower(str_squish(x))
+  out <- unname(clean_map[key])
+  ifelse(is.na(out), str_squish(x), out)# unmapped labels are just trimmed
+}
+ 
+stacked <- stacked %>%
+  mutate(Label = clean_label(Original),
+         Type  = if_else(Label %in% substrates, "Substrate", "Organism"))
+
+```
+
+```{r}
+# Quadrat rows that collapse to the same label are added together
+# (e.g. "Sargassum aquifolium" + "Sr aquifolium").
+opihi_long <- bind_rows(
+  stacked |>filter(Method == "Transect"), 
+  stacked |> filter(Method == "Quadrat") |>
+    group_by(Method, Site, Group, Label, Type) |>
+    summarise(Points = sum(Points),
+              Original = paste(unique(Original), collapse = "; "),
+              Location_m = NA_real_, .groups = "drop")
+) |>
+  left_join(names_tbl, by = c("Method", "Group")) |>
+  arrange(Method, Site, Group, Location_m, Label) |>
+  mutate(site = "Diamond Head", school = "X high school") |>
+  select(school, school, site, method = Method, p1_or_p2 = Site, 
+         group = Group,
+         recorder = Recorder, checker_1 = Checker_1, checker_2 = Checker_2,
+         transect_points = Location_m, organism_substrate = Label,
+         type = Type, points = Points, organism_label = Original)
+
+opihi_long <- janitor::clean_names(opihi_long)
+
+glimpse(opihi_long)
+write_csv(opihi_long, here("Mai", "data", "opihi_23_long.csv"), na = "")
+```
+```
+
