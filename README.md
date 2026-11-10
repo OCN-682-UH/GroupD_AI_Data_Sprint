@@ -16,7 +16,7 @@
  * link
 
 ### Group AI Developer Log
- * link
+ * [Quarto Doc](https://01a1c6d9-f214-5a24-894c-784878348a38.share.connect.posit.cloud)
 
 ### Reflections
  * [reflections](https://github.com/OCN-682-UH/GroupD_AI_Data_Sprint/blob/main/Reflections.md)
