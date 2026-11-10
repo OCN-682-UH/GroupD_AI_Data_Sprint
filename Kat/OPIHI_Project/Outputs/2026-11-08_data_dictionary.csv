@@ -8,7 +8,7 @@ latitude,Latitude
 longitude,Longitude
 name_of_school,The name of the school participating in the sampling event
 in_field_group,(uncertain) The group number during some sampling events
-group,(uncertain) The group number during some sampling events
+group, The assigned group during some sampling events
 team_members,Names of the participants in the group that recorded this observation
 team_lead_or_recorder,Name of the team leader or recorder in the group that recorded this observation
 data_entry_by,Name of the person recording the data in the original spreadshet
