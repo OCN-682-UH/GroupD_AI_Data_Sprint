@@ -86,7 +86,7 @@ To answer this research question, we attempted to evaluate sampling consistency 
 #plot
 ggthemr("dust") #change plot theme
 
-opihi_master <- read_csv(here("Outputs","cleaner_opihi_anonymized.csv"))
+opihi_master <- read_csv(here("Data","OPIHI_Master_Output_cleaned_anonymized.csv"))
 
 #plot only a subset of data (2019) to do a better comparison of schools, also subsetted to the top 7 schools that did the most sampling for a cleaner looking plot 
 opihi_summary <- opihi_master |> 
@@ -112,7 +112,7 @@ opihi_2019[2] <- factor(opihi_2019$name_of_school, levels=c("UH Manoa","Saint Lo
 opihiplot(opihi_2019, name_of_school, n) +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(
-    title = "Sampling Efforts per School in 2019",
+    title = "OPIHI Sampling Efforts per School in 2019",
     x="School Name",
     y="Total number of transects done"
   ) 
