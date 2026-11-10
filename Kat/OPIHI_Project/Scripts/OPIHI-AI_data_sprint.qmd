@@ -1,5 +1,5 @@
 ---
-title: "OPIHI Project - AI Assisted Data Sprint"
+title: "OPIHI Project - Cleaning and Combining Years 2004, 2005, 2008, & 2026"
 author: "Kat Viehl"
 format:
   html:
@@ -20,20 +20,18 @@ page-layout: full
 
 All OPIHI datasets belong to: **Dr. Joanna Philippoff** - philippo@hawaii.edu
 
-Contents of this Quarto were written by: **Kat Viehl** - kviehl@hawaii.edu
+Contents of this Quarto and decisions made within are the responsibility of: **Kat Viehl** - kviehl@hawaii.edu - (I also drew the opihi divider above :) )
 
 ---
 
 Created on : 2026-10-21
 
-Last Updated on : 2026-11-02
+Last Updated on : 2026-11-09
 
 Note: AI was used for scripting assistance. 
 AI agents used: 
 
  - Claude Sonnet 5.5 Medium 
- 
- - ChatGPT-5 Pro (My partner has a license, so those logs may include his account or name (David Webb) instead of mine)
 
 ---
 
@@ -74,6 +72,11 @@ filenames_metadata |>
   kable_material()
 
 ```
+
+
+---
+
+![](opihi_divider.png)
 
 
 ### Renaming Scripting:
@@ -190,9 +193,11 @@ File renaming script:
 
 ```
 
+---
+
 All files renamed.
 
-My group has decided to split up the work by years, so I am only compiling the data from the following years: 
+My group has decided to split up the work by years, so I am only compiling the data from the following years in this document: 
 
  - 2004
  
@@ -205,6 +210,9 @@ My group has decided to split up the work by years, so I am only compiling the d
 I have manually moved all other years that my group members will be working on out of this folder and into a new folder named "otheryears" to avoid accidental cross-talk.
 
 ---
+
+![](opihi_divider.png)
+
 
 ### Manual Data Cleaning
 
@@ -220,7 +228,8 @@ There are a few sheets in one of the most recent year's documents (2026) that ne
 
  1. 2026b_OPIHI_data - removed sheets: "LIMU PRESSES", "QUADRAT PT INTERCEPT (EXAMPLE)", and "Sheet9". The first one was removed due to it being a photograph of limu pressings with no other data. The second is example data from another year. The third one (Sheet9) was removed as it contains temperature data with no associated location data to group with.
 
- 
+---
+
 ### Manual Redaction (2004, 2005, 2008) and AI compilation
 
 I will be redacting names and other sensitive data from 2004a, 2005a, and 2008a before using AI to help compile it. I have changed coordinates, site names, and removed any identifying information.
@@ -229,7 +238,7 @@ Now I will use AI to write me a script that will pull the information and join t
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log - Template
+## AI Chat Log - Combine Redacted Dataframes Part 1 (2004, 2005, 2008)
 
 **Kat:**
 
@@ -279,6 +288,7 @@ If your row count differs from the numbers above, tell me what you get and I'll 
 
 :::
 
+After testing the script with the redacted files, I am now running the actual script with the real files:
 
 ```{r}
 # ------------------------------------------------------------------
@@ -310,7 +320,7 @@ library(tibble)
 # ---- Settings -----------------------------------------------------
 data_dir   <- here("OPIHI_Project", "Data", "2004_2005_2008_notredacted")  # folder containing the .xlsx files
 file_regex <- "_OPIHI_data\\.xlsx$"  # which files to combine
-out_file   <- here("OPIHI_Project", "Outputs", "combined_data1.csv")
+out_file   <- here("OPIHI_Project", "Outputs", "2004_2005_2008_combined_data.csv")
 
 # Blank cells mean "organism not recorded in that quadrat".
 #   TRUE  = keep only recorded counts (smaller file)
@@ -444,16 +454,16 @@ glimpse(combined)
 
 ```
 
-Looks good! I have also manually looked between this file and each of 2004, 2005, and 2008 to ensure all data carried over correctly. I did not verify every single species count, but I did check all the dates, the number of entries per date, and randomly looked at about 50 rows to verify throughout the document and all were correct.
+Looks good! I have also manually looked between this file and each of 2004, 2005, and 2008 to ensure all data carried over correctly. I did not verify every single species count as that would take too long, but I did check all the dates, the number of entries per date, and randomly looked at about 50 rows to verify throughout the document and all that I checked were correct.
 
 Now that I have combined 2004, 2005, and 2008, I need to combine and reformat 2026 to fit them all together.
 
-First I will manually redact 2026 in order to work with AI on writing a reformatting script. I did this by replacing people and school names with "fake name1", "fake name2", etc. or random strings of letters. I also mixed up all the place names so it would not represent the area accurately.
+First, I will manually redact 2026 in order to work with AI on writing a reformatting script. I did this by replacing people and school names with "fake name1", "fake name2", etc. or random strings of letters, for example "asdasdf". I also mixed up all the place names so it would not represent the area accurately, and changed the coordinates to make it even more impossible to decipher.
 
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log - Template
+## AI Chat Log - Combine Redacted Dataframes Part 2 (2026)
 
 **Kat:**
 
@@ -516,15 +526,16 @@ Once you've run it, let me know if your counts differ from those above and I'll 
 :::
 
 
-OK-- That's not great. It looks like a couple of the names were still present in the file due to being in the wrong column or very far from the data.
+OK-- from what I see above, that's not great. It looks like a couple of the names were still present in the file due to being in the wrong column or very far from the data.
 
 "Madison Armstrong" was located on line 277 of 2026a, in the transect sheet, about 150 lines below all the input data, so I didn't see it.
 
-"Gigi" was located in line 39 of the date column, which I also didn't catch during redaction.
+"Gigi" was located in line 39 of the **date** column, which I also didn't catch during redaction.
 
-Thankfully these do not appear to be students or identifiable with a google search. 
+Thankfully these do not appear to be students or identifiable with a Google search. 
 
 
+Now, I will run the script:
 
 ```{r}
 
@@ -882,11 +893,11 @@ Thankfully these do not appear to be students or identifiable with a google sear
 #
 ```
 
-Since that gave an error, I have tried again:
+Since that gave an error, I have told Claude the error and tried again:
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log - Template
+## AI Chat Log - Error Troubleshooting Yay
 
 **Kat:**
 
@@ -1285,6 +1296,8 @@ combined_metadata2 <- read_csv(here("OPIHI_Project", "Outputs", "combined_metada
 
 #remove example data and column totals
 combined_data2 |> 
+  
+  # Yes, this says do not delete, but we definitely do not need example data to accidentally get into the real data.
   filter_out(notes == "EXAMPLE - Do not delete") |> 
   filter_out(data_entry_by == "Column Totals")-> filtered_data2
 
@@ -1301,15 +1314,13 @@ head(filtered_data2)
 
 I would like to join the metadata with the data sheet. In order to do this, I need to group them by a common variable, which they do not seem to have. They have dates, but the dates intersect across names. The names are grouped together in a way that makes it difficult to pull apart without accidentally duplicating data.
 
-Because of this, I will manually assign group numbers to rows based on matching information in the original spreadsheets. (If date and at least one of the team leader/team member names match, they will be paired)
+Because of this, I will use AI to help with matching information in the original spreadsheets. (If date and at least one of the team leader/team member names match, they will be paired)
 
-I am using AI to assist in building this script.
-
-
+I did not upload any of the name data to AI in order to generate this script, as that is sensitive information. Instead I tried to be as descriptive as possible when asking for the script:
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log - Template
+## AI Chat Log - Merging Metadata By Date and Names
 
 **Kat:**
 
@@ -1353,11 +1364,11 @@ If your real data has consistent names, the match rate should be much higher. Fo
 :::
 
 
-Because I had already cleaned the data manually above, I had Claude change the input to variables/data frames rather than the original .csv files.
+This is great, but I forgot I had already cleaned the data using R scripts manually above, so I had Claude change the input to variables/data frames rather than the original .csv files.
 
 
 ::: {.callout-warning collapse="true"}
-## AI Chat Log - Template
+## AI Chat Log - Fixing My Mistake
 
 **Kat:**
 
@@ -1385,7 +1396,6 @@ The matching rules are the same as before: exact date match, at least one shared
 - **`metadata_row`:** this is now the row number in your metadata data frame, not in the old CSV. If you've reordered or deleted rows, the numbers will reflect that.
 
 :::
-
 
 
 
@@ -1593,150 +1603,18 @@ merged_data <- merge_metadata_data(data_in, meta_in,
                                    require_same_source_file = TRUE)
 
 # Optional: also save it
-write_csv(merged_data, here("OPIHI_Project", "Outputs","combined_data2_with_metadata.csv"), na = "")
+write_csv(merged_data, here("OPIHI_Project", "Outputs","2026_combined_data.csv"), na = "")
 message("\nResult is in `merged_data` (", nrow(merged_data), " rows x ",
-        ncol(merged_data), " columns); also saved to combined_data2_with_metadata.csv")
+        ncol(merged_data), " columns); also saved to 2026_combined_data.csv")
 
 ```
 
-OK -- It is merged! 
+OK -- It is merged into two files! 2004_2005_2008_combined_data.csv and 2026_combined_data.csv. I have decided to keep these separate as they are extremely different in content. I will work with all years in the next script.
 
-### Joining everything together
+I have deleted some lines of code below that have been replaced by the scripting in OPIHI_data_compilation.qmd. Please see that quarto for the combining and cleaning of all years.
 
-Now, I would like to merge 2004, 2005, and 2008 with 2026 to make one file. I have re-named the files after doing a quick look through, so I will bring them back into R below, and full join:
+---
 
-```{r}
+![](opihi_divider.png)
 
-data_04_05_08 <- read_csv(here("OPIHI_Project", "Outputs", "2004_2005_2008_combined_data.csv"))
-
-data_26 <- read_csv(here("OPIHI_Project", "Outputs", "2026_combined_data.csv"))
-
-#make the date column in 04-08 a date format instead of character:
-
-data_04_05_08 |> 
-  mutate(date = mdy(date)) -> data_04_05_08
-
-full_join(data_04_05_08, data_26) -> data_04_05_08_26
-
-
-data_04_05_08_26 |> 
-  write_csv(here("OPIHI_Project", "Outputs", "alldata_4_5_8_26_combined.csv"))
-
-```
-
-Cool! We have a file with everything in it. Now, I need to fix some of the redundancies in the file. For example, there's a "notes" column, and a "meta_notes" column. 
-
-
-
-
-::: {.callout-warning collapse="true"}
-## AI Chat Log - Template
-
-**Kat:**
-
-I now have a .csv file with a few redundant columns. Write me an R script that joins certain columns together into one column containing the information of both, excluding NA values. The columns I would like to join are: 
-
-"notes" and "meta_notes" (just call this combined column "notes")
-
-**Claude:**
-
-I've written `join_columns.R`, which merges `notes` and `meta_notes` into a single `notes` column. I haven't run it in R, so it's untested.
-
-**How it handles each row**
-- If both columns have text, they're joined with `"; "` between them (for example `"A; B"`).
-- If only one has text, that text is used as is.
-- If neither has text, the result stays blank.
-- If both hold identical text, it's kept once rather than repeated.
-- NA and empty cells are ignored, and extra spaces are trimmed.
-
-The combined `notes` column sits where the original `notes` column was, and `meta_notes` is removed. Other columns are untouched. The script prints how many rows had a value in both columns, so you can see how many were actually combined.
-
-**Before running it:** at the top of the script, set `in_file` to your .csv's name. It defaults to `combined_data2_with_metadata.csv`. The result is written to `combined_data2_joined.csv`, and you can change that name in the settings too. You can also change `separator` if you'd rather use something other than `"; "`.
-
-To join other redundant columns later, add a line to the `joins` list. For example, `location = c("location", "meta_location")` would merge those two into one `location` column.
-
-:::
-
-
-
-```{r}
-
-# ------------------------------------------------------------------
-# join_columns.R
-#
-# Joins redundant columns into one column that holds the information from
-# all of them, leaving out NA/blank values. Here: "notes" + "meta_notes"
-# -> "notes".
-#
-#   notes        meta_notes     ->  notes
-#   "A"          "B"                "A; B"
-#   "A"          NA                 "A"
-#   NA           "B"                "B"
-#   NA           NA                 NA
-#   "A"          "A"                "A"      (identical text is kept once)
-#
-# The combined column takes the position of the first column joined, and
-# the other original columns are removed.
-#
-# To join more columns later, add another line to `joins`, e.g.
-#   joins <- list(notes = c("notes", "meta_notes"),
-#                 location = c("location", "meta_location"))
-#
-# Requires: readr, purrr
-#   install.packages(c("readr", "purrr"))
-# ------------------------------------------------------------------
-
-library(readr)
-library(purrr)
-
-# ---- Settings -----------------------------------------------------
-in_file   <- here("OPIHI_Project", "Outputs", "alldata_4_5_8_26_combined.csv")   # your .csv file
-out_file  <- here("OPIHI_Project", "Outputs", "alldata_joinedcol.csv")
-separator <- "; "                                 # put between joined values
-
-# new column name = the columns to join into it
-joins <- list(
-  notes = c("notes", "meta_notes"),
-  location = c("location", "meta_location")
-)
-# -------------------------------------------------------------------
-
-# Read everything as text so no values get altered
-df <- read_csv(in_file, col_types = cols(.default = col_character()),
-               na = c("", "NA"), progress = FALSE)
-
-join_columns <- function(df, new_name, cols, sep) {
-  missing <- setdiff(cols, names(df))
-  if (length(missing))
-    stop("Column(s) not found in the file: ", paste(missing, collapse = ", "))
-
-  # Combine each row's non-NA, non-blank values (identical values kept once)
-  combined <- pmap_chr(df[cols], function(...) {
-    v <- trimws(c(...))
-    v <- unique(v[!is.na(v) & v != ""])
-    if (length(v) == 0) NA_character_ else paste(v, collapse = sep)
-  })
-
-  # Where the new column goes: the position of the first column joined
-  pos   <- min(match(cols, names(df)))
-  keep  <- setdiff(names(df), cols)
-  order <- append(keep, new_name, after = pos - 1)
-
-  n_both <- sum(rowSums(!is.na(df[cols]) & trimws(as.matrix(df[cols])) != "") > 1,
-                na.rm = TRUE)
-  message("'", new_name, "': joined ", paste(cols, collapse = " + "), " (",
-          n_both, " rows had a value in more than one of them)")
-
-  df[[new_name]] <- combined
-  df[order]
-}
-
-for (nm in names(joins)) {
-  df <- join_columns(df, nm, joins[[nm]], separator)
-}
-
-write_csv(df, out_file, na = "")
-message("Wrote ", nrow(df), " rows x ", ncol(df), " columns to ", out_file)
-
-```
 
