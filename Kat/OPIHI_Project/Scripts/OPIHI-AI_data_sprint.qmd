@@ -1399,7 +1399,7 @@ The matching rules are the same as before: exact date match, at least one shared
 
 
 
-```{r}
+```{r, results ='hide'}
 
 # ------------------------------------------------------------------
 # merge_metadata_data.R
