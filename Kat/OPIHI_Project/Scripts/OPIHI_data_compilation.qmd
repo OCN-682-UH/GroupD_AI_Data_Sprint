@@ -69,22 +69,22 @@ Then, load data:
 ```{r}
 
 # Kat Data sheet 1
-data_04_05_08 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2004_2005_2008_combined_data.csv"))
+data_04_05_08 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2004_2005_2008_combined_data.csv"))
 
 # Kat Data sheet 2
-data_26 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026_combined_data.csv"))
+data_26 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026_combined_data.csv"))
 
 # Mei data sheet (all)
-data_19_20_24 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "mei_clean_2019-2020-2024.csv"))
+data_19_20_24 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "mei_clean_2019-2020-2024.csv"))
 
 # Nick data sheet 1
-data_17 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2017_sorted.csv"))
+data_17 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2017_sorted.csv"))
 
 # Nick data sheet 2 
-data_18 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2018_sorted.csv"))
+data_18 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "output_data_2018_sorted.csv"))
 
 # Mai data sheet (all)
-data_06_07_16_23 <- read_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "opihi_master_combine.csv"))
+data_06_07_16_23 <- read_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "opihi_master_combine.csv"))
 
 # Note that 2025 is missing as it did not have any metadata present, and we didn't hear back from Johanna via email in time to be able to add it to the list.
 
@@ -254,7 +254,7 @@ joined <- reduce(dfs, function(x, y) {
 joined <- type_convert(joined)
 
 # 5. Write the result ------------------------------------------------------
-write_csv(joined, here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "allyears_joined_data.csv"))
+write_csv(joined, here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "allyears_joined_data.csv"))
 
 message("Saved ", nrow(joined), " rows and ", ncol(joined),
         " columns to allyears_joined_data.csv")
@@ -306,11 +306,11 @@ print(col_names_sorted)
 
 
 col_names_sorted |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "column_names.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "column_names.csv"))
 
 
 joined |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "alljoined_data.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "alljoined_data.csv"))
 
 
 
@@ -460,7 +460,7 @@ Now, let's save a version here in case anything goes wrong down the line:
 #| collapse: true
 
 final_df_merged |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "cleaned_alljoined_data.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "cleaned_alljoined_data.csv"))
 
 
 colnames(final_df_merged)
@@ -1153,7 +1153,7 @@ OK, save progress as I must pause for tonight:
 ```{r}
 
 final_df_merged |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-07_clean_combined.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "2026-11-07_clean_combined.csv"))
 
 
 ```
@@ -1178,7 +1178,7 @@ final_df_merged |>
 
 # saving the result to upload to AI
 to_be_separated |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "to_separate.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "to_separate.csv"))
 
 ```
 
@@ -1625,7 +1625,7 @@ reordered_data_dates_clean |>
 
 # save to upload to Claude
 organism_substrate_names |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "organism_substrate_names.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "organism_substrate_names.csv"))
 
 ```
 
@@ -1957,7 +1957,7 @@ cleaned_standardized_data |>
 
 # save to upload to AI:
 site_names_toclean |> 
-  write_csv(here("OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "site_names_toclean.csv"))
+  write_csv(here("Kat", "OPIHI_Project", "Data", "mai_mei_nick_kat_combined_years", "site_names_toclean.csv"))
 
 ```
 

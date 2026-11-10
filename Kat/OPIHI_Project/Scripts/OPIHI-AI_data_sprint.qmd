@@ -62,7 +62,7 @@ First, I will rename all the sheets to have the same format. Below I detail each
 
 # load in filenames table
 
-filenames_metadata <- read_csv(here("OPIHI_Project", "Data", "filenames_metadata.csv"))
+filenames_metadata <- read_csv(here("Kat", "OPIHI_Project", "Data", "filenames_metadata.csv"))
 
 
 # show filename conversions in a table
@@ -318,9 +318,9 @@ library(readr)
 library(tibble)
 
 # ---- Settings -----------------------------------------------------
-data_dir   <- here("OPIHI_Project", "Data", "2004_2005_2008_notredacted")  # folder containing the .xlsx files
+data_dir   <- here("Kat", "OPIHI_Project", "Data", "2004_2005_2008_notredacted")  # folder containing the .xlsx files
 file_regex <- "_OPIHI_data\\.xlsx$"  # which files to combine
-out_file   <- here("OPIHI_Project", "Outputs", "2004_2005_2008_combined_data.csv")
+out_file   <- here("Kat", "OPIHI_Project", "Outputs", "2004_2005_2008_combined_data.csv")
 
 # Blank cells mean "organism not recorded in that quadrat".
 #   TRUE  = keep only recorded counts (smaller file)
@@ -970,10 +970,10 @@ library(readr)
 library(tibble)
 
 # ---- Settings -----------------------------------------------------
-data_dir   <- here("OPIHI_Project", "Data")
+data_dir   <- here("Kat", "OPIHI_Project", "Data")
 files      <- c("2026a_OPIHI_data.xlsx", "2026b_OPIHI_data.xlsx", "2026c_OPIHI_data.xlsx")
-out_file   <- here("OPIHI_Project", "Outputs", "combined_data2.csv")
-meta_file  <- here("OPIHI_Project", "Outputs", "combined_metadata2.csv")
+out_file   <- here("Kat", "OPIHI_Project", "Outputs", "combined_data2.csv")
+meta_file  <- here("Kat", "OPIHI_Project", "Outputs", "combined_metadata2.csv")
 
 # Blank quadrat cells mean "organism not recorded in that quadrat".
 #   TRUE  = keep only recorded counts (smaller file)
@@ -1288,10 +1288,10 @@ This seems to have worked, but it is extremely messy with random totals and exam
 
 # first loading the two data sheets into R
 # data
-combined_data2 <- read_csv(here("OPIHI_Project", "Outputs", "combined_data2.csv"))
+combined_data2 <- read_csv(here("Kat", "OPIHI_Project", "Outputs", "combined_data2.csv"))
 
 # metadata
-combined_metadata2 <- read_csv(here("OPIHI_Project", "Outputs", "combined_metadata2.csv"))
+combined_metadata2 <- read_csv(here("Kat", "OPIHI_Project", "Outputs", "combined_metadata2.csv"))
 
 
 #remove example data and column totals
@@ -1603,7 +1603,7 @@ merged_data <- merge_metadata_data(data_in, meta_in,
                                    require_same_source_file = TRUE)
 
 # Optional: also save it
-write_csv(merged_data, here("OPIHI_Project", "Outputs","2026_combined_data.csv"), na = "")
+write_csv(merged_data, here("Kat", "OPIHI_Project", "Outputs","2026_combined_data.csv"), na = "")
 message("\nResult is in `merged_data` (", nrow(merged_data), " rows x ",
         ncol(merged_data), " columns); also saved to 2026_combined_data.csv")
 
