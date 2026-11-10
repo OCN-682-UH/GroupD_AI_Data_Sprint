@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -13,10 +13,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -69,10 +72,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="Group_D_Quarto_Report_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="Group_D_Quarto_Report_files/libs/quarto-html/anchor.min.js"></script>
 <link href="Group_D_Quarto_Report_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="Group_D_Quarto_Report_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="Group_D_Quarto_Report_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="Group_D_Quarto_Report_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="Group_D_Quarto_Report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="Group_D_Quarto_Report_files/libs/bootstrap/bootstrap-19216fa8bb71272e13fc45993650fab3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="Group_D_Quarto_Report_files/libs/bootstrap/bootstrap-15c2f44b6d80dffbe0b66defcb0ea985.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="Group_D_Quarto_Report_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="Group_D_Quarto_Report_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 
 
 </head>
@@ -115,7 +122,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemr)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#save functions here</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#plotting function</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>opihiplot <span class="ot">&lt;-</span> <span class="cf">function</span>(data, x, y, z) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x=</span>{{x}}, <span class="at">y=</span>{{y}}, <span class="at">color=</span>{{z}})) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <h3 class="anchored">
@@ -126,26 +147,2594 @@ Question
 <h3 class="anchored">
 Data Cleaning Approach
 </h3>
-<p>In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our <a href="Appendix%20link%20here">Appendix</a>. (I will upload a separate file here).</p>
-<p>After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat’s section here)</p>
-<p>After Kat shared this master file with us, Mai and Nick conducted small edits to the sheet to further clean small details:</p>
-<ol type="1">
-<li><p><em>transect points</em> still included texts such <em>“1/2 meters” or “2 meters”</em> in the row. Created function to convert the fraction to decimal values and remove the “meters” text and keep only the values.</p></li>
-<li><p><em>quad_t</em> read some points as dates <em>“13-Dec” or “11-Oct”</em> in the row when it was supposed to be numeric values. Used <em><em>case_when</em></em> to sort the data, then the <em><em>str_detect</em></em> and <em><em>str_extract</em></em> to detect and extract the text and keep the value.</p></li>
-</ol>
-<p>Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names and school names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr.&nbsp;Philippoff.</p>
+<p>In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our cleaning scripts.</p>
+<p>After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. In order to do this, wide files were pivoted longer to match the others. Merge artifact columns were removed (e.g.&nbsp;“x_x, X, x_y, x_1, x_2, x_3”), column names were cleaned and columns that obviously contained the same kind of data in different places were merged. (“school” and “schoolname”, for example.) Columns that were not clear on data contents, or if the contents of the columns overlapped with different data (indicating they were two different measurements), they were not merged. Columns that contained multiple sets of information (for example, quadrat_sample contained data like “T-1 Q-4 Point 3.00”, which were separated into a transect column, a quadrat column, and a point column with each of those associated values.) Dates, organism names, and place names were standardized, and diacritical marks were removed from the main columns to avoid issues in data processing down the line. (These diacritical marks were kept in the notes alongside the original IDs.) Finally, columns were reordered to be in a more intuitive arrangement, grouping the where, when, who, what, and how’s together as much as possible. The column names were then pulled to create the data dictionary, which was manually filled out. Any uncertain columns were flagged with (uncertain) in the data dictionary.</p>
+<p>After Kat shared this master file with us, Nick conducted small edits to further clean the data. Nick created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr.&nbsp;Philippoff.</p>
 <p>A snippet of the final output csv is shown below:</p>
+<div class="cell" data-tbl-cap="Table 1">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>OPIHI_table_example <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Data"</span>,<span class="st">"OPIHI_Master_Output_cleaned_anonymized.csv"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">50</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(OPIHI_table_example, <span class="st">"html"</span>, <span class="at">caption =</span> <span class="st">"First 50 Rows of CSV Data"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>, <span class="st">"responsive"</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">font_size =</span> <span class="dv">14</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="st">"100%"</span>, </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="st">"400px"</span> <span class="co"># Keeps the table compact with a vertical scrollbar</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<caption>Table 1</caption>
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">date</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">year</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">start_time</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">stop_time</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">site_name</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">latitude</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">longitude</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">name_of_school</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">in_field_group</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">group</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">team_members</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">team_lead_or_recorder</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">data_entry_by</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">low_tide_time</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">low_tide_height</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">weather</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">rain_events</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">wave_height</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">wind_speed</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">stressful_events</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">visitors</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">fishing</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">collecting</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">what_collecting</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">method</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">total_number_of_transect_lines</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">length_of_transect_line</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">longest_t_m</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">total_number_of_transect_points</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">dist_between_t_pts_for_q</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">quad_t</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">n_quadrats_per_transect</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">point_spacing</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">transect_id</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">quadrat_id</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">point_id</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">quadrat_location_m</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">quadrat_total_points</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">p1_or_p2</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">organism_or_substrate_type</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">category</th>
+<th data-quarto-table-cell-role="th" style="text-align: right; position: sticky; top: 0; background-color: #FFFFFF;">count</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">within_2m_proximity_of_attached_coral_colony_y_n_mamala_bay_only</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">sediment_depth</th>
+<th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelid spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelid_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Hypnea musciformis</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = hypnea_musciformis</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Laurencia spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = laurencia_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Pterocladiella spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = pterocladiella_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Turf algae</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = turf_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Acanthophora spicifera</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = acanthophora_spicifera</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Cyanobacteria</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = cyanobacteria_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Dictyota spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = dictyota_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Echinometra mathaei</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = echinometra_mathaei</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Echinometra oblonga</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = echinometra_oblonga</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidiella acerosa</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidiella_acerosa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidium pusillum</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidium_pusillum</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Hypnea spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = hypnea_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Laurencia spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = laurencia_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Pterocladiella spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = pterocladiella_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Acanthophora spicifera</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = acanthophora_spicifera</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Coral</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = coral_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Dictyota spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = dictyota_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Echinometra mathaei</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = echinometra_mathaei</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidiella acerosa</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidiella_acerosa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gracilaria salicornia</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gracilaria_salicornia</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Hypnea spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = hypnea_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Laurencia spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = laurencia_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Pterocladiella spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = pterocladiella_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Acanthophora spicifera</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = acanthophora_spicifera</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Dictyota spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = dictyota_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidiella acerosa</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidiella_acerosa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidium pusillum</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidium_pusillum</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Hypnea spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = hypnea_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Pterocladiella spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = pterocladiella_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Acanthophora spicifera</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = acanthophora_spicifera</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Crustose coralline algae (CCA)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = crustose_coralline_algae</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Dictyota spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = dictyota_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidiella acerosa</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidiella_acerosa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gracilaria salicornia</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gracilaria_salicornia</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Hypnea spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = hypnea_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Pterocladiella spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = pterocladiella_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Turf algae</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = turf_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Acanthophora spicifera</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = acanthophora_spicifera</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Crustose coralline algae (CCA)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = crustose_coralline_algae</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Dictyota spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = dictyota_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Pterocladiella spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = pterocladiella_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Acanthophora spicifera</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = acanthophora_spicifera</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Cladophora/Cladophoropsis spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = cladophora_or_cladophoropsis_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gracilaria salicornia</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gracilaria_salicornia</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Hypnea spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = hypnea_sp</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Dictyota spp.</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = dictyota_sp</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidiella acerosa</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidiella_acerosa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidiopsis intricata</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidiopsis_intricata</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-06-25</td>
+<td style="text-align: right;">2017</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: left;">Maili Beach</td>
+<td style="text-align: right;">21.4104</td>
+<td style="text-align: right;">-158.1777</td>
+<td style="text-align: left;">OPIHI Coordinator</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">33</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">3 meters</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Gelidium pusillum</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">original ID = gelidium_pusillum</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 <p>With the data now collected on one master csv, we are able to analyze the data visually.</p>
 <h3 class="anchored">
-First Figure
+Sampling Consistency Across Different Schools in 2019
 </h3>
+<p>To answer this research question, we attempted to evaluate sampling consistency per school by looking at the total number of transects done each year. If schools/teams are more consistently going to the field and running transects, they may be improving over time at coordinating these field trips and field protocols even if the students doing the transects are different per field trip. Although we thought about looking at sampling efforts as the number of field trips conducted per school each year, the amount of sampling effort expended on each field differed based on the day and the number of students there at the time. Therefore, we went with the total number of transects run as a hopefully better metric of sampling effort.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggthemr</span>(<span class="st">"dust"</span>) <span class="co">#change plot theme</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>opihi_master <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"Data"</span>,<span class="st">"OPIHI_Master_Output_cleaned_anonymized.csv"</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#plot only a subset of data (2019) to do a better comparison of schools, also subsetted to the top 7 schools that did the most sampling for a cleaner looking plot </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>opihi_summary <span class="ot">&lt;-</span> opihi_master <span class="sc">|&gt;</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">calc_year=</span><span class="fu">year</span>(date)) <span class="sc">|&gt;</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(calc_year) <span class="sc">|&gt;</span> </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(name_of_school)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>opihi_2019 <span class="ot">&lt;-</span> opihi_summary <span class="sc">|&gt;</span> </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(calc_year<span class="sc">==</span><span class="st">"2019"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>         n<span class="sc">&gt;</span><span class="dv">99</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#set levels to the schools so that the data goes from most number of transects to least</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>opihi_2019[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">factor</span>(opihi_2019<span class="sc">$</span>name_of_school, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"UH Manoa"</span>,<span class="st">"Saint Louis School"</span>,<span class="st">"Highlands Intermediate"</span>,<span class="st">"Hilo Union Elementary"</span>,<span class="st">"Waipahu High School"</span>,<span class="st">"Molokai High School"</span>,<span class="st">"Kilauea"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#use plotting function to plot data </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">opihiplot</span>(opihi_2019, name_of_school, n) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"OPIHI Sampling Efforts per School in 2019"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"School Name"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Total number of transects done"</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  ) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Group_D_Quarto_Report_files/figure-html/figure-1-1.png" class="img-fluid figure-img" style="width:150.0%"></p>
+<figcaption>Figure 1</figcaption>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">"Outputs"</span>,<span class="st">"Consistencyplot.png"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>For the following plot, we decided to subset the survey efforts from 2019 only to focus on a year that had a larger range of schools participating with more consistent field trips. Here, UH Manoa has by far the greatest number of transects done with over 1600 in 2019, followed by Saint Louis High School at 396 and Highlands Intermediate with 215. Based on this, we could infer that UH Manoa may be a “better” team in terms of sampling consistency, which could translate to having a more established OPIHI Project presence and protocol compared to other schools that did not have as high of a sampling effort (shown here as the number of transects completed in 2019).</p>
 <h3 class="anchored">
 Second Figure
 </h3>
 <h3 class="anchored">
 Function
 </h3>
-<p>(Nick’s section)</p>
+<p>This function is called New_Species_Check, and it is designed to compare the species logged in a given year’s data (for the data format up to 2020) with a master template of all the species collected across all years. It identifies unique species values by recognizing that they appear in lines 14-62 in the same column as the word “Date”, which anchors each individual form. All of the species IDs are tallied across the forms, and this list is compared against the species columns present in the master template. The output lists the total number of unique species detected, how many are new and not found on the master, and lists all the new species. As a diagnostic tool, it would be useful to quickly glance at whether new values are indeed new unlisted species, or are previously logged species that were not entered the same.</p>
+<p>To test the function, I used the opihi_2024 data that Mei cleaned as a master template, but any file containing columns for known species would work. I tested the output by entering both the 2017 and 2018 raw data to ensure that the outputs made sense and were different.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#raw data sheet for given year</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>OPIHI_2018_raw_data <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Nick"</span>,<span class="st">"Data"</span>,<span class="st">"OPIHI_data_2018.xlsx"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#sheet name</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>sheet <span class="ot">&lt;-</span> <span class="st">"OPIHI data 2018"</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#master template sheet</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>OPIHI_master_template <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Nick"</span>,<span class="st">"Data"</span>,<span class="st">"opihi_2024.csv"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>New_Species_Check <span class="ot">&lt;-</span> <span class="cf">function</span>(excel_file_path, sheet_name, master_template_path) {</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  wb <span class="ot">&lt;-</span> <span class="fu">loadWorkbook</span>(excel_file_path)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Read the master blueprint file headers exactly as written</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  master_df <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(master_template_path, <span class="at">name_repair =</span> <span class="st">"minimal"</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  master_species <span class="ot">&lt;-</span> <span class="fu">colnames</span>(master_df)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find every column coordinate where Row 1 is exactly "Date"</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  entire_anchor_row <span class="ot">&lt;-</span> <span class="fu">readWorkbook</span>(wb, <span class="at">sheet =</span> sheet_name, <span class="at">rows =</span> <span class="dv">1</span>, <span class="at">colNames =</span> <span class="cn">FALSE</span>, <span class="at">skipEmptyCols =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  date_columns      <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">as.character</span>(entire_anchor_row) <span class="sc">==</span> <span class="st">"Date"</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(date_columns) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"Could not find the word 'Date' in Row 1. Check your worksheet layout."</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Read rows 14 to 62 for EVERY column on the sheet at the exact same time.</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  huge_grid <span class="ot">&lt;-</span> <span class="fu">readWorkbook</span>(</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    wb, </span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">sheet         =</span> sheet_name, </span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">rows          =</span> <span class="dv">14</span><span class="sc">:</span><span class="dv">62</span>, </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">colNames      =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">skipEmptyCols =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">skipEmptyRows =</span> <span class="cn">FALSE</span>  </span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pull only the columns that had "Date" written in row 1</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  selected_grid <span class="ot">&lt;-</span> huge_grid[, date_columns, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert to a raw matrix first, then flatten to a character vector.</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># This completely breaks the data frame structure and guarantees separate text lines.</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  all_found_organisms <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">as.matrix</span>(selected_grid))</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standardize and clean all extracted species text strings</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  clean_found_organisms <span class="ot">&lt;-</span> all_found_organisms <span class="sc">%&gt;%</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_trim</span>() <span class="sc">%&gt;%</span>                           </span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span>                       </span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">%&gt;%</span>            </span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">"-"</span>, <span class="st">"_"</span>) <span class="sc">%&gt;%</span>            </span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_replace_all</span>(<span class="st">"spp"</span>, <span class="st">"sp"</span>)             </span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Strip out worksheet layout text fillers and numeric tracking flags</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  clean_found_organisms <span class="ot">&lt;-</span> clean_found_organisms[</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(clean_found_organisms) <span class="sc">&amp;</span> </span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>      clean_found_organisms <span class="sc">!=</span> <span class="st">""</span> <span class="sc">&amp;</span> </span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>      clean_found_organisms <span class="sc">!=</span> <span class="st">"na"</span> <span class="sc">&amp;</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>      clean_found_organisms <span class="sc">!=</span> <span class="st">"organism"</span> <span class="sc">&amp;</span> </span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>      clean_found_organisms <span class="sc">!=</span> <span class="st">"unknown"</span> <span class="sc">&amp;</span> </span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>      clean_found_organisms <span class="sc">!=</span> <span class="st">"totals:"</span> <span class="sc">&amp;</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">str_detect</span>(clean_found_organisms, <span class="st">"^</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>) <span class="sc">&amp;</span> </span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">str_detect</span>(clean_found_organisms, <span class="st">"^</span><span class="sc">\\</span><span class="st">d+$"</span>)          </span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Condense down to a single unique pool of species across ALL forms at once</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>  clean_found_organisms <span class="ot">&lt;-</span> <span class="fu">unique</span>(clean_found_organisms)</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Evaluate what is in the Excel file versus your Master CSV blueprint</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>  new_species_discovered <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(clean_found_organisms, master_species)</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">=== SPECIES CHECK COMPLETED ===</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Forms scanned: %d</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">length</span>(date_columns)))</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Total unique species found in Excel: %d</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">length</span>(clean_found_organisms)))</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(new_species_discovered) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"⚠️ ALERT: Found %d BRAND NEW species names not in your Master List:</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">length</span>(new_species_discovered)))</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(new_species_discovered)</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"✅ SUCCESS: All species match your current Master List layout perfectly.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"================================</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">sort</span>(clean_found_organisms))</span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a><span class="co">#check on functionality for 2018 data</span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>OPIHI_2018_new_species <span class="ot">&lt;-</span> <span class="fu">New_Species_Check</span>(OPIHI_2018_raw_data,sheet,OPIHI_master_template)</span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a><span class="co">#check on functionality for 2017 data</span></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>OPIHI_2017_raw_data <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"Nick"</span>,<span class="st">"Data"</span>,<span class="st">"OPIHI_data_2017.xlsx"</span>)</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>sheet2 <span class="ot">&lt;-</span> <span class="st">"OPIHI data 2017"</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>OPIHI_2017_new_species <span class="ot">&lt;-</span> <span class="fu">New_Species_Check</span>(OPIHI_2017_raw_data,sheet2,OPIHI_master_template)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 
 </main>
 <!-- /main column -->
