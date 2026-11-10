@@ -23,15 +23,6 @@ library(ggplot2)
 library(kableExtra)
 ```
 
-```{r}
-#save functions here
-#plotting function
-opihiplot <- function(data, x, y, z) {
-  ggplot(data, aes(x={{x}}, y={{y}}, color={{z}})) +
-    geom_point() 
-}
-```
-
 <h3>Question</h3>
 
 Our group was tasked with analyzing the possible effect of different data collection teams on the quality and completeness of their data. Our general question is:
@@ -44,9 +35,11 @@ In order to make comparisons between schools and across years we needed to trans
 
 After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat's section here)
 
-After Kat shared this master file with us, Mai and Nick conducted small edits to the sheet to further clean small details.
+After Kat shared this master file with us, Mai and Nick conducted small edits to the sheet to further clean small details:
 
-(Mai's explanation of changes to master file here)
+1.  *transect points* still included texts such *"1/2 meters" or "2 meters"* in the row. Created function to convert the fraction to decimal values and remove the "meters" text and keep only the values.
+
+2.  *quad_t* read some points as dates *"13-Dec" or "11-Oct"* in the row when it was supposed to be numeric values. Used *_case_when_* to sort the data, then the *_str_detect_* and *_str_extract_* to detect and extract the text and keep the value.
 
 Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names and school names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
 
@@ -60,43 +53,13 @@ A snippet of the final output csv is shown below:
 
 With the data now collected on one master csv, we are able to analyze the data visually.
 
-<h3>Sampling Consistency Across Different Schools in 2019</h3>
-
-To answer this research question, we attempted to evaluate sampling consistency per school by looking at the total number of transects done each year. If schools/teams are more consistently going to the field and running transects, they may be improving over time at coordinating these field trips and field protocols even if the students doing the transects are different per field trip. Although we thought about looking at sampling efforts as the number of field trips conducted per school each year, the amount of sampling effort expended on each field differed based on the day and the number of students there at the time. Therefore, we went with the total number of transects run as a hopefully better metric of sampling effort.
-
-```{r}
-#plot
-ggthemr("dust") #change plot theme
-
-#plot only a subset of data (2019) to do a better comparison of schools, also subsetted to the top 7 schools that did the most sampling for a cleaner looking plot 
-opihi_2019 <- opihi_summary |> 
-  filter(calc_year=="2019",
-         n>99)
-
-#set levels to the schools so that the data goes from most number of transects to least
-opihi_2019[2] <- factor(opihi_2019$name_of_school, levels=c("UH Manoa","Saint Louis School","Highlands Intermediate","Hilo Union Elementary","Waipahu High School","Molokai High School","Kilauea"))
-
-```
+<h3>First Figure</h3>
 
 ```{r}
 #| label: figure-1
 #| out-width: "150%"
 #| fig-cap: Figure 1
-
-#use plotting function to plot data 
-opihiplot(opihi_2019, name_of_school, n) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(
-    title = "Sampling Efforts per School in 2019",
-    x="School Name",
-    y="Total number of transects done"
-  ) 
-
-ggsave(here("Outputs","Consistencyplot.png"))
-
 ```
-
-For the following plot, we decided to subset the survey efforts from 2019 only to focus on a year that had a larger range of schools participating with more consistent field trips. Here, UH Manoa has by far the greatest number of transects done with over 1600 in 2019, followed by Saint Louis High School at 396 and Highlands Intermediate with 215. Based on this, we could infer that UH Manoa may be a "better" team in terms of sampling consistency, which could translate to having a more established OPIHI Project presence and protocol compared to other schools that did not have as high of a sampling effort (shown here as the number of transects completed in 2019).
 
 <h3>Second Figure</h3>
 
