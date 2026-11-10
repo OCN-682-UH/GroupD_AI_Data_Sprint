@@ -1,11 +1,20 @@
 ---
-title: "Mei Opihi Cleaning"
+title: "Mei - Opihi Cleaning"
 author: "Mei Iwamoto"
-format: html
+format: 
+  html: 
+    code-fold: true              # code hidden by default, with a toggle button
+    code-summary: "show my hard work"    # customize the button label
 editor: visual
+execute:
+  warning: false   # suppress warnings in all chunks
+  message: false   # suppress package loading messages
+  eval: true       # run all chunks (the default)
 ---
 
-## Cleaning 2024 Opihi Data - Mei
+------------------------------------------------------------------------
+
+## Cleaning Opihi Data - Mei
 
 ```{r}
 #load libraries
@@ -16,6 +25,7 @@ library(lubridate)
 library(readr)
 library(stringr)
 library(purrr)
+library(lubridate)
 ```
 
 ```{r}
@@ -81,33 +91,32 @@ master <- master |>
 #df2_standardized <- df2 %>%
   #rename(
     # --- Metadata Column Standardizations ---
-    stop_time = end_time,
-    num_of_t = x_t,
-    num_of_quad_t = x_quad_t,
-    pt_spacing = dist_between_t_pts_for_q,
-    transect_length = longest_t_m,
+    #stop_time = end_time,
+    #num_of_t = x_t,
+    #num_of_quad_t = x_quad_t,
+#pt_spacing = dist_between_t_pts_for_q,
+#transect_length = longest_t_m,
     
     # --- Typo Fixes ---
-    bornetella_sphaerica = bornatella_sphaerica,
-    gracilaria_salicornia = gracilaria_salicronia,
-    hermit_crab = hermet_crab,
-    symploca_hydnoides = symploca_hypnoides,
-    dictyopteris_spp = dichtyopterous,
-    ceramium_sp = cerramium_sp,
-    sphacelaria_spp = sphaecelaria_sp,
+#bornetella_sphaerica = bornatella_sphaerica,
+#gracilaria_salicornia = gracilaria_salicronia,
+#hermit_crab = hermet_crab,
+#symploca_hydnoides = symploca_hypnoides,
+#dictyopteris_spp = dichtyopterous,
+#ceramium_sp = cerramium_sp,
+#sphacelaria_spp = sphaecelaria_sp,
     
     # --- Common Name / Prefix Standardizations (Matching df1 Naming Scheme) ---
-    dendropoma_gregaria = snail_dendropoma_gregarium,
-    haminoea_cymbalum = haminoea_cymbalum_green_snail,
-    pennaria_disticha = pennaria_disticha_christmas_tree_hydroid,
-    siphonaria_normalis = snail_siphonaria_normalis,
-    actinopyga_varians = cucumber_actinopyga,
-    holothuria_spp = cucumber_holothuria,
-    sponge_spp = sponge,
-    articulated_corallines = articulated_coralline,
-    pterocladiella_spp = pterocladiella,
-    portieria_hornemannii = portieria
-  )
+#dendropoma_gregaria = snail_dendropoma_gregarium,
+#haminoea_cymbalum = haminoea_cymbalum_green_snail,
+#pennaria_disticha = pennaria_disticha_christmas_tree_hydroid,
+#siphonaria_normalis = snail_siphonaria_normalis,
+#actinopyga_varians = cucumber_actinopyga,
+#holothuria_spp = cucumber_holothuria,
+#sponge_spp = sponge,
+#articulated_corallines = articulated_coralline,
+#pterocladiella_spp = pterocladiella,
+#portieria_hornemannii = portieria)
 ```
 
 ### Cleaning Opihi 2020 data with Gemini
@@ -118,7 +127,7 @@ I used Gemini to clean the OPIHI 2020 data - specifically, I asked it to combine
 #this whole chunk is ai-generated code
 
 # 1. Read the raw unheadered CSV file
-raw_data <- read_csv("Data/opihi_2020_ai.csv", col_names = FALSE, show_col_types = FALSE)
+raw_data <- read_csv(here("Mei","Data","opihi_2020_ai.csv"), col_names = FALSE, show_col_types = FALSE)
 
 # 2. Identify the starting column index for each survey block
 # (Blocks begin where row 1 contains "Date" or row 8 contains "Location")
@@ -217,7 +226,7 @@ combined_dataset <- combined_dataset %>%
   mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
 
 # 6. Save consolidated CSV
-write_csv(combined_dataset, "opihi_2020_combined.csv")
+write_csv(combined_dataset, here("Mei", "Data","opihi_2020_combined.csv"))
 
 # View structure
 glimpse(combined_dataset)
@@ -229,19 +238,17 @@ After looking through the code it generated and the outputs, it added some unnec
 #ai-generated code
 
 # 1. Read raw CSV
-#raw_data <- read_csv("opihi_2020_ai.csv", col_names = FALSE, show_col_types = FALSE)
+#raw_data <- read_csv(here("Mei","Data","opihi_2020_ai.csv"), col_names = FALSE, show_col_types = FALSE)
 
 # 2. Identify start column of each survey block
 block_start_cols <- which(
-  raw_data[1, ] == "Date" | raw_data[8, ] == "Location"
-)
+  raw_data[1, ] == "Date" | raw_data[8, ] == "Location")
 
 num_cols <- ncol(raw_data)
 block_ranges <- map2(
   block_start_cols,
   c(block_start_cols[-1] - 1, num_cols),
-  ~ c(.x, .y)
-)
+  ~ c(.x, .y))
 
 # 3. Block parser function (stops before 'TOTALS:')
 parse_survey_block <- function(start_col, end_col) {
@@ -334,7 +341,7 @@ combined_dataset <- combined_dataset %>%
   mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
 
 # 6. Save final dataset
-write_csv(combined_dataset, "opihi_2020_combined_no_totals.csv")
+write_csv(combined_dataset, here("Mei","Data","opihi_2020_combined_no_totals.csv"))
 ```
 
 It looks better now! Finally, I realized there was some unknown data at the very end of the sheet that has no associated metadata with it at all - I asked gemini to ignore that data when combining everything together. I also asked it to delete the columns M-S that it had added when cleaning the sheet.
@@ -342,7 +349,7 @@ It looks better now! Finally, I realized there was some unknown data at the very
 ```{r}
 
 # 1. Read raw CSV
-#raw_data <- read_csv("opihi_2020_ai.csv", col_names = FALSE, show_col_types = FALSE)
+#raw_data <- read_csv(here("Mei","Data","opihi_2020_ai.csv"), col_names = FALSE, show_col_types = FALSE)
 
 # 2. Limit raw dataset columns up to column FN (Column 170 in R)
 max_col_fn <- min(ncol(raw_data), 170)
@@ -350,8 +357,7 @@ raw_data <- raw_data[, 1:max_col_fn]
 
 # 3. Identify start column of each survey block within the raw data
 block_start_cols <- which(
-  raw_data[1, ] == "Date" | raw_data[8, ] == "Location"
-)
+  raw_data[1, ] == "Date" | raw_data[8, ] == "Location")
 
 num_cols <- ncol(raw_data)
 block_ranges <- map2(
@@ -456,7 +462,7 @@ combined_dataset <- combined_dataset %>%
   select(-c(13:19))
 
 # 8. Save final dataset
-write_csv(combined_dataset, "opihi_2020_combined_final.csv")
+write_csv(combined_dataset, here("Mei", "Data","clean_opihi_2020_ai.csv"))
 ```
 
 With that, OPIHI 2020 looks cleaner and easier to join with the rest of the years and all the data looks correct to me.
@@ -471,12 +477,13 @@ Turns out I forgot to redact one of the schools :( changed that after I noticed 
 #ai-generated code
 
 # 1. Read the raw 2019 CSV dataset
-raw_data <- read_csv("Data/opihi_2019_ai.csv", col_names = FALSE, show_col_types = FALSE)
+raw_data <- read_csv(here("Mei","Data","opihi_2019_ai.csv"), col_names = FALSE, show_col_types = FALSE)
 
 # 2. Identify all survey block starting column indices (where row 1 == "Date")
 block_start_cols <- which(raw_data[1, ] == "Date")
 
 num_cols <- ncol(raw_data)
+
 block_ranges <- map2(
   block_start_cols,
   c(block_start_cols[-1] - 1, num_cols),
@@ -576,7 +583,7 @@ combined_dataset_2019 <- combined_dataset_2019 %>%
   mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
 
 # 6. Save the consolidated spreadsheet to CSV
-write_csv(combined_dataset_2019, "clean_opihi_2019_ai.csv")
+write_csv(combined_dataset_2019, here("Mei","Data","clean_opihi_2019_ai.csv"))
 ```
 
 Some notes - most of the data looks good here but the Location is not filled in for some of the field trips because the columns were off by 1, I may manually change that myself and re run it.
@@ -586,12 +593,13 @@ Some notes - most of the data looks good here but the Location is not filled in 
 
 
 # 1. Read raw CSV dataset
-raw_data <- read_csv("Data/opihi_2019_ai.csv", col_names = FALSE, show_col_types = FALSE)
+raw_data <- read_csv(here("Mei","Data","opihi_2019_ai.csv"), col_names = FALSE, show_col_types = FALSE)
 
 # 2. Identify all survey block starting column indices (where row 1 == "Date")
 block_start_cols <- which(raw_data[1, ] == "Date")
 
 num_cols <- ncol(raw_data)
+
 block_ranges <- map2(
   block_start_cols,
   c(block_start_cols[-1] - 1, num_cols),
@@ -695,7 +703,7 @@ combined_dataset_2019_2 <- combined_dataset_2019_2 %>%
   mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
 
 # 6. Save consolidated CSV file
-write_csv(combined_dataset_2019_2, "clean_opihi_2019_ai.csv")
+write_csv(combined_dataset_2019_2, here("Mei","Data", "clean_opihi_2019_ai.csv"))
 ```
 
 Output looks pretty good now!
@@ -704,9 +712,9 @@ Output looks pretty good now!
 
 ```{r}
 #import clean datasheets
-clean_2019 <- read.csv(here("Data","clean_opihi_2019_ai.csv"))
-clean_2020 <- read.csv(here("Data","clean_opihi_2020_ai.csv"))
-clean_2024 <- read.csv(here("Data","clean_opihi_2024.csv"))
+clean_2019 <- read.csv(here("Mei","Data","clean_opihi_2019_ai.csv"))
+clean_2020 <- read.csv(here("Mei","Data","clean_opihi_2020_ai.csv"))
+clean_2024 <- read.csv(here("Mei","Data","clean_opihi_2024.csv"))
 ```
 
 ```{r}
@@ -734,8 +742,7 @@ clean_2019 <- clean_2019 |>
     school == 18 ~ "West Hawaii Explorations Academy PCS",
     school == 19 ~ "Hongwanji Mission School",
     school == 20 ~ "Waimea Canyon Middle School",
-    school == 21 ~ "Mare Ike"
-  )) #I probably could have done a for loop or something haha
+    school == 21 ~ "Mare Ike")) #I probably could have done a for loop or something haha
 ```
 
 ```{r}
@@ -747,10 +754,9 @@ clean_2020 <- clean_2020 |>
     school == 2 ~ "Waimanalo School",
     school == 3 ~ "Waipahu High School",
     school == 4 ~ "UH Manoa",
-    school == 5 ~ "West Hawaii Explorations Academy PCS"
-  ))
+    school == 5 ~ "West Hawaii Explorations Academy PCS"))
 
-clean_2020$school <- as.character(clean_2020$school) #to join the school columns together below, both school columns have to be the same class
+clean_2020$school <- as.numeric(clean_2020$school) #to join the school columns together below, both school columns have to be the same class
 
 #join 2020 and 2019 data together! 
 clean1920 <- full_join(clean_2019, clean_2020)
@@ -767,14 +773,13 @@ clean1920 <- clean1920 |>
     #"end_time" = "stop_time",  #already ran this at first to test out my code, pulls an error if i try to run it again
     "x_t_lines" = "number_of_transect_lines",
     "longest_t_m" = "length_of_transect_lines",
-    "x_quad_t" = "number_of_quadrats_per_transect"
-    )
+    "x_quad_t" = "number_of_quadrats_per_transect")
 
 
 clean1920$x_quad_t <- as.character(clean1920$x_quad_t) #to be able to join with other column, needs to be the same class 
 mei_allyears <- full_join(clean_2024, clean1920)
 
-write_csv(mei_allyears, "mei_allyears.csv")
+write_csv(mei_allyears, here("Mei","Data","mei_allyears.csv"))
 ```
 
-### Research Question: Teacher/team effects: Does sampling completeness or consistency vary by teacher/team? Are some teams "better"? If so, how? Visualize information by different teams
+### 
