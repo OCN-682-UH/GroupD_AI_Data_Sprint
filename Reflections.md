@@ -9,3 +9,22 @@ It was my first time using AI on this scale for a project - I found it very help
 I did notice you had to be very specific in asking AI what you wanted, and there were multiple times where an initial output was not up to par because I wasnʻt specific enough in my prompts and I had to ask Gemini to redo it with more specific commands. This was especially the case with some of the datasheets that were less organized, with different tables or formats all within the same sheet. I often had to ask Gemini to ignore all rows past a certain one to help exclude said tables or extra rows of unneeded calculations. 
 
 Overall, I think I would use Gemini again for tedious tasks in the future, with the caveat that I check all the outputs it makes throughly, and redact any sensitive information. I do think I would only use Gemini for tedious things and try to do most things manually on my own because I am still learning how to use R and want to get a lot of practice on my own first!
+
+---
+
+### Kat Viehl
+For the AI data sprint project, each of us took on a subset of the years to reformat. I helped reformat and clean the 2004, 2005, 2008, and 2026 datasets, and then I helped join all four of our fixed subsets together to create the master sheet. Afterwards, I collapsed redundant columns in the master sheet and cleaned up the data, standardizing organism/place names, separating columns that had too much information, reformatting columns that had varying ways of displaying data (e.g. the date column), created the data dictionary, and struggled a lot with AI. 
+
+I felt like AI was an incredible tool at times, quickly spitting out a code that would've taken me weeks to learn to write by myself. However, the code it spit out was often incomprehensible to me or took a long time for me to understand. Granted, most of the time I did ask it to do a lot all at once. It created errors a few times, so I kept those logs in my script to show the troubles. I found myself just going right back to it if errors occurred instead of trying to figure it out myself, which made me feel uncomfortable with how easy it is to lean on. 
+
+As for personal verification, I kept a separate copy of all the files (with names and locations redacted or switched) for testing before use on the real files, which was very useful to confirm that the scripts it generated worked at all. This caused a disruption in my typical method of file organization, leaving me with several copies of test files, which I did not like at all. I always cross-checked the data with the previous files, but since this dataset was quite large, I had to cherry-pick random rows to see how it went. I often used the count() function to see how columns changed throughout the process. If it made a small error somewhere, it would be hard for me to find it since the AI generated code is not well annotated and difficult to read. 
+
+---
+
+### Mai Tago 
+For this AI data project, I helped clean 2006, 2007, 2016, and 2023 datasets. I tried to follow a long format to make it easier for both myself and my group to understand the information I was working with, at the same time retain as much information I had based on all the different data formats each year had. Before starting, I scanned each dataset I was working with and redacted the names by giving it codes to protect sensitive information. I had two copies of the datasets one with the redacted names that I used for all AI prompts and the other one for my actual codes. 
+
+This was a challenging task to be honest, however using AI was super helpful. The codes AI generated for me to deal with the messy data, provided 25% codes that ran perfectly, and 75% codes that gave lots of errors. Granted, I was not specific enough with the questions and I did give it lots of jobs to do at once. I spent a considerable amount of time, scanning for sensitive information to redact it, trying to understand the code and make sure that the codes did what I wanted it to do. AI is helpful, for these types of situation, but I think it does need manual re-check.
+
+Overall, this project taught me how to use AI ethically, especially using sensitive information types of datasets. Each survey given provided tedious codes that did not make sense to me, and also did not work, and needed manual checking. I am still learning Rstudio and best way was learning to do majority of this manually. AI alleviated most of the hard tedious stuff. 
+
