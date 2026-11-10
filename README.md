@@ -11,7 +11,7 @@ Authors: Mei Iwamoto, Nick Mattson, Mai Tago, Kat Viehl
 * [Data Dictionary](https://github.com/OCN-682-UH/GroupD_AI_Data_Sprint/blob/main/Kat/OPIHI_Project/Outputs/2026-11-08_data_dictionary.csv)
 
 ### Individual Cleaning Scripts
-* Nick (years cleaned)
+* Nick (2017,2018,2025) - [Link to Cleaning Script](https://01a1c734-e631-fa5b-4836-49abda612f71.share.connect.posit.cloud/)
 * Mei (2019, 2020, 2024) - [Link to Cleaning Script](https://01a1c6d5-b440-cc18-30ec-869052dba144.share.connect.posit.cloud)
 * Mai (years cleaned)
 * Kat (2004, 2005, 2008, 2026) - [Link to Cleaning Script](https://01a1c448-488c-8573-3e24-f72a85a0e88c.share.connect.posit.cloud)
