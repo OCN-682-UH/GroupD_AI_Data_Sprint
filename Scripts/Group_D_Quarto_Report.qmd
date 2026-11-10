@@ -23,6 +23,7 @@ library(ggplot2)
 library(kableExtra)
 library(ggthemr)
 library(lubridate)
+library(openxlsx)
 ```
 
 ```{r}
@@ -42,15 +43,11 @@ Our group was tasked with analyzing the possible effect of different data collec
 
 <h3>Data Cleaning Approach</h3>
 
-In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](I%20will%20upload%20link%20to%20appendix%20when%20we%20publish%20it).
+In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our cleaning scripts.
 
 After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat's section here)
 
-After Kat shared this master file with us, Mai and Nick conducted small edits to the sheet to further clean small details.
-
-(Mai's explanation of changes to master file here)
-
-Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
+After Kat shared this master file with us, Nick conducted small edits to further clean the data. Nick created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
 
 A snippet of the final output csv is shown below:
 
