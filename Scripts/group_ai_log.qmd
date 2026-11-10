@@ -1,6 +1,6 @@
 ---
-title: "Group AI Developer Log"
-author: "Mei Iwamoto"
+title: "Group D AI Developer Log"
+author: "Mei Iwamoto, Nick Mattson, Mai Tago, Kat Viehl"
 format: 
   html: 
     code-fold: true              # code hidden by default, with a toggle button
@@ -12,7 +12,7 @@ execute:
   eval: true       # run all chunks (the default)
 ---
 
-## OPIHI Project - Group AI Developer Log
+## OPIHI Project - Group D AI Developer Log
 
 Our group used a number of different AI models to clean our datasets as we had each taken on a few years of data to clean separately. The bulk of our cleaning and any further AI usage are detailed in our individual cleaning scripts that are linked in our repositoryʻs README.
 
@@ -24,7 +24,7 @@ library(here)
 library(tidyverse)
 ```
 
-### AI Usage Example: Fixing Species names using Gemini 
+### AI Usage Example: Fixing Species names using Gemini
 
 I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets together. I did not provide any of the actual data to Gemini, only the column names. Specifically, I asked Gemini to identify any columns (namely for the different species counts) that may have spelling differences but refer to the same species/genus. I did ask Gemini to preserve any individual species instead of combining together into genus.
 
@@ -68,7 +68,7 @@ I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets 
 ### **1. Species Name Variations & Typo Differences**
 
 | **Dataset 1 (df1)** | **Dataset 2 (df2)** | **Discrepancy Details** |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | ahnfeltiopsis_concinna / ahnfeltiopsis_flabelliformis | ahnfeltiopsis_sp | df1 identifies down to species level; df2 uses genus level (\_sp). |
 | amansia_glomerata | amansia_sp | df1 specifies glomerata; df2 uses genus level. |
 | articulated_corallines | articulated_coralline | Plural (...corallines) vs. Singular (...coralline). |
@@ -95,7 +95,7 @@ I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets 
 ### **2. Common Names vs. Scientific Names**
 
 | **Dataset 1 (df1)** | **Dataset 2 (df2)** | **Discrepancy Details** |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | actinopyga_varians | cucumber_actinopyga | Common descriptor (cucumber\_) added in df2. |
 | holothuria_spp (and individual Holothuria species) | cucumber_holothuria | Common descriptor (cucumber\_) added in df2. |
 | dendropoma_gregaria | snail_dendropoma_gregarium | Prefix snail\_ added and slight species ending mismatch (gregaria vs gregarium). |
@@ -107,7 +107,7 @@ I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets 
 ### **3. Survey & Metadata Field Names**
 
 | **Dataset 1 (df1)** | **Dataset 2 (df2)** | **Meaning** |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | num_of_t | x_t / x_t_lines | Number of transects (# T). |
 | transect_length | longest_t_m / position_on_transect_m | Transect distance/length metrics. |
 | pt_spacing | dist_between_t_pts_for_q | Distance/spacing between transect points. |
