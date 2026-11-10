@@ -42,7 +42,7 @@ Our group was tasked with analyzing the possible effect of different data collec
 
 <h3>Data Cleaning Approach</h3>
 
-In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](Appendix%20link%20here). (I will upload a separate file here).
+In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](I will upload link to appendix when we publish it).
 
 After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat's section here)
 
