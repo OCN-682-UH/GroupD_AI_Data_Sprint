@@ -4031,59 +4031,12 @@ $ count                 &lt;dbl&gt; 2, 1, 2, 3, 1, 1, 4, 7, 15, 9, 1, 3, 7, 8, 2
 <span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a>meta_in <span class="ot">&lt;-</span> <span class="fu">get</span>(meta_name)</span>
 <span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a>merged_data <span class="ot">&lt;-</span> <span class="fu">merge_metadata_data</span>(data_in, meta_in,</span>
-<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">require_same_source_file =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 × 2
-  match_status  rows
-  &lt;chr&gt;        &lt;int&gt;
-1 matched       1205
-2 no_date         34
-3 no_match       424
-4 no_name        246</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 25 × 5
-   source_file           date       data_entry_by     match_status  rows
-   &lt;chr&gt;                 &lt;chr&gt;      &lt;chr&gt;             &lt;chr&gt;        &lt;int&gt;
- 1 2026a_OPIHI_data.xlsx 2025-03-04 Joanna Philippoff no_match         1
- 2 2026a_OPIHI_data.xlsx 2026-01-24 Annie             no_match        17
- 3 2026a_OPIHI_data.xlsx 2026-01-26 Becca             no_match         1
- 4 2026a_OPIHI_data.xlsx 2026-01-26 Gigi              no_match         1
- 5 2026a_OPIHI_data.xlsx 2026-01-27 Becca             no_match         1
- 6 2026a_OPIHI_data.xlsx 2026-01-27 Gigi              no_match         1
- 7 2026a_OPIHI_data.xlsx 2026-01-28 Becca             no_match         1
- 8 2026a_OPIHI_data.xlsx 2026-01-29 Becca             no_match         1
- 9 2026a_OPIHI_data.xlsx 2026-01-30 Becca             no_match         1
-10 2026a_OPIHI_data.xlsx 2026-01-31 Becca             no_match         1
-11 2026a_OPIHI_data.xlsx &lt;NA&gt;       Annie             no_date          2
-12 2026a_OPIHI_data.xlsx &lt;NA&gt;       Jenny             no_date          4
-13 2026a_OPIHI_data.xlsx &lt;NA&gt;       Lehua             no_date          7
-14 2026a_OPIHI_data.xlsx &lt;NA&gt;       &lt;NA&gt;              no_date         20
-15 2026b_OPIHI_data.xlsx 2026-04-20 Peahi             no_match        10
-16 2026b_OPIHI_data.xlsx 2026-04-20 Peyton            no_match        16
-17 2026b_OPIHI_data.xlsx 2026-04-20 Sidon             no_match        11
-18 2026b_OPIHI_data.xlsx 2026-04-20 &lt;NA&gt;              no_name        123
-19 2026b_OPIHI_data.xlsx 2026-05-04 Kahoano           no_match        34
-20 2026b_OPIHI_data.xlsx 2026-05-04 Mylee             no_match        34
-21 2026b_OPIHI_data.xlsx 2026-05-04 Sidon             no_match         8
-22 2026b_OPIHI_data.xlsx 2026-05-04 &lt;NA&gt;              no_name        123
-23 2026c_OPIHI_data.xlsx 2026-04-20 Gigi Fernandez    no_match       201
-24 2026c_OPIHI_data.xlsx 2026-04-20 Kaimalie Lim      no_match        84
-25 2026c_OPIHI_data.xlsx &lt;NA&gt;       &lt;NA&gt;              no_date          1</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 6
-  metadata_row source_file           date      location team_leader team_members
-         &lt;int&gt; &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;       
-1            8 2026c_OPIHI_data.xlsx 2026-04-… Mauliola Gigi Ferna… &lt;NA&gt;        </code></pre>
-</div>
-<details class="code-fold">
-<summary><strong>Show code</strong></summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: also save it</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(merged_data, <span class="fu">here</span>(<span class="st">&quot;Kat&quot;</span>, <span class="st">&quot;OPIHI_Project&quot;</span>, <span class="st">&quot;Outputs&quot;</span>,<span class="st">&quot;2026_combined_data.csv&quot;</span>), <span class="at">na =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Result is in `merged_data` (&quot;</span>, <span class="fu">nrow</span>(merged_data), <span class="st">&quot; rows x &quot;</span>,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ncol</span>(merged_data), <span class="st">&quot; columns); also saved to 2026_combined_data.csv&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">require_same_source_file =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: also save it</span></span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(merged_data, <span class="fu">here</span>(<span class="st">&quot;Kat&quot;</span>, <span class="st">&quot;OPIHI_Project&quot;</span>, <span class="st">&quot;Outputs&quot;</span>,<span class="st">&quot;2026_combined_data.csv&quot;</span>), <span class="at">na =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Result is in `merged_data` (&quot;</span>, <span class="fu">nrow</span>(merged_data), <span class="st">&quot; rows x &quot;</span>,</span>
+<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ncol</span>(merged_data), <span class="st">&quot; columns); also saved to 2026_combined_data.csv&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>OK – It is merged into two files! 2004_2005_2008_combined_data.csv and 2026_combined_data.csv. I have decided to keep these separate as they are extremely different in content. I will work with all years in the next script.</p>
