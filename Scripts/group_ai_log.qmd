@@ -24,7 +24,7 @@ library(here)
 library(tidyverse)
 ```
 
-### AI Usage Example: Fixing Species names using Gemini 
+### AI Usage Example: Fixing Species names using Gemini
 
 I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets together. I did not provide any of the actual data to Gemini, only the column names. Specifically, I asked Gemini to identify any columns (namely for the different species counts) that may have spelling differences but refer to the same species/genus. I did ask Gemini to preserve any individual species instead of combining together into genus.
 

@@ -39,7 +39,7 @@ After Kat shared this master file with us, Mai and Nick conducted small edits to
 
 1.  *transect points* still included texts such *"1/2 meters" or "2 meters"* in the row. Created function to convert the fraction to decimal values and remove the "meters" text and keep only the values.
 
-2.  *quad_t* read some points as dates *"13-Dec" or "11-Oct"* in the row when it was supposed to be numeric values. Used *_case_when_* to sort the data, then the *_str_detect_* and *_str_extract_* to detect and extract the text and keep the value.
+2.  *quad_t* read some points as dates *"13-Dec" or "11-Oct"* in the row when it was supposed to be numeric values. Used *case_when* to sort the data, then the *str_detect* and *str_extract* to detect and extract the text and keep the value.
 
 Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names and school names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
 
