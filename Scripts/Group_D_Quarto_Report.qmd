@@ -50,7 +50,7 @@ After Kat shared this master file with us, Mai and Nick conducted small edits to
 
 (Mai's explanation of changes to master file here)
 
-Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names and school names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
+Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
 
 A snippet of the final output csv is shown below:
 
@@ -58,6 +58,22 @@ A snippet of the final output csv is shown below:
 #| label: example dataframe
 #| out-width: "150%"
 #| tbl-cap: Table 1
+#| message: false
+#| warning: false
+
+OPIHI_table_example <- read_csv(here("Outputs","cleaner_opihi_anonymized.csv")) |> 
+  head(50)
+
+kable(OPIHI_table_example, "html", caption = "First 50 Rows of CSV Data") |>
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    font_size = 14
+  ) |>
+  scroll_box(
+    width = "100%", 
+    height = "400px" # Keeps the table compact with a vertical scrollbar
+  )
+
 ```
 
 With the data now collected on one master csv, we are able to analyze the data visually.
