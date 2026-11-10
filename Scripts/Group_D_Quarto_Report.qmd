@@ -1,0 +1,80 @@
+---
+title: "AI Data Sprint Group Report"
+author: "Mei Iwamoto, Nick Mattson, Mai Tago, Kat Viehl"
+editor: visual
+format:
+  html:
+    code-fold: true
+    code-summary: "Show code"
+theme: yeti
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: Libraries setup
+#| results: hide
+
+#Load Libraries
+library(tidyverse)
+library(here)
+library(ggplot2)
+library(kableExtra)
+```
+
+<h3>Question</h3>
+
+Our group was tasked with analyzing the possible effect of different data collection teams on the quality and completeness of their data. Our general question is:
+
+*Are there differences between school teams as far as the consistency and completeness of data collected? How does data collected independently by schools compare to data collected by the OPIHI Coordinator in these two metrics?*
+
+<h3>Data Cleaning Approach</h3>
+
+In order to make comparisons between schools and across years we needed to transform the various data into a common format and then stitch the data into one master csv file. We felt it was most equitable to divide the data four ways, with each person taking three to four years of data and converting it to an agreed-upon shared format for compiling. As such, each of our cleaning scripts is slightly different. All of these scripts along with an explanation of key functions can be accessed by referencing our [Appendix](Appendix link here). (I will upload a separate file here).
+
+After converting individual years to a shared format, Kat took the separate cleaned files to stitch together. (Kat's section here)
+
+After Kat shared this master file with us, Mai and Nick conducted small edits to the sheet to further clean small details.
+
+(Mai's explanation of changes to master file here)
+
+Nick then created a function which identified unique values for certain columns in the master csv containing identifying information, such as teacher/student names and school names, and converted them to code names. The corresponding code identifiers and linked names are shared in a private csv to be sent to Dr. Philippoff.
+
+A snippet of the final output csv is shown below:
+
+```{r}
+#| label: example dataframe
+#| out-width: "150%"
+#| tbl-cap: Table 1
+```
+
+With the data now collected on one master csv, we are able to analyze the data visually.
+
+<h3>First Figure</h3>
+
+```{r}
+#| label: figure-1
+#| out-width: "150%"
+#| fig-cap: Figure 1
+```
+
+<h3>Second Figure</h3>
+
+```{r}
+#| label: figure-2
+#| out-width: "150%"
+#| fig-cap: Figure 2
+```
+
+<h3>Function</h3>
+
+(Nick's section)
+
+```{r}
+#| label: Function code
+#| results: hide
+
+
+
+```
