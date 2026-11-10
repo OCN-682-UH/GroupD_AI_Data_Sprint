@@ -1,5 +1,9 @@
 # Group D OPIHI Project AI Sprint - Looking at sampling completeness and consistency across different teams 
+![](opihi_divider.png)
+
 Authors: Mei Iwamoto, Nick Mattson, Mai Tago, Kat Viehl
+
+
 
 ### Cleaned OPIHI master file
 * [All Years Data Compilation Script](https://01a1c453-1bea-d607-3548-e712e2562ffc.share.connect.posit.cloud)
