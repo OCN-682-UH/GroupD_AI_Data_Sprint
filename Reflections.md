@@ -10,6 +10,8 @@ I did notice you had to be very specific in asking AI what you wanted, and there
 
 Overall, I think I would use Gemini again for tedious tasks in the future, with the caveat that I check all the outputs it makes throughly, and redact any sensitive information. I do think I would only use Gemini for tedious things and try to do most things manually on my own because I am still learning how to use R and want to get a lot of practice on my own first!
 
+---
+
 ### Kat Viehl
 For the AI data sprint project, each of us took on a subset of the years to reformat. I helped reformat and clean the 2004, 2005, 2008, and 2026 datasets, and then I helped join all four of our fixed subsets together to create the master sheet. Afterwards, I collapsed redundant columns in the master sheet and cleaned up the data, standardizing organism/place names, separating columns that had too much information, reformatting columns that had varying ways of displaying data (e.g. the date column), created the data dictionary, and struggled a lot with AI. 
 
