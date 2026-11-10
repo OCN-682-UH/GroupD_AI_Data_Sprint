@@ -17,7 +17,7 @@
  * link
 
 ### Reflections
- * link 
+ * [reflections](https://github.com/OCN-682-UH/GroupD_AI_Data_Sprint/blob/main/Reflections.md)
 
 
 
