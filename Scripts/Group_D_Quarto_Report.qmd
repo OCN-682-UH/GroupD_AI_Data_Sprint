@@ -21,6 +21,8 @@ library(tidyverse)
 library(here)
 library(ggplot2)
 library(kableExtra)
+library(ggthemr)
+library(lubridate)
 ```
 
 ```{r}
@@ -69,6 +71,11 @@ To answer this research question, we attempted to evaluate sampling consistency 
 ggthemr("dust") #change plot theme
 
 #plot only a subset of data (2019) to do a better comparison of schools, also subsetted to the top 7 schools that did the most sampling for a cleaner looking plot 
+opihi_summary <- opihi_master |> 
+  mutate(calc_year=year(date)) |> 
+  group_by(calc_year) |> 
+  count(name_of_school)
+
 opihi_2019 <- opihi_summary |> 
   filter(calc_year=="2019",
          n>99)
