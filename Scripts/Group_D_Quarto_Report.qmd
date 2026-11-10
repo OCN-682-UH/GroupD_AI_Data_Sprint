@@ -24,6 +24,7 @@ library(kableExtra)
 library(ggthemr)
 library(lubridate)
 library(openxlsx)
+library(ggthemes)
 ```
 
 ```{r}
@@ -231,3 +232,249 @@ sheet2 <- "OPIHI data 2017"
 OPIHI_2017_new_species <- New_Species_Check(OPIHI_2017_raw_data,sheet2,OPIHI_master_template)
 
 ```
+
+
+<h3>Heatmap of Species at Diamond Head by School</h3>
+
+We have also created a heatmap of species found at Diamond Head per school that went there. Note that this includes all dates, so the sampling effort varies based on how many times the school went to the location.
+
+---
+
+Note: AI was used for scripting assistance. 
+AI agents used: 
+
+ - Claude Sonnet 5.5 Medium 
+
+
+Load in Data:
+
+```{r}
+
+OPIHI_data <- read_csv(here("OPIHI_Master_Output_cleaned_anonymized.csv"))
+
+
+```
+Subset Data:
+
+```{r}
+
+OPIHI_data |> 
+  select(c("date", "site_name", "name_of_school", "organism_or_substrate_type", "count")) -> subset_opihi
+
+subset_opihi |> 
+  count(name_of_school, sort = TRUE)
+
+subset_opihi |> 
+  count(site_name, sort = TRUE)
+
+# selecting only one site
+subset_opihi |> 
+  filter(site_name %in% c("Diamond Head")) -> school_subset_opihi
+
+
+```
+
+::: {.callout-warning collapse="true"}
+## AI Chat Log - Figuremaking
+
+**Kat:**
+
+Write me a script in R using ggplot that visualizes biological transect/quadrat data collected per school. I have the following columns: "date" (the date the sampling was conducted), "site_name" (the name of the sampling location), "name_of_school" (the name of the school collecting the data), "organism_or_substrate_type" (what kind of organisms were found there), and "count" (the number of that organism that was found there).
+
+**Claude:**
+
+I wrote the script as `transect_quadrat_plots.R`. It reads your CSV, cleans it and saves six plots to a `plots/` folder. I haven't run it, so try it on your data first.
+
+**Setup:** Set `input_file` at the top to your CSV path. You'll need the `tidyverse`, `lubridate` and `scales` packages. The script parses dates in several formats (ymd, mdy, dmy) and drops rows with a missing date or count. It also tidies whitespace and capitalization in the names, so "kelp" and "Kelp " count as the same thing.
+
+**Plots:**
+1. **Total counts by school**: a stacked bar showing which organisms each school recorded.
+2. **Composition by site**: proportional stacked bars for each site, with one panel per school.
+3. **Heatmap**: school by organism or substrate, on a log color scale so rare types still show up.
+4. **Counts over time**: total count per sampling date for each school.
+5. **Trends by organism**: one panel for each organism, with a line per school.
+6. **Richness**: a boxplot of how many distinct types were recorded per site and date, per school.
+
+**Things you may want to adjust:**
+- `top_n_taxa` groups all but the most abundant types into "Other" in the stacked plots, which keeps the legends readable. Set it higher if you have many types and want them all shown.
+- The script treats substrates (like sand or rock) the same as organisms. If you'd rather separate them, add a column or filter list, then facet or filter on it.
+- If schools sampled different numbers of quadrats, raw counts aren't directly comparable. Divide by the number of quadrats, or by area, before plotting. A quadrat ID column would make this easy to add.
+- Plot 5 can get crowded with many organisms. Raise `top_n_taxa` for more detail, or lower it for fewer panels.
+
+If you share a few sample rows, I can tailor it further, for example by adding error bars or per-quadrat averages.
+
+
+:::
+
+
+
+
+
+
+---
+
+### Make Plot!
+
+
+```{r}
+#| fig-align: center
+#| label: fig-heatmap
+#| fig-cap: Heatmap showing how many different species select schools found at the Diamond Head site.
+#| fig-width: 12
+#| fig-height: 8
+
+# ==============================================================================
+# Transect / quadrat data visualization by school
+# Expected columns: date, site_name, name_of_school,
+#                   organism_or_substrate_type, count
+# ==============================================================================
+
+library(tidyverse)   # ggplot2, dplyr, readr, forcats, tidyr
+library(lubridate)
+library(scales)
+
+# ---- 1. SETTINGS -------------------------------------------------------------
+input_file <- school_subset_opihi   # <- change to your file path
+output_dir <- here("Kat","OPIHI_Project", "Outputs")               # plots are saved here
+top_n_taxa <- 10                    # show the N most abundant types; rest -> "Other"
+
+dir.create(output_dir, showWarnings = FALSE)
+
+# ---- 2. LOAD & CLEAN ---------------------------------------------------------
+dat <- school_subset_opihi %>%
+  mutate(
+    date                       = parse_date_time(date, orders = c("ymd", "mdy", "dmy")) %>% as_date(),
+    site_name                  = str_squish(site_name),
+    name_of_school             = str_squish(name_of_school),
+    organism_or_substrate_type = str_to_sentence(str_squish(organism_or_substrate_type)),
+    count                      = as.numeric(count)
+  ) %>%
+  filter(!is.na(count), !is.na(date))
+
+# Lump rare organisms/substrates together so the legends stay readable
+dat <- dat %>%
+  mutate(type = fct_lump_n(organism_or_substrate_type, n = top_n_taxa,
+                           w = count, other_level = "Other"))
+
+# Shared theme
+theme_set(
+  theme_minimal(base_size = 12) +
+    theme(
+      plot.title      = element_text(face = "bold"),
+      strip.text      = element_text(face = "bold"),
+      legend.position = "right",
+      panel.grid.minor = element_blank()
+    )
+)
+
+save_plot <- function(p, name, w = 10, h = 6) {
+  ggsave(file.path(output_dir, name), p, width = w, height = h, dpi = 300, bg = "white")
+}
+#
+## ---- 3. TOTAL ABUNDANCE BY SCHOOL AND TYPE -----------------------------------
+#p1 <- dat %>%
+#  group_by(name_of_school, type) %>%
+#  summarise(total = sum(count), .groups = "drop") %>%
+#  ggplot(aes(x = fct_reorder(name_of_school, total, sum), y = total, fill = type)) +
+#  geom_col() +
+#  coord_flip() +
+#  scale_y_continuous(labels = comma, expand = expansion(mult = c(0, 0.05))) +
+#  scale_fill_viridis_d(option = "turbo", name = "Organism / substrate") +
+#  labs(title = "Total counts by school",
+#       x = NULL, y = "Total count")
+#
+#save_plot(p1, "01_total_counts_by_school.png")
+#
+## ---- 4. COMPOSITION (PROPORTION) BY SITE, FACETED BY SCHOOL ------------------
+#p2 <- dat %>%
+#  group_by(name_of_school, site_name, type) %>%
+#  summarise(total = sum(count), .groups = "drop") %>%
+#  ggplot(aes(x = site_name, y = total, fill = type)) +
+#  geom_col(position = "fill") +
+#  facet_wrap(~ name_of_school, scales = "free_x") +
+#  scale_y_continuous(labels = percent, expand = expansion(mult = c(0, 0.02))) +
+#  scale_fill_viridis_d(option = "turbo", name = "Organism / substrate") +
+#  labs(title = "Community composition by site",
+#       subtitle = "Proportion of total count at each site, split by school",
+#       x = NULL, y = "Percent of total count") +
+#  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#
+#save_plot(p2, "02_composition_by_site.png", w = 12, h = 8)
+
+# ---- 5. HEATMAP: SCHOOL x ORGANISM -------------------------------------------
+p3 <- dat %>%
+  group_by(name_of_school, organism_or_substrate_type) %>%
+  summarise(total = sum(count), .groups = "drop") %>%
+  ggplot(aes(x = organism_or_substrate_type,
+             y = name_of_school, fill = total)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "mako", direction = -1, trans = "log1p",
+                       labels = comma, name = "Total count\n(log scale)") +
+  labs(title = "Which organisms were found by which school at the Diamond Head site?",
+       x = NULL, y = NULL) +
+  theme(legend.text = element_text(size = 5),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        panel.grid = element_blank())
+
+save_plot(p3, "03_heatmap_school_by_organism.png", w = 12, h = 6)
+
+## ---- 6. TRENDS OVER TIME -----------------------------------------------------
+#p4 <- dat %>%
+#  group_by(name_of_school, date) %>%
+#  summarise(total = sum(count), .groups = "drop") %>%
+#  ggplot(aes(x = date, y = total, color = name_of_school)) +
+#  geom_line(linewidth = 0.8) +
+#  geom_point(size = 2) +
+#  scale_y_continuous(labels = comma) +
+#  scale_color_brewer(palette = "Dark2", name = "School") +
+#  labs(title = "Total count per sampling date",
+#       x = "Date", y = "Total count") +
+#  guides(color = "none")
+#
+#save_plot(p4, "04_counts_over_time.png")
+#
+## Per-organism trends, faceted
+#p5 <- dat %>%
+#  group_by(name_of_school, date, type) %>%
+#  summarise(total = sum(count), .groups = "drop") %>%
+#  ggplot(aes(x = date, y = total, color = name_of_school)) +
+#  geom_line() +
+#  geom_point(size = 1.5) +
+#  facet_wrap(~ type, scales = "free_y") +
+#  scale_color_brewer(palette = "Dark2", name = "School") +
+#  labs(title = "Counts through time by organism / substrate",
+#       x = "Date", y = "Total count") +
+#  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#
+#save_plot(p5, "05_trends_by_organism.png", w = 13, h = 8)
+#
+## ---- 7. RICHNESS (NUMBER OF DISTINCT TYPES) PER SITE/DATE --------------------
+#p6 <- dat %>%
+#  filter(count > 0) %>%
+#  group_by(name_of_school, site_name, date) %>%
+#  summarise(richness = n_distinct(organism_or_substrate_type), .groups = "drop") %>%
+#  ggplot(aes(x = name_of_school, y = richness, fill = name_of_school)) +
+#  geom_boxplot(alpha = 0.6, outlier.shape = NA, show.legend = FALSE) +
+#  geom_jitter(width = 0.15, size = 2, alpha = 0.8, show.legend = FALSE) +
+#  scale_fill_brewer(palette = "Dark2") +
+#  labs(title = "Richness per sampling event",
+#       subtitle = "Number of distinct organism/substrate types per site per date",
+#       x = NULL, y = "Distinct types recorded") +
+#  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+#
+#save_plot(p6, "06_richness_by_school.png")
+#
+# ---- 8. PREVIEW --------------------------------------------------------------
+#print(p1); print(p2); print(p3); print(p4); print(p5); print(p6)
+
+print(p3)
+
+message("Done! Plots saved in: ", normalizePath(output_dir))
+
+
+```
+
+
+
+
+
