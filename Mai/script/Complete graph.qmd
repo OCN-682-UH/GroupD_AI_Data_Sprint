@@ -1,0 +1,293 @@
+---
+title: "Completeness"
+author: "Mai Tago"
+date: today
+date-format: long
+title-block-banner: true
+format:
+  html:
+    toc: true 
+    toc-depth: 3
+    code-fold: true
+    code-summary: "show code"
+    theme:
+      dark: cosmo
+execute:
+  warning: false
+  message: false
+---
+
+## Team effects: Does sampling completeness vary by Groups (Opihi and Schools)?
+
+It was difficult to actually see the sampling completeness between students or teams with teachers? So restructuring this question to looking at the school's sampling completeness. Schools are the proxies for the teams. 
+
+Completeness is defined as whether the team completed everthing the survey planned for. Each surveys design looks at how many transect lines to run and how many quadrats to sample on each line. A sampling completeness difference means some teams finished more of the planned sampling than others. 
+
+There are many causes, but based on this data we do not have much to work with so possible causes could be: running out of time, bad tide or weather, or skipping or not entering quadrats.
+
+This report will identify sampling completeness by:
+
+ 1. Did students finish the protocols or surveys given to them?
+ 
+ 2. Did schools sample enough to detect types of spp in area?
+ 
+ 
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(vegan)
+library(here)
+library(PNWColors)
+
+#import clean datasets
+
+opihi <- read_csv(here("~/Desktop/Fall 2026 - Tago.R/OCN682_Tago/AIsprint_GroupD/OPIHI/Mai/data/cleaner_opihi.csv"))
+opihi
+names(opihi)
+```
+
+# Detection 
+
+To measure the schools sampling effort completeness we used a mathematical approacjh. 
+
+pct_quads = planned quadrats actually samples
+n_quads = number of quadrats 
+planned = # of transect lines x quadrat per line (how many quadrats the protocol called for)
+
+
+*_ pct_quads = 100 x n_quads / planned _*
+
+We  accounted for the sites, and chose only surveys where both the OPIHI Coordinators and a school sampled together or in another year. 
+
+```{r}
+# Largest number in a column, or NA (base::max so it can't be overridden)
+first_num <- function(x) {
+  x <- suppressWarnings(as.numeric(x))
+  x <- x[!is.na(x)]
+  if (length(x) > 0) base::max(x) else NA_real_
+}
+
+effort <- opihi |>
+  mutate(
+    yr  = year(parse_date_time(as.character(date),
+                               orders = c("Ymd", "mdY", "mdy"), quiet = TRUE)),
+    grp = case_when(name_of_school == "OPIHI Coordinator"   ~ "Coordinator",
+                    str_detect(name_of_school, "UH|Univer") ~ "UH Manoa",
+                    !is.na(name_of_school)                  ~ "K-12 schools"),
+    # quadrat ID: 2016 uses quadrat_id, 2017-2020 use point_id
+    quad = paste(transect_id,
+                 if_else(yr == 2016, as.character(quadrat_id), as.character(point_id)))
+  ) |>
+  filter(yr %in% 2016:2020, grp %in% c("K-12 schools", "Coordinator")) |>
+  group_by(grp, name_of_school, site_name, date) |>
+  summarise(
+    yr      = first(yr),
+    n_quads = n_distinct(quad),                                   # sampled
+    lines   = first_num(total_number_of_transect_lines),
+    per_line = if (first(yr) == 2016) first_num(n_quadrats_per_transect)
+               else                   first_num(quad_t),
+    .groups = "drop"
+  ) |>
+  mutate(
+    planned   = lines * per_line,                                 # planned
+    pct_quads = 100 * n_quads / planned                           # % sampled
+  ) |>
+  filter(n_quads >= 5, is.finite(pct_quads))
+
+# Check
+effort |> count(grp)
+summary(effort$pct_quads)
+
+
+```
+
+# Sites sampled by both groups
+```{r}
+# ---- 1. Sites sampled by both groups ---------------------------------------
+site_eff <- effort |>
+  filter(is.finite(pct_quads), grp %in% c("K-12 schools", "Coordinator")) |>
+  mutate(pct_quads = pmin(pct_quads, 100))   # cap over-100% values at 100
+
+shared_sites <- site_eff |>
+  group_by(site_name) |>
+  filter(n_distinct(grp) == 2) |>
+  distinct(site_name) |>
+  pull(site_name)
+
+shared_sites            # check: the sites used in the comparison
+
+eff_shared <- site_eff |> 
+  filter(site_name %in% shared_sites)
+```
+
+
+```{r}
+# ---- 2. One row per site: school mean vs Coordinator mean ------------------
+site_pairs <- eff_shared |>
+  group_by(site_name, grp) |>
+  summarise(mean_eff = mean(pct_quads), n = n(), .groups = "drop") |>
+  pivot_wider(names_from = grp, values_from = c(mean_eff, n)) |>
+  rename(school = `mean_eff_K-12 schools`, coord = mean_eff_Coordinator,
+         n_school = `n_K-12 schools`, n_coord = n_Coordinator) |>
+  mutate(diff = school - coord)
+
+site_pairs
+
+site_pairs |> 
+  select(site_name, school, coord, diff) |> 
+  arrange(diff)
+```
+
+
+```{r}
+# Numbers for the write-up
+site_pairs |>
+  summarise(n_sites        = n(),
+            schools_lower  = sum(diff < 0),
+            same           = sum(diff == 0),
+            schools_higher = sum(diff > 0),
+            mean_gap       = mean(diff),
+            median_gap     = median(diff),
+            n_used_in_test = sum(diff != 0))
+
+
+# ---- 3. Paired test: within sites, do schools differ from the Coordinator? -
+paired_test <- wilcox.test(site_pairs$school, site_pairs$coord,
+                           paired = TRUE, exact = FALSE)
+paired_test
+p_txt <- if (paired_test$p.value < 0.001) "p < 0.001" else
+           paste0("p = ", signif(paired_test$p.value, 2))
+
+#NO CONSISTENT DIFFERENCE
+```
+
+```{r}
+#overall_sites   # school_mean, coord_mean, mean_diff
+
+site_pairs |>
+  select(site_name, school, coord, diff) |>
+  arrange(diff) |>
+  mutate(across(c(school, coord, diff), ~ round(.x, 1)))
+
+overall_sites <- site_pairs |>
+  summarise(school_mean = round(mean(school), 1),
+            coord_mean  = round(mean(coord), 1),
+            mean_diff   = round(mean(diff), 1))
+
+overall_sites
+```
+
+
+```{r}
+# ---- 4. Figure: one line per site, Coordinator -> schools ------------------
+plot_d <- site_pairs |>
+  mutate(site_lab = paste0(site_name, " (", n_school, " vs ", n_coord, ")"),
+         site_lab = fct_reorder(site_lab, diff)) |>
+  pivot_longer(c(school, coord), names_to = "who", values_to = "effort") |>
+  mutate(who = recode(who, school = "K-12 schools", coord = "Coordinator"))
+
+p_effort_sites <- ggplot(plot_d, aes(x = effort, y = site_lab)) +
+  geom_vline(xintercept = 100, linetype = "dashed", colour = "grey60") +
+  geom_line(aes(group = site_lab), colour = "grey75", linewidth = 1) +
+  geom_point(aes(colour = who), size = 3.5) +
+  scale_colour_manual(values = c("K-12 schools" = "grey35",
+                                 "Coordinator"  = "darkorange")) +
+  scale_x_continuous(limits = c(0, 100), labels = function(x) paste0(x, "%")) +
+  labs(x = "Planned quadrats actually sampled (mean per site)",
+       y = NULL, colour = NULL,
+       title = "Effort completeness at sites sampled by both groups",
+       subtitle = paste0("Short lines = similar effort. Paired Wilcoxon across ",
+                         nrow(site_pairs), " shared sites: ", p_txt),
+       caption = paste0("Numbers in brackets: school surveys vs Coordinator surveys ",
+                        "at that site (2016–2020).\nEffort capped at 100% per survey.")) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top", plot.title = element_text(face = "bold"))
+
+print(p_effort_sites)
+
+ggsave(here("Mai", "output", "fig_effort_same_sites.png"),
+       p_effort_sites, width = 7, height = 6, dpi = 300, bg = "white")
+
+```
+At the 10 shared sites, schools sampled on average 39.8% of planned quadrats vs 33.3% for the Coordinator; schools were lower at Sand Island, Waipuilani, Diamond Head,Sandy Beach, Ewa Beach of 10 sites, with the largest gaps at Barbers Point, Maili Beach, Old Airport, Waipouli. (paired Wilcoxon, p = 0.2622).
+
+```{r}
+
+```
+ 
+ 
+```{r}
+# Coordinator median effort at each site
+coord_site <- effort |>
+  filter(grp == "Coordinator") |>
+  group_by(site_name) |>
+  summarise(coord_eff = median(base::pmin(pct_quads, 100)), .groups = "drop")
+
+# Each school: its median effort, and the Coordinator's at the same sites
+school_eff <- effort |>
+  filter(grp == "K-12 schools") |>
+  inner_join(coord_site, by = "site_name") |>          # shared sites only
+  mutate(pct_quads = base::pmin(pct_quads, 100)) |>
+  group_by(school = name_of_school) |>
+  summarise(n          = n(),
+            school_eff = median(pct_quads),
+            coord_eff  = median(coord_eff),
+            .groups = "drop") |>
+  mutate(label = fct_reorder(paste0(school, " (", n, ")"), school_eff))
+
+p_lollipop <- ggplot(school_eff, aes(y = label)) +
+  geom_vline(xintercept = 100, linetype = "dashed", colour = "grey60") +
+  geom_segment(aes(x = 0, xend = school_eff, yend = label), colour = "grey80") +
+  geom_point(aes(x = coord_eff,  colour = "OPIHI Coordinator (same sites)"),
+             shape = 18, size = 4) +
+  geom_point(aes(x = school_eff, colour = "School"), size = 3.2) +
+  scale_colour_manual(values = c("School" = "steelblue",
+                                 "OPIHI Coordinator (same sites)" = "darkorange")) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 25),
+                     labels = function(x) paste0(x, "%")) +
+  labs(x = "Planned quadrats sampled (median per school)", y = NULL, colour = NULL,
+       title = "Effort completeness: each school vs the OPIHI Coordinator") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top",
+        panel.grid.major.y = element_blank(),
+        plot.title = element_text(face = "bold"))
+
+print(p_lollipop)
+
+ggsave(here("Mai", "output", "fig_effort_same_sites_p1.png"),
+       p_effort_sites, width = 7, height = 6, dpi = 300, bg = "white")
+
+```
+
+Figure 1A. Effort completeness of each K-12 school compared with the OPIHI Coordinator, 2016–2020. The x-axis exhibits the percentage of planned quadrats sampled (pct_quads = transect lines × quadrats per line/ quadrats recorded); the y-axis lists schools, ordered from lowest to highest completeness. Blue circles show each school’s median across its surveys (number of surveys in parentheses); orange diamonds show the Coordinator’s median effort at the same sites that school sampled. The dashed line marks 100% (full protocol). Only schools that sampled at least one site also surveyed by the Coordinator are included, and surveys with fewer than five quadrats were excluded. 
+
+```{r}
+
+# ---- 1. Sites sampled by both groups in that year --------------------------
+eff_19 <- effort |>
+  filter(is.finite(pct_quads),
+         grp %in% c("K-12 schools", "Coordinator"),
+         yr == 2019) |>                          # change 'year' if your column is named differently
+  mutate(pct_quads = pmin(pct_quads, 100))       # cap over-100% values at 100
+
+shared_sites <- eff_19 |>
+  group_by(site_name) |>
+  filter(n_distinct(grp) == 2) |>
+  distinct(site_name) |>
+  pull(site_name)
+
+shared_sites            # check: the sites used in the comparison
+length(shared_sites)    # how many shared sites in this year
+
+eff_shared <- eff_19 |> 
+  filter(site_name %in% shared_sites)
+
+count(eff_19)
+eff_19
+```
+
+
+
+
+
