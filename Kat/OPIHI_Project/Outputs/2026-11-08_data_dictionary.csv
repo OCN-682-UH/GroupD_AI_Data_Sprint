@@ -23,7 +23,7 @@ visitors,"(uncertain -- what is a ""visitor""?) How many visitors were present?"
 fishing,How many people were fishing at the site?
 collecting,(uncertain -- what is meant by collecting?) How many people were collecting at the site?
 what_collecting,What is being collected from the site?
-method,(uncertain) Is this record from a transect or a quadrat?
+method, two methods used: transect and quadrats
 total_number_of_transect_lines,(uncertain) The total number of transect lines during the sampling event
 length_of_transect_line,The length of the transect line being sampled from
 longest_t_m,(uncertain) The longest transect line in the group in meters (?)
@@ -37,7 +37,7 @@ quadrat_id,The quadrat number the organism/substrate observation was recorded
 point_id,The point number the organism/substrate observation was recorded
 quadrat_location_m,(uncertain) The location of the quadrat in meters (?)
 quadrat_total_points,The total number of quadrat points 
-p1_or_p2,(uncertain)
+p1_or_p2,two groups in 2023 data (P1 and P2)
 organism_or_substrate_type,The name of the organism or substrate type observed by this row.
 category,Is the observation an organism or a substrate?
 count,The number of the organisms or substrate types observed by this row.
