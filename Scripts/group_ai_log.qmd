@@ -12,17 +12,23 @@ execute:
   eval: true       # run all chunks (the default)
 ---
 
-## Group AI Developer Log
+## OPIHI Project - Group AI Developer Log
 
 Our group used a number of different AI models to clean our datasets as we had each taken on a few years of data to clean separately. The bulk of our cleaning and any further AI usage are detailed in our individual cleaning scripts that are linked in our repositoryʻs README.
 
-Here are some examples of AI usage below with comments provided to avoid throwing all the times we used AI because it was a lot.
+Here are some examples of AI usage below with comments provided to avoid throwing all the times we used AI at you because it was a lot.
 
-### Fixing Species names using Gemini 
+```{r}
+#load libraries
+library(here)
+library(tidyverse)
+```
+
+### AI Usage Example: Fixing Species names using Gemini 
 
 I used Gemini to generate code to join my OPIHI 2024 and master OPIHI data sets together. I did not provide any of the actual data to Gemini, only the column names. Specifically, I asked Gemini to identify any columns (namely for the different species counts) that may have spelling differences but refer to the same species/genus. I did ask Gemini to preserve any individual species instead of combining together into genus.
 
-User prompt: can you identify any columns that might have spelling differences but refer to the same thing (after providing all said columns of datasheet)
+**User prompt**: can you identify any columns that might have spelling differences but refer to the same thing (after providing all said columns of datasheet)
 
 ### ---Gemini Outputs (ai-generated)---
 
@@ -108,4 +114,252 @@ User prompt: can you identify any columns that might have spelling differences b
 | num_of_quad_t | x_quad_t | Number of quadrat transects (# Quad T). |
 | stop_time | end_time | Survey conclusion time. |
 
-### End of Gemini Outputs
+### --End of Gemini Outputs—
+
+Here, using Gemini was helpful for spotting things such as spelling mistakes or differences across different data frames, especially when there were spelling differences for the same species. However, our group was not very familiar with any of these species listed and so this Gemini output did have to go through some checking (basically just with the field guide provided for us) and even then we were not super confident in using this output. However, I think if we were stronger experts in this field I could see how helpful this output would be for catching small spelling mistakes among all the various species listed.
+
+### AI Usage Example 2: Cleaning OPIHI 2019 data with Gemini
+
+Our next example was cleaning the 2019 OPIHI datasheet with Gemini before we could join it to the rest of the data. All school names were redacted and recoded with numbers prior to uploading to Gemini for privacy reasons. After using Gemini, school names will be manually put back into the data for data analysis purposes.
+
+With the redacted data sheet, we asked Gemini to once again clean all the separate field trip entries into one clean datasheet with an R script. We asked it to ignore all data after row 54, which is when there are some rows for totals per species and not raw data itself.
+
+(after running Gemini, we realized that one of the school names were not redacted :( We should have double checked everything prior to uploading it to AI.
+
+### ---Gemini Outputs —-
+
+```{r}
+#ai-generated code
+
+# 1. Read the raw 2019 CSV dataset
+raw_data <- read_csv(here("Mei", "Data", "opihi_2019_ai.csv"), col_names = FALSE, show_col_types = FALSE)
+
+# 2. Identify all survey block starting column indices (where row 1 == "Date")
+block_start_cols <- which(raw_data[1, ] == "Date")
+
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 3. Block parser function that strictly caps row reading at row 54
+parse_survey_block_2019 <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # --- Extract Metadata (Rows 1 to 11) ---
+  # Handle cases where Location key/val might be in adjacent columns
+  meta_df <- tibble(
+    key = raw_data[1:11, meta_label_col][[1]] %>% as.character() %>% str_trim(),
+    val = raw_data[1:11, meta_val_col][[1]]
+  ) %>%
+    filter(!is.na(key), key != "", key != "NA") %>%
+    pivot_wider(names_from = key, values_from = val, values_fn = first)
+  
+  # Check if location is recorded in nearby cell if omitted in key column
+  if (!"Location" %in% names(meta_df) || is.na(meta_df$Location)) {
+    loc_val <- raw_data[8, meta_val_col + 1][[1]]
+    if (!is.na(loc_val) && str_trim(loc_val) != "") {
+      meta_df$Location <- as.character(loc_val)
+    }
+  }
+  
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Locate 'Organisms' header row (typically row 13)
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # --- Cap reading strictly to Row 54 ---
+  max_row_limit <- min(nrow(raw_data), 54)
+  
+  # Extract quadrat header names (e.g. T-1 Q-1 at point 0.00)
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "" & quadrat_names != "NA")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract species rows from (org_row_idx + 1) up to row 54
+  species_rows <- (org_row_idx + 1):max_row_limit
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(!is.na(species_names) & species_names != "" & species_names != "NA" & !str_detect(str_to_upper(species_names), "TOTALS"))
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build species count matrix for this block
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape long format to wide quadrat sample table
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  bind_cols(meta_df, long_counts)
+}
+
+# 4. Parse all blocks and stack into a single unified dataframe
+combined_dataset_2019 <- map_dfr(block_ranges, ~ parse_survey_block_2019(.x[1], .x[2]))
+
+# 5. Order metadata columns and alphabetically sort all species columns
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset_2019), metadata_cols)
+
+combined_dataset_2019 <- combined_dataset_2019 %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 6. Save the consolidated spreadsheet to CSV
+write_csv(combined_dataset_2019, "clean_opihi_2019_ai.csv")
+
+```
+
+Some notes - most of the data looks good here but the Location is not filled in for some of the field trips because the columns were off by 1, we might have to manually change that ourselves and rerun it.
+
+```{r}
+#ai-generated code
+
+
+# 1. Read raw CSV dataset
+#raw_data <- read_csv("Data/opihi_2019_ai.csv", col_names = FALSE, show_col_types = FALSE)
+
+# 2. Identify all survey block starting column indices (where row 1 == "Date")
+block_start_cols <- which(raw_data[1, ] == "Date")
+
+num_cols <- ncol(raw_data)
+block_ranges <- map2(
+  block_start_cols,
+  c(block_start_cols[-1] - 1, num_cols),
+  ~ c(.x, .y)
+)
+
+# 3. Block parser function that strictly caps row reading at row 54
+parse_survey_block_2019 <- function(start_col, end_col) {
+  meta_label_col <- start_col
+  meta_val_col   <- start_col + 1
+  
+  # --- Extract Metadata (Rows 1 to 11) ---
+  meta_df <- tibble(
+    key = raw_data[1:11, meta_label_col][[1]] %>% as.character() %>% str_trim(),
+    val = raw_data[1:11, meta_val_col][[1]]
+  ) %>%
+    filter(!is.na(key), key != "", key != "NA") %>%
+    pivot_wider(names_from = key, values_from = val, values_fn = first)
+  
+  # Ensure location value is captured if offset by a column
+  if (!"Location" %in% names(meta_df) || is.na(meta_df$Location)) {
+    loc_val <- raw_data[8, meta_val_col + 1][[1]]
+    if (!is.na(loc_val) && str_trim(loc_val) != "") {
+      meta_df$Location <- as.character(loc_val)
+    }
+  }
+  
+  standard_meta <- c(
+    "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+    "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+    "Location", "latitude", "longitude", "School"
+  )
+  for (m in standard_meta) {
+    if (!m %in% names(meta_df)) meta_df[[m]] <- NA_character_
+  }
+  
+  # Locate 'Organisms' header row (typically row 13)
+  org_row_idx <- which(raw_data[12:20, meta_label_col][[1]] == "Organisms") + 11
+  if (length(org_row_idx) == 0) return(NULL)
+  
+  # --- Cap reading strictly to Row 54 ---
+  max_row_limit <- min(nrow(raw_data), 54)
+  
+  # Extract quadrat header names (e.g. T-1 Q-1 at point 0.00)
+  quadrat_cols <- meta_val_col:end_col
+  quadrat_names <- raw_data[org_row_idx, quadrat_cols] %>% unlist() %>% as.character() %>% str_trim()
+  
+  valid_quad_indices <- which(!is.na(quadrat_names) & quadrat_names != "" & quadrat_names != "NA")
+  if (length(valid_quad_indices) == 0) return(NULL)
+  
+  quadrat_cols <- quadrat_cols[valid_quad_indices]
+  quadrat_names <- quadrat_names[valid_quad_indices]
+  
+  # Extract individual quadrat species rows from (org_row_idx + 1) up to row 54
+  species_rows <- (org_row_idx + 1):max_row_limit
+  species_names <- raw_data[species_rows, meta_label_col][[1]] %>% as.character() %>% str_trim()
+  
+  valid_spec_indices <- which(
+    !is.na(species_names) & 
+      species_names != "" & 
+      species_names != "NA" & 
+      !str_detect(str_to_upper(species_names), "TOTALS")
+  )
+  if (length(valid_spec_indices) == 0) return(NULL)
+  
+  species_rows <- species_rows[valid_spec_indices]
+  species_names <- species_names[valid_spec_indices]
+  
+  # Build count matrix for individual quadrats
+  counts_mat <- raw_data[species_rows, quadrat_cols]
+  colnames(counts_mat) <- quadrat_names
+  counts_mat$Organism <- species_names
+  
+  # Reshape long format to wide quadrat sample table
+  long_counts <- counts_mat %>%
+    pivot_longer(
+      cols = -Organism, 
+      names_to = "Quadrat_Sample", 
+      values_to = "Count"
+    ) %>%
+    mutate(Count = suppressWarnings(as.numeric(Count)), Count = ifelse(is.na(Count), 0, Count)) %>%
+    pivot_wider(names_from = Organism, values_from = Count, values_fn = max, values_fill = 0)
+  
+  bind_cols(meta_df, long_counts)
+}
+
+# 4. Process all blocks into a single combined dataframe
+combined_dataset_2019_2 <- map_dfr(block_ranges, ~ parse_survey_block_2019(.x[1], .x[2]))
+
+# 5. Arrange metadata columns first, followed by alphabetically sorted species columns
+metadata_cols <- c(
+  "Date", "Start Time", "Stop Time", "Number of Transect Lines",
+  "Length of Transect Lines", "Point Spacing", "Number of Quadrats per transect",
+  "Location", "latitude", "longitude", "School", "Quadrat_Sample"
+)
+
+species_cols <- setdiff(names(combined_dataset_2019_2), metadata_cols)
+
+combined_dataset_2019_2 <- combined_dataset_2019_2 %>%
+  select(all_of(metadata_cols), sort(species_cols)) %>%
+  mutate(across(all_of(species_cols), ~ replace_na(as.numeric(.), 0)))
+
+# 6. Save consolidated CSV file
+#write_csv(combined_dataset_2019_2, "clean_opihi_2019_ai.csv")
+```
+
+Everytime we ran Gemini and got an output (in this case, a new csv), we made sure to look through the data and check that everything looked right and was in the right place. We did not do a super rigorous check such as check every single row of data, but we did do a through scroll through everything. For example, that was how we knew that the Location column was off in our example above.
+
+As long as we were consistently checking all the Gemini outputs, we felt that using AI was a helpful tool for some of the more tedious tasks in coding. This was especially true for all these data files that had different formats over the years, different column names, and sometimes missing data/metadata at times.
