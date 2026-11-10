@@ -115,12 +115,104 @@ For the following plot, we decided to subset the survey efforts from 2019 only t
 
 <h3>Function</h3>
 
-(Nick's section)
+This function is called New_Species_Check, and it is designed to compare the species logged in a given year's data (for the data format up to 2020) with a master template of all the species collected across all years. It identifies unique species values by recognizing that they appear in lines 14-62 in the same column as the word "Date", which anchors each individual form. All of the species IDs are tallied across the forms, and this list is compared against the species columns present in the master template. The output lists the total number of unique species detected, how many are new and not found on the master, and lists all the new species. As a diagnostic tool, it would be useful to quickly glance at whether new values are indeed new unlisted species, or are previously logged species that were not entered the same.
+
+To test the function, I used the opihi_2024 data that Mei cleaned as a master template, but any file containing columns for known species would work. I tested the output by entering both the 2017 and 2018 raw data to ensure that the outputs made sense and were different.
 
 ```{r}
 #| label: Function code
 #| results: hide
 
+#raw data sheet for given year
+OPIHI_2018_raw_data <- here("Nick","Data","OPIHI_data_2018.xlsx")
 
+#sheet name
+sheet <- "OPIHI data 2018"
+
+#master template sheet
+OPIHI_master_template <- here("Nick","Data","opihi_2024.csv")
+
+New_Species_Check <- function(excel_file_path, sheet_name, master_template_path) {
+  
+  wb <- loadWorkbook(excel_file_path)
+  
+  # Read the master blueprint file headers exactly as written
+  master_df <- read_csv(master_template_path, name_repair = "minimal", show_col_types = FALSE)
+  master_species <- colnames(master_df)
+  
+  # Find every column coordinate where Row 1 is exactly "Date"
+  entire_anchor_row <- readWorkbook(wb, sheet = sheet_name, rows = 1, colNames = FALSE, skipEmptyCols = FALSE)
+  date_columns      <- which(as.character(entire_anchor_row) == "Date")
+  
+  if (length(date_columns) == 0) {
+    stop("Could not find the word 'Date' in Row 1. Check your worksheet layout.")
+  }
+  
+  # Read rows 14 to 62 for EVERY column on the sheet at the exact same time.
+  huge_grid <- readWorkbook(
+    wb, 
+    sheet         = sheet_name, 
+    rows          = 14:62, 
+    colNames      = FALSE, 
+    skipEmptyCols = FALSE, 
+    skipEmptyRows = FALSE  
+  )
+  
+  # Pull only the columns that had "Date" written in row 1
+  selected_grid <- huge_grid[, date_columns, drop = FALSE]
+  
+  # Convert to a raw matrix first, then flatten to a character vector.
+  # This completely breaks the data frame structure and guarantees separate text lines.
+  all_found_organisms <- as.character(as.matrix(selected_grid))
+  
+  # Standardize and clean all extracted species text strings
+  clean_found_organisms <- all_found_organisms %>%
+    str_trim() %>%                           
+    str_to_lower() %>%                       
+    str_replace_all(" ", "_") %>%            
+    str_replace_all("-", "_") %>%            
+    str_replace_all("spp", "sp")             
+  
+  # Strip out worksheet layout text fillers and numeric tracking flags
+  clean_found_organisms <- clean_found_organisms[
+    !is.na(clean_found_organisms) & 
+      clean_found_organisms != "" & 
+      clean_found_organisms != "na" &
+      clean_found_organisms != "organism" & 
+      clean_found_organisms != "unknown" & 
+      clean_found_organisms != "totals:" &
+      !str_detect(clean_found_organisms, "^\\d+\\.\\d+$") & 
+      !str_detect(clean_found_organisms, "^\\d+$")          
+  ]
+  
+  # Condense down to a single unique pool of species across ALL forms at once
+  clean_found_organisms <- unique(clean_found_organisms)
+  
+  # Evaluate what is in the Excel file versus your Master CSV blueprint
+  new_species_discovered <- setdiff(clean_found_organisms, master_species)
+  
+  cat("\n=== SPECIES CHECK COMPLETED ===\n")
+  cat(sprintf("Forms scanned: %d\n", length(date_columns)))
+  cat(sprintf("Total unique species found in Excel: %d\n", length(clean_found_organisms)))
+  
+  if (length(new_species_discovered) > 0) {
+    cat(sprintf("⚠️ ALERT: Found %d BRAND NEW species names not in your Master List:\n", length(new_species_discovered)))
+    print(new_species_discovered)
+  } else {
+    cat("✅ SUCCESS: All species match your current Master List layout perfectly.\n")
+  }
+  cat("================================\n\n")
+  
+  return(sort(clean_found_organisms))
+}
+
+#check on functionality for 2018 data
+OPIHI_2018_new_species <- New_Species_Check(OPIHI_2018_raw_data,sheet,OPIHI_master_template)
+
+#check on functionality for 2017 data
+OPIHI_2017_raw_data <- here("Nick","Data","OPIHI_data_2017.xlsx")
+sheet2 <- "OPIHI data 2017"
+
+OPIHI_2017_new_species <- New_Species_Check(OPIHI_2017_raw_data,sheet2,OPIHI_master_template)
 
 ```
