@@ -28,6 +28,8 @@ This was a challenging task to be honest, however using AI was super helpful. Th
 
 Overall, this project taught me how to use AI ethically, especially using sensitive information types of datasets. Each survey given provided tedious codes that did not make sense to me, and also did not work, and needed manual checking. I am still learning Rstudio and best way was learning to do majority of this manually. AI alleviated most of the hard tedious stuff. 
 
+---
+
 ### Nick Mattson
 For this project, I cleaned and reformatted the 2017, 2018, and 2025 datasets. After Kat compiled our various datasets into a combined master csv, I then ran code on it to anonymize any human names in the dataset and render a new output csv as well as a key file that can be sent to Dr. Philippoff for decoding. I also cleaned the “year” column by having it pull values from the adjacent “Date” column. I created a function that can be used to parse datasets from individual years for new species entries, which are then returned as a list of unique values. My hope is that by running data from individual years and comparing the species values from those files against a master template of all species encountered over the years, it is possible to quickly identify whether “new species” are actually newly encountered species, or simply existing species with slight syntax differences. I also created the structure and formatting for the Quarto report file so that other team members could add their contributions to it.
 	
