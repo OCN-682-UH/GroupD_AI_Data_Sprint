@@ -13,7 +13,7 @@ Authors: Mei Iwamoto, Nick Mattson, Mai Tago, Kat Viehl
 ### Individual Cleaning Scripts
 * Nick (2017,2018,2025) - [Link to Cleaning Script](https://01a1c734-e631-fa5b-4836-49abda612f71.share.connect.posit.cloud/)
 * Mei (2019, 2020, 2024) - [Link to Cleaning Script](https://01a1c6d5-b440-cc18-30ec-869052dba144.share.connect.posit.cloud)
-* Mai (years cleaned)
+* Mai (2006, 2007, 2016,2023) - [Link to Cleaning Script](https://01a1c79b-d42f-5cfe-4f94-28ed4672f9b1.share.connect.posit.cloud)
 * Kat (2004, 2005, 2008, 2026) - [Link to Cleaning Script](https://01a1c448-488c-8573-3e24-f72a85a0e88c.share.connect.posit.cloud)
 
 
